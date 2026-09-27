@@ -47,3 +47,49 @@ test("favicon.ico is served", async ({ request }) => {
   const response = await request.get("/favicon.ico");
   expect(response.status()).toBe(200);
 });
+
+for (const locale of ["en", "vi"]) {
+  test(`/${locale} has exactly one h1`, async ({ page }) => {
+    await page.goto(`/${locale}`);
+    await expect(page.locator("h1")).toHaveCount(1);
+  });
+
+  test(`/${locale} renders the About, Skills, and Contact sections`, async ({
+    page
+  }) => {
+    await page.goto(`/${locale}`);
+    for (const id of ["about", "skills", "contact"]) {
+      await expect(page.locator(`section#${id} h2`)).toBeVisible();
+    }
+  });
+}
+
+test("the hero CV button downloads /cv.pdf", async ({ page }) => {
+  await page.goto("/en");
+  const cv = page.locator("#top").getByRole("link", { name: "Download CV" });
+  await expect(cv).toHaveAttribute("href", "/cv.pdf");
+  await expect(cv).toHaveAttribute("download", "");
+});
+
+test("the contact section links to email", async ({ page }) => {
+  await page.goto("/en");
+  await expect(
+    page.locator("#contact").getByRole("link", {
+      name: "nguyenthanhdat22012001@gmail.com"
+    })
+  ).toHaveAttribute("href", "mailto:nguyenthanhdat22012001@gmail.com");
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("the home page content is fully rendered", async ({ page }) => {
+    await page.goto("/en");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Nguyen Thanh Dat"
+    );
+    for (const id of ["about", "skills", "contact"]) {
+      await expect(page.locator(`section#${id} h2`)).toBeVisible();
+    }
+  });
+});

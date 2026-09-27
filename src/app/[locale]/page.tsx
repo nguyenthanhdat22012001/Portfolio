@@ -1,5 +1,8 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { AboutSection } from "@/features/about/AboutSection";
+import { ContactSection } from "@/features/contact/ContactSection";
 import { HeroSection } from "@/features/hero/HeroSection";
+import { SkillsSection } from "@/features/skills/SkillsSection";
 import { buildMetadata } from "@/shared/seo/build-metadata";
 
 export async function generateMetadata({
@@ -26,5 +29,12 @@ export default async function HomePage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <HeroSection />;
+  return (
+    <>
+      <HeroSection />
+      <AboutSection />
+      <SkillsSection />
+      <ContactSection />
+    </>
+  );
 }

@@ -19,16 +19,21 @@ export function LocaleSwitcher({
 
   return (
     <nav aria-label={label}>
-      <ul className="flex items-center gap-1 font-mono text-sm">
-        {routing.locales.map((locale) => (
-          <li key={locale}>
+      <ul className="border-border flex h-9 items-center rounded-md border px-3 font-mono text-[0.8125rem]">
+        {routing.locales.map((locale, index) => (
+          <li key={locale} className="flex items-center">
+            {index > 0 ? (
+              <span aria-hidden="true" className="text-fg-muted px-1.5">
+                /
+              </span>
+            ) : null}
             <Link
               href={pathname}
               locale={locale}
               hrefLang={locale}
               aria-current={locale === current ? "true" : undefined}
               className={cx(
-                "rounded-card px-2 py-1",
+                "py-1",
                 locale === current
                   ? "text-accent"
                   : "text-fg-muted hover:text-fg"

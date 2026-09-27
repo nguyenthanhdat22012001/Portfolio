@@ -14,21 +14,20 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
   const tTheme = await getTranslations("theme");
   const hasPosts = getPosts(locale).length > 0;
 
+  const linkClass = "text-fg-muted hover:text-fg font-mono text-sm";
+
   const links = (
-    <ul className="flex flex-col gap-4 md:flex-row md:gap-6">
+    <ul className="flex flex-col gap-4 md:flex-row md:gap-10">
       {sections.map((id) => (
         <li key={id}>
-          <Link
-            href={{ pathname: "/", hash: id }}
-            className="text-fg-muted hover:text-fg text-sm"
-          >
+          <Link href={{ pathname: "/", hash: id }} className={linkClass}>
             {t(id)}
           </Link>
         </li>
       ))}
       {hasPosts ? (
         <li>
-          <Link href="/blog" className="text-fg-muted hover:text-fg text-sm">
+          <Link href="/blog" className={linkClass}>
             {t("blog")}
           </Link>
         </li>
@@ -45,18 +44,21 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
         {t("skipToContent")}
       </a>
       <header className="border-border bg-bg/90 sticky top-0 z-40 border-b backdrop-blur">
-        <Container className="flex h-16 items-center justify-between gap-4">
+        <Container
+          size="wide"
+          className="flex h-16 items-center justify-between gap-4 md:h-20"
+        >
           <Link
             href="/"
             aria-label={t("homeLabel")}
-            className="font-mono text-sm font-semibold"
+            className="font-mono text-lg font-bold tracking-[-0.02em]"
           >
             {t("brand")}
           </Link>
           <nav aria-label={t("primary")} className="hidden md:block">
             {links}
           </nav>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <LocaleSwitcher
               current={locale}
               label={t("language")}
@@ -64,8 +66,19 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
             />
             <ThemeToggle label={tTheme("toggle")} />
             <details className="relative md:hidden">
-              <summary className="rounded-card border-border cursor-pointer list-none border px-3 py-2 font-mono text-sm">
-                {t("menu")}
+              <summary className="border-border text-fg inline-flex size-9 cursor-pointer list-none items-center justify-center rounded-md border [&::-webkit-details-marker]:hidden">
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="size-4"
+                >
+                  <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+                <span className="sr-only">{t("menu")}</span>
               </summary>
               <nav
                 aria-label={t("primary")}

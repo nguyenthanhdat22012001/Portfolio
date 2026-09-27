@@ -19,6 +19,13 @@ test("the header lists section links", async ({ page }) => {
   }
 });
 
+test("the brand reads dat.nguyen and links home by name", async ({ page }) => {
+  await page.goto("/en/work/swift-performance");
+  const brand = page.getByRole("link", { name: "Nguyen Thanh Dat — home" });
+  await expect(brand).toHaveText("dat.nguyen");
+  await expect(brand).toHaveAttribute("href", /^\/en\/?$/);
+});
+
 test("the locale switcher keeps the page and changes language", async ({
   page
 }) => {
@@ -55,7 +62,7 @@ test.describe("mobile", () => {
 
   test("the menu opens and its links are reachable", async ({ page }) => {
     await page.goto("/en");
-    await page.getByText("Menu", { exact: true }).click();
+    await page.locator("summary", { hasText: "Menu" }).click();
     const mobileNav = page.getByRole("navigation", { name: "Primary" });
     await expect(mobileNav.getByRole("link", { name: "Skills" })).toBeVisible();
   });

@@ -1,0 +1,83 @@
+---
+slug: oneloyalty-layered-architecture
+title: "Oneloyalty: from two tangled repos to a layered monorepo"
+summary: "Merging a Shopify admin app and its storefront extension into a Turborepo monorepo, migrating Feature-Driven code to a Layered Architecture, and designing a dependency-injection loader for 8-language i18n."
+locale: en
+tags: ["Architecture", "Turborepo", "Monorepo", "i18n", "TypeScript", "Shopify"]
+dateCreated: 2024-06-01
+---
+
+## Context
+
+[Oneloyalty](https://apps.shopify.com/oneloyalty) is a loyalty and rewards suite for Shopify
+merchants: an embedded admin app plus storefront extensions, available in 8 languages. I worked
+on it as a Middle Front-End Engineer from June 2024 to August 2026.
+
+## Problem
+
+The product lived in two repositories: the admin app and the storefront extension. The admin app
+needed the extension's UI, so components were duplicated. Our first fix was to publish the shared
+UI to the GitLab Package Registry — which meant access tokens for everyone and a slow
+build → `npm link` → test → publish loop for every small UI change.
+
+A second problem surfaced once we started moving code. The codebase was organized by feature, but
+features imported each other's hooks and types freely: A used B, B used A and C. Pulling any one
+feature out triggered a cascade of breakages.
+
+And all of this happened during a near-total feature revamp with a tight deadline.
+
+## Solution
+
+**1. One monorepo.** A senior engineer chose Turborepo and set up the workspace; the admin apps,
+storefront extensions, and shared packages (`packages/ui`, `packages/i18n`) moved into it. Shared
+packages are consumed via the workspace protocol — edit a component once and every app sees it,
+no publishing.
+
+**2. Feature-Driven → Layered Architecture.** We froze new features for a short window and split
+the migration by ownership. Features that others depended on most (such as the rewards inventory)
+went first, then core earn/redeem flows, then the rest. I owned the migration of Rewards,
+Settings, Campaign, and Gamification, plus the shared UI and i18n layers.
+
+The hardest part was the shared UI components. There were many, so they moved gradually — and
+when a production hotfix landed on a component that was mid-migration, it had to be applied in
+both places the same day so the fix wouldn't be lost.
+
+### Deep dive: breaking the dependency knot
+
+A typical example was `TDataRewards`, the type describing reward data. It was defined inside the
+Rewards feature, yet Campaign and VIP Tier imported it directly. A reward is a system-wide entity,
+not a Rewards-feature detail — defining it there made unrelated features depend on Rewards'
+internals, the kind of coupling that becomes a true cycle as the system grows.
+
+The fix was to lift it into a neutral shared layer. Rewards, Campaign, and VIP Tier now import
+from that layer instead of from each other.
+
+### Deep dive: i18n with injected loaders
+
+I designed the loader architecture for `packages/i18n`. The package owns the core configuration —
+the 8 supported languages, English fallback, a singleton `initI18n` — but it does not hard-code
+where translations come from. Each app (admin, storefront) injects its own loader.
+
+Translations are fetched at runtime rather than stored as JSON in the repo, so customer support
+and translators can update copy without a deploy. `Suspense` holds rendering until translations
+arrive, so users never see raw keys flash on screen.
+
+## Results
+
+- Duplication removed across **40+ shared UI components**.
+- One place to change shared UI; fixing one feature stopped breaking another.
+- CI/CD for the whole monorepo kept stable at **5–10 minutes**. Along the way I traced two
+  pipeline failures to their causes: a Node version mismatch in the CI image, and a `prepare` hook
+  that silently ran a nested `npm install` for an unrelated project.
+- The revamp shipped on its deadline, with the architecture migration completed on time.
+
+## Key takeaways
+
+- **Naming an architecture isn't enough — enforce it.** Deadlines erode conventions. Boundary
+  rules such as `eslint-plugin-boundaries` should exist from the first day, not after coupling
+  has set in. (This portfolio's own repo enforces its layers that way.)
+- **Some of the duplication was mine.** During the MVP I treated two differently shaped API
+  responses as two kinds of reward and wrote separate types for each. Consolidating them later
+  taught me to model the domain before modelling the payload.
+- **What I'd add next:** telemetry for missing translation keys, plus a static English bundle as
+  a fallback when the translation API is unavailable.

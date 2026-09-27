@@ -1,0 +1,78 @@
+---
+slug: swift-performance
+title: "Swift: cutting a Shopify app's load time from 12s to 1–3s"
+summary: "Rebuilding a legacy JavaScript Shopify app in strict TypeScript and React 18, shipping route-based code splitting, and designing an internal NPM package adopted by two product teams."
+locale: en
+tags: ["React 18", "TypeScript", "Performance", "Code splitting", "Shopify", "NPM package"]
+dateCreated: 2022-10-01
+---
+
+## Context
+
+[Swift](https://apps.shopify.com/swift) is a Shopify embedded app — an SEO and store-speed suite
+that runs inside the Shopify Admin. I joined in October 2022 as a fresher and worked on it until
+June 2024, alongside a senior front-end engineer who joined partway through.
+
+The irony was hard to miss: a product that sells speed took **12–13 seconds** to show its first
+screen.
+
+## Problem
+
+The client was legacy JavaScript with no type safety, and every route shipped in one bundle.
+Opening the app also meant waiting on a chain of requests: first an auth token from our server,
+then the shop's details and plan, and only then the first render. Each step took seconds.
+
+At the time I didn't have enough evidence to say where the real bottleneck lived. The auth flow
+looked like a leftover from the era when Shopify apps could still run standalone, but that was a
+suspicion, not a finding.
+
+## Solution
+
+**1. Fix what the front end controls first.** Rather than wait for a root-cause verdict, I
+introduced route-based code splitting with `React.lazy` and `Suspense`, so the browser only
+downloaded the code for the screen being opened. That took initial load from ~12–13s to
+**~8–9s**. I logged my auth-flow suspicion so it could be picked up later.
+
+**2. Rebuild on strict TypeScript and React 18.** Together with the senior engineer, I moved the
+core client from JavaScript to strict TypeScript and React 18, overhauling state management
+(Redux Toolkit) and the data layer. The types made the later changes safe to attempt.
+
+**3. Replace the slow auth handshake.** The senior engineer led the migration to App Bridge 2.0
+session tokens, and I collaborated on it along with vendor chunking. A session token is a
+short-lived JWT signed by Shopify; the backend only verifies the signature and claims instead of
+looking anything up, so authentication dropped from seconds to milliseconds.
+
+### Deep dive: an NPM package two teams could adopt independently
+
+Swift and a sister app both needed a store speed-audit UI. I designed and published it as an
+internal NPM package, built around **inversion of control**:
+
+- The component takes plain props (`store_id`, `shopify_domain`, `language`) plus callbacks such
+  as `onClickFixSpeed`. The host app decides what "fix" means; the package never reaches into
+  host internals.
+- React and the shared UI library are `peerDependencies`, not bundled, so host apps never end up
+  with two copies of React and never pay twice in bundle size.
+
+Two teams adopted it and later contributed to it.
+
+## Results
+
+- Initial load: **~12–13s → ~8–9s** from code splitting alone, then **~1–3s** after the
+  session-token migration and vendor chunking.
+- A strictly typed codebase that later changes could be made against with confidence.
+- One shared audit package instead of two diverging implementations.
+
+I also built the UI for the theme-optimization features (JS/CSS minification, image lazy-loading,
+HTML cleanup) and the SEO tooling (alt-text automation, meta tags, structured snippets,
+sitemaps), with merchants verifying the before/after in PageSpeed Insights.
+
+## Key takeaways
+
+- **Ship the win you can prove while you investigate the one you can't.** Code splitting bought
+  ~4 seconds before anyone had confirmed the auth bottleneck.
+- **Load time is a chain, not a bundle.** The biggest gain came from removing a round trip, not
+  from shrinking JavaScript.
+- **What I'd do differently on the package:** its versioning was manual and it had no changelog,
+  so two teams coordinated breaking changes by conversation. Today I'd use Changesets from day
+  one. I'd also authenticate follow-up calls with a short-lived token rather than trusting
+  `store_id` alone.

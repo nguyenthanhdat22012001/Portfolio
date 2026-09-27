@@ -1,0 +1,65 @@
+---
+slug: safebulk-bulk-editor
+title: "SafeBulk: a bulk product editor merchants can trust"
+summary: "Owning the entire front end of a Shopify bulk editor: a 3-step edit wizard, resumable CSV import, long-running job polling, and plan gating across 4 tiers."
+locale: en
+tags: ["React 19", "TypeScript", "TanStack Router", "TanStack Query", "Zustand", "Shopify"]
+dateCreated: 2026-07-01
+---
+
+## Context
+
+SafeBulk is a side project built by a team of two: one backend engineer and me as the sole
+front-end developer. It's a Shopify app for editing products in bulk. The code is public on
+[GitHub](https://github.com/nguyenthanhdat22012001/safe-bulk-shopify), and there's a
+[Loom demo](https://www.loom.com/share/6c30f307347d4555b0214ff8be0ab84f).
+
+**Stack:** React 19, strict TypeScript, TanStack Router and Query, Zustand, the Shopify Admin
+GraphQL API, Docker, and GitHub Actions.
+
+## Problem
+
+Bulk edits are high-stakes. A wrong rule applied to thousands of products is expensive to undo, so
+the interface has to make the consequences visible *before* anything is written. The jobs
+themselves run for a long time on the backend, and merchants on different plans have different
+quotas.
+
+## Solution
+
+**1. Specs before code.** Working with a single backend engineer, I wrote a design spec for each
+feature before building it, so we agreed on API contracts up front instead of reworking them
+later.
+
+**2. A 3-step Bulk Edit Wizard.** Filter the products, configure the rules, then preview the
+result with a per-row severity, so risky changes stand out before the merchant commits.
+
+**3. Resumable CSV import and export,** with a validation preview that surfaces problems before
+the import runs.
+
+### Deep dive: long-running jobs
+
+Bulk jobs outlive a single request. The front end polls job status with React Query conditional
+polling — it polls while a job is running and stops once it finishes — and syncs the job's
+state into the URL. That makes a job link shareable, and it lets a merchant close the tab and come
+back to exactly where they were.
+
+### Deep dive: plan gating across 4 tiers
+
+Features and quotas are gated across four plans. The tricky case was a race condition: a job can
+start within the quota and then hit the quota limit halfway through. The UI has to handle that
+error arriving mid-job, not only at submit time.
+
+## Results
+
+- **~12.6k lines** of TypeScript with no `any`.
+- **520+ i18n keys**, with no hard-coded user-facing copy.
+- Deployed through a multi-stage Docker build and GitHub Actions CI.
+
+## Key takeaways
+
+- **For destructive operations, the preview is the product.** Per-row severity does more for a
+  merchant's confidence than any confirmation dialog.
+- **Put long-running state in the URL.** It makes refreshes, shared links, and resuming work
+  behave the way people expect.
+- **A written spec is cheap insurance with a two-person team.** Every contract agreed on paper
+  was one less round of rework.

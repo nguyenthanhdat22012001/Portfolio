@@ -3,7 +3,8 @@ import { cx } from "@/shared/lib/cx";
 
 const widths = {
   default: "max-w-5xl",
-  narrow: "max-w-3xl"
+  narrow: "max-w-3xl",
+  wide: "max-w-[80rem] lg:px-10"
 } as const;
 
 export function Container({

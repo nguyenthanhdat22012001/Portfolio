@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "title": "Nguyễn Thành Đạt — Kỹ sư Frontend",
+    "description": "Kỹ sư Frontend chuyên về React, TypeScript, hiệu năng và kiến trúc."
+  },
+  "hero": {
+    "title": "Nguyễn Thành Đạt",
+    "tagline": "Tôi xây dựng sản phẩm nhanh chóng và có cấu trúc vững chắc."
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn đang tìm không tồn tại."
+  }
+}

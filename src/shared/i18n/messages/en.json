@@ -1,0 +1,14 @@
+{
+  "meta": {
+    "title": "Nguyen Thanh Dat — Frontend Engineer",
+    "description": "Frontend Engineer specializing in React, TypeScript, performance, and architecture."
+  },
+  "hero": {
+    "title": "Nguyen Thanh Dat",
+    "tagline": "I build products quickly and with solid structure."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist."
+  }
+}

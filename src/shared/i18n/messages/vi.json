@@ -48,19 +48,34 @@
     ]
   },
   "work": {
+    "label": "Dự án tiêu biểu",
     "title": "Dự án tiêu biểu",
     "readCaseStudy": "Đọc case study",
+    "sideProject": "Dự án cá nhân",
+    "links": { "github": "GitHub", "demo": "Demo" },
     "swift": {
-      "metric": "Thời gian tải: 12–13s → 1–3s",
-      "caption": "Thời gian đến màn hình đầu tiên",
-      "before": "Trước",
-      "after": "Sau",
+      "title": "Swift — Bộ công cụ SEO & tốc độ",
+      "summary": "Viết lại client từ JS cũ sang TypeScript strict và React 18, rồi giảm thời gian tải bằng code splitting, session token và tách vendor chunk.",
+      "stats": [
+        { "value": "1–3s", "label": "tải trang, từ 12–13s" },
+        { "value": "2 team", "label": "dùng package NPM nội bộ" }
+      ],
+      "caption": "Tải lần đầu",
+      "beforeLabel": "{value} trước đây",
       "beforeValue": "12–13s",
-      "afterValue": "1–3s"
+      "afterValue": "1–3s",
+      "steps": ["Code splitting", "Session token", "Tách vendor chunk"]
     },
     "oneloyalty": {
-      "metric": "40+ component dùng chung · 8 ngôn ngữ",
-      "caption": "Một lõi i18n, tám ngôn ngữ",
+      "title": "Oneloyalty — Loyalty & Rewards",
+      "summary": "Cùng hợp nhất các Admin app, Storefront extension và package dùng chung vào một Turborepo, chuyển các tính năng của mình sang kiến trúc phân lớp, và thiết kế bộ nạp i18n theo dependency injection.",
+      "stats": [
+        { "value": "40+", "label": "component được gộp lại" },
+        { "value": "5–10 phút", "label": "build CI ổn định" }
+      ],
+      "componentsCaption": "40+ component dùng chung",
+      "i18nCaption": "i18n · 8 ngôn ngữ",
+      "counter": "{current} / {total}",
       "greetings": [
         { "text": "Hello", "lang": "en" },
         { "text": "Xin chào", "lang": "vi" },
@@ -73,12 +88,19 @@
       ]
     },
     "safebulk": {
-      "metric": "Wizard 3 bước · 4 gói dịch vụ · một mình làm front end",
+      "title": "SafeBulk — Trình sửa sản phẩm hàng loạt",
+      "summary": "Front-end developer duy nhất. Wizard chỉnh sửa hàng loạt 3 bước với xem trước từng dòng, import/export CSV có thể tiếp tục, và theo dõi job chạy lâu bằng polling — TypeScript strict, không dùng kiểu any.",
+      "stats": [
+        { "value": "12.6k", "label": "dòng TypeScript" },
+        { "value": "520+", "label": "key i18n" }
+      ],
       "caption": "Wizard chỉnh sửa hàng loạt",
       "stepLabel": "Bước {number}",
-      "steps": ["Lọc sản phẩm", "Thiết lập quy tắc", "Xem trước thay đổi"],
-      "github": "Mã nguồn trên GitHub",
-      "demo": "Xem demo"
+      "steps": [
+        "Lọc sản phẩm",
+        "Thiết lập quy tắc",
+        "Xem trước mức độ từng dòng"
+      ]
     }
   },
   "skills": {

@@ -1,31 +1,66 @@
 import { getTranslations } from "next-intl/server";
+import { cx } from "@/shared/lib/cx";
+import { Eyebrow } from "@/shared/ui/Eyebrow";
 
 interface Greeting {
   text: string;
   lang: string;
 }
 
-// Phase 4 morphs these greetings into one another with SplitText.
+const blockColors = {
+  muted: "bg-bg-muted",
+  fg: "bg-fg-muted",
+  earth: "bg-earth"
+} as const;
+
+// prettier-ignore
+const blocks: ReadonlyArray<keyof typeof blockColors> = [
+  "muted", "fg", "muted", "muted",
+  "muted", "muted", "earth", "muted",
+  "fg", "muted", "muted", "muted"
+];
+
+// Phase 4 morphs the greeting through all eight languages with SplitText.
 export async function OneloyaltyVisual() {
   const t = await getTranslations("work.oneloyalty");
-  const greetings = t.raw("greetings") as Greeting[];
+  const greetings = t.raw("greetings") as [Greeting, ...Greeting[]];
+  const [first] = greetings;
 
   return (
-    <figure className="rounded-card border-border bg-bg-elevated border p-6">
-      <figcaption className="text-fg-muted font-mono text-sm">
-        {t("caption")}
-      </figcaption>
-      <ul className="mt-6 grid grid-cols-2 gap-3">
-        {greetings.map((greeting) => (
-          <li
-            key={greeting.lang}
-            lang={greeting.lang}
-            className="rounded-card border-border border px-3 py-2 font-mono text-sm"
+    <figure className="rounded-card bg-bg-elevated grid gap-8 p-6 sm:grid-cols-2 md:min-h-[27.5rem] md:p-10">
+      <div className="flex flex-col gap-4">
+        <Eyebrow>{t("componentsCaption")}</Eyebrow>
+        <div aria-hidden="true" className="grid grid-cols-4 gap-2">
+          {blocks.map((color, index) => (
+            <div
+              key={index}
+              className={cx("h-11 rounded-xs", blockColors[color])}
+            />
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-col gap-4">
+        <Eyebrow>{t("i18nCaption")}</Eyebrow>
+        <div className="rounded-card border-border flex min-h-40 grow flex-col items-center justify-center gap-2 border border-dashed">
+          <p
+            aria-hidden="true"
+            lang={first.lang}
+            className="font-mono text-[2.75rem] font-semibold tracking-[-0.02em]"
           >
-            {greeting.text}
-          </li>
-        ))}
-      </ul>
+            {first.text}
+          </p>
+          <p aria-hidden="true" className="text-fg-muted font-mono text-xs">
+            {t("counter", { current: 1, total: greetings.length })}
+          </p>
+          <ul className="sr-only">
+            {greetings.map((greeting) => (
+              <li key={greeting.lang} lang={greeting.lang}>
+                {greeting.text}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </figure>
   );
 }

@@ -37,7 +37,7 @@ export default async function HomePage({
     <>
       <HeroSection />
       <AboutSection />
-      <WorkSection locale={locale} />
+      <WorkSection />
       <SkillsSection />
       <ContactSection />
     </>

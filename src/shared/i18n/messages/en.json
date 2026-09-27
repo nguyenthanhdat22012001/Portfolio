@@ -48,19 +48,34 @@
     ]
   },
   "work": {
+    "label": "Selected work",
     "title": "Selected work",
     "readCaseStudy": "Read case study",
+    "sideProject": "Side project",
+    "links": { "github": "GitHub", "demo": "Demo" },
     "swift": {
-      "metric": "Initial load: 12–13s → 1–3s",
-      "caption": "Time to first screen",
-      "before": "Before",
-      "after": "After",
+      "title": "Swift — SEO & Speed Suite",
+      "summary": "Rebuilt the client from legacy JS to strict TypeScript and React 18, then cut load time with code splitting, session tokens and vendor chunking.",
+      "stats": [
+        { "value": "1–3s", "label": "load, from 12–13s" },
+        { "value": "2 teams", "label": "adopted the NPM package" }
+      ],
+      "caption": "Initial load",
+      "beforeLabel": "{value} before",
       "beforeValue": "12–13s",
-      "afterValue": "1–3s"
+      "afterValue": "1–3s",
+      "steps": ["Code splitting", "Session tokens", "Vendor chunking"]
     },
     "oneloyalty": {
-      "metric": "40+ shared components · 8 languages",
-      "caption": "One i18n core, eight languages",
+      "title": "Oneloyalty — Loyalty & Rewards",
+      "summary": "Helped unify Admin apps, Storefront extensions and shared packages in one Turborepo, moved my features to a layered architecture, and designed a dependency-injection i18n loader.",
+      "stats": [
+        { "value": "40+", "label": "components de-duplicated" },
+        { "value": "5–10 min", "label": "stable CI builds" }
+      ],
+      "componentsCaption": "40+ shared components",
+      "i18nCaption": "i18n · 8 languages",
+      "counter": "{current} / {total}",
       "greetings": [
         { "text": "Hello", "lang": "en" },
         { "text": "Xin chào", "lang": "vi" },
@@ -73,12 +88,19 @@
       ]
     },
     "safebulk": {
-      "metric": "3-step wizard · 4 plan tiers · solo front end",
+      "title": "SafeBulk — Bulk Product Editor",
+      "summary": "Sole front-end developer. A 3-step bulk-edit wizard with per-row preview, resumable CSV import/export, and long-running jobs tracked by polling — in strict TypeScript with zero any types.",
+      "stats": [
+        { "value": "12.6k", "label": "lines of TypeScript" },
+        { "value": "520+", "label": "i18n keys" }
+      ],
       "caption": "Bulk edit wizard",
       "stepLabel": "Step {number}",
-      "steps": ["Filter products", "Configure rules", "Preview changes"],
-      "github": "Source on GitHub",
-      "demo": "Watch the demo"
+      "steps": [
+        "Filter products",
+        "Configure rules",
+        "Preview with per-row severity"
+      ]
     }
   },
   "skills": {

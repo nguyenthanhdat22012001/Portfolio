@@ -105,3 +105,57 @@ test("an unknown Vietnamese work slug 404s", async ({ page }) => {
   const response = await page.goto("/vi/work/does-not-exist");
   expect(response?.status()).toBe(404);
 });
+
+test("SafeBulk links to its source and demo next to the case study link", async ({
+  page
+}) => {
+  await page.goto("/en");
+  const chapter = page.locator('article[data-chapter="safebulk-bulk-editor"]');
+  await expect(
+    chapter.getByRole("link", { name: "GitHub", exact: true })
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/nguyenthanhdat22012001/safe-bulk-shopify"
+  );
+  await expect(
+    chapter.getByRole("link", { name: "Demo", exact: true })
+  ).toHaveAttribute("href", /loom\.com/);
+});
+
+test("every chapter shows exactly two stats", async ({ page }) => {
+  await page.goto("/en");
+  for (const slug of slugs) {
+    await expect(
+      page.locator(`article[data-chapter="${slug}"] dl dd`)
+    ).toHaveCount(2);
+  }
+});
+
+test("the second chapter shows its visual first on desktop but keeps the heading first in the DOM", async ({
+  page
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/en");
+  const chapter = page.locator(
+    'article[data-chapter="oneloyalty-layered-architecture"]'
+  );
+  const figureBox = await chapter.locator("figure").boundingBox();
+  const titleBox = await chapter.locator("h3").boundingBox();
+  expect(figureBox?.x ?? Infinity).toBeLessThan(titleBox?.x ?? -Infinity);
+  const firstTag = await chapter
+    .locator("h3, figure")
+    .first()
+    .evaluate((element) => element.tagName);
+  expect(firstTag).toBe("H3");
+});
+
+test("the Oneloyalty visual keeps all eight greetings for screen readers", async ({
+  page
+}) => {
+  await page.goto("/en");
+  await expect(
+    page.locator(
+      'article[data-chapter="oneloyalty-layered-architecture"] figure li[lang]'
+    )
+  ).toHaveCount(8);
+});

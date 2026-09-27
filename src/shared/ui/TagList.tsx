@@ -12,7 +12,7 @@ export function TagList({
       {tags.map((tag) => (
         <li
           key={tag}
-          className="rounded-full border border-border px-3 py-1 font-mono text-xs text-fg-muted"
+          className="border-border text-fg-muted rounded-full border px-3 py-1 font-mono text-xs"
         >
           {tag}
         </li>

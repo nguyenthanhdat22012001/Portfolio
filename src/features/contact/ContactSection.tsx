@@ -10,10 +10,10 @@ export async function ContactSection() {
   return (
     <Section id="contact" titleId="contact-title" className="border-b-0">
       <SectionTitle id="contact-title">{t("title")}</SectionTitle>
-      <p className="mt-4 max-w-xl text-fg-muted">{t("description")}</p>
+      <p className="text-fg-muted mt-4 max-w-xl">{t("description")}</p>
       <a
         href={`mailto:${site.email}`}
-        className="mt-8 inline-block font-mono text-lg break-all text-accent underline underline-offset-4 sm:text-2xl"
+        className="text-accent mt-8 inline-block font-mono text-lg break-all underline underline-offset-4 sm:text-2xl"
       >
         {site.email}
       </a>

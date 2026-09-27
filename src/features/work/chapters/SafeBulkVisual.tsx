@@ -7,18 +7,18 @@ export async function SafeBulkVisual() {
   const steps = t.raw("steps") as string[];
 
   return (
-    <figure className="rounded-card border border-border bg-bg-elevated p-6">
-      <figcaption className="font-mono text-sm text-fg-muted">
+    <figure className="rounded-card border-border bg-bg-elevated border p-6">
+      <figcaption className="text-fg-muted font-mono text-sm">
         {t("caption")}
       </figcaption>
       <ol className="mt-6 space-y-3">
         {steps.map((step, index) => (
           <li
             key={step}
-            className="rounded-card border border-border bg-bg p-4"
+            className="rounded-card border-border bg-bg border p-4"
             style={{ marginLeft: `${index * 1.25}rem` }}
           >
-            <span className="block font-mono text-xs text-accent">
+            <span className="text-accent block font-mono text-xs">
               {t("stepLabel", { number: index + 1 })}
             </span>
             <span className="mt-1 block">{step}</span>

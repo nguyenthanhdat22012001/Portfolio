@@ -16,7 +16,7 @@ export async function AboutSection() {
     <Section id="about" titleId="about-title">
       <SectionTitle id="about-title">{t("title")}</SectionTitle>
       <div className="mt-8 grid gap-10 md:grid-cols-[2fr_1fr]">
-        <div className="space-y-4 leading-relaxed text-fg-muted">
+        <div className="text-fg-muted space-y-4 leading-relaxed">
           {paragraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
@@ -25,10 +25,10 @@ export async function AboutSection() {
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="flex flex-col-reverse rounded-card border border-border bg-bg-elevated p-4"
+              className="rounded-card border-border bg-bg-elevated flex flex-col-reverse border p-4"
             >
-              <dt className="mt-1 text-sm text-fg-muted">{stat.label}</dt>
-              <dd className="font-mono text-3xl font-bold text-accent">
+              <dt className="text-fg-muted mt-1 text-sm">{stat.label}</dt>
+              <dd className="text-accent font-mono text-3xl font-bold">
                 {stat.value}
               </dd>
             </div>

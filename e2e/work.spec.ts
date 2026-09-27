@@ -65,7 +65,9 @@ test("Vietnamese falls back to English with a notice", async ({ page }) => {
     "Bài viết này hiện chỉ có bằng tiếng Anh."
   );
   await expect(page.locator("article")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("link", { name: /Quay lại dự án/ })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /Quay lại dự án/ })
+  ).toBeVisible();
 });
 
 test("the locale switcher keeps the case study slug", async ({ page }) => {

@@ -91,9 +91,9 @@ describe("duplicate detection", () => {
   });
 
   it("reports the first duplicated slug/locale pair", () => {
-    expect(findDuplicate([...docs, { slug: "beta", locale: "en" as const }])).toBe(
-      "en/beta"
-    );
+    expect(
+      findDuplicate([...docs, { slug: "beta", locale: "en" as const }])
+    ).toBe("en/beta");
   });
 
   it("throws with the collection name when duplicates exist", () => {

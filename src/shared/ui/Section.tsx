@@ -17,7 +17,7 @@ export function Section({
     <section
       id={id}
       aria-labelledby={titleId}
-      className={cx("border-b border-border py-section", className)}
+      className={cx("border-border py-section border-b", className)}
     >
       <Container>{children}</Container>
     </section>

@@ -17,7 +17,7 @@ function LoadBar({
         <span className="text-fg-muted">{label}</span>
         <span className={highlight ? "text-accent" : "text-fg"}>{value}</span>
       </dt>
-      <dd className="mt-2 h-3 rounded-full bg-bg">
+      <dd className="bg-bg mt-2 h-3 rounded-full">
         <div
           className={`h-full rounded-full ${highlight ? "bg-accent" : "bg-fg-muted"}`}
           style={{ width }}
@@ -32,8 +32,8 @@ export async function SwiftVisual() {
   const t = await getTranslations("work.swift");
 
   return (
-    <figure className="rounded-card border border-border bg-bg-elevated p-6">
-      <figcaption className="font-mono text-sm text-fg-muted">
+    <figure className="rounded-card border-border bg-bg-elevated border p-6">
+      <figcaption className="text-fg-muted font-mono text-sm">
         {t("caption")}
       </figcaption>
       <dl className="mt-6 space-y-5">

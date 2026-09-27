@@ -28,7 +28,7 @@ export function ArticleLayout({
     <Container size="narrow" className="py-12 sm:py-16">
       <Link
         href={backHref}
-        className="font-mono text-sm text-accent hover:underline"
+        className="text-accent font-mono text-sm hover:underline"
       >
         ← {backLabel}
       </Link>
@@ -36,7 +36,7 @@ export function ArticleLayout({
         <p
           role="note"
           data-testid="fallback-notice"
-          className="mt-6 rounded-card border border-border bg-bg-elevated p-4 text-sm text-fg-muted"
+          className="rounded-card border-border bg-bg-elevated text-fg-muted mt-6 border p-4 text-sm"
         >
           {notice}
         </p>
@@ -44,8 +44,8 @@ export function ArticleLayout({
       <article lang={contentLang} className="mt-8">
         <header>
           <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
-          <p className="mt-4 text-lg text-fg-muted">{summary}</p>
-          <p className="mt-4 font-mono text-sm text-fg-muted">{meta}</p>
+          <p className="text-fg-muted mt-4 text-lg">{summary}</p>
+          <p className="text-fg-muted mt-4 font-mono text-sm">{meta}</p>
           <TagList tags={tags} className="mt-4" />
         </header>
         <div className="mt-10">{children}</div>

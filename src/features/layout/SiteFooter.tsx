@@ -13,8 +13,8 @@ export async function SiteFooter() {
   ];
 
   return (
-    <footer className="border-t border-border">
-      <Container className="flex flex-col gap-4 py-8 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+    <footer className="border-border border-t">
+      <Container className="text-fg-muted flex flex-col gap-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
         <p>{t("copyright", { year: new Date().getFullYear() })}</p>
         <ul aria-label={t("social")} className="flex gap-6">
           {links.map(({ href, label, external }) => (

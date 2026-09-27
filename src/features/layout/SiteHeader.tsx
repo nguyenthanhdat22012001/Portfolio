@@ -20,7 +20,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
         <li key={id}>
           <Link
             href={{ pathname: "/", hash: id }}
-            className="text-sm text-fg-muted hover:text-fg"
+            className="text-fg-muted hover:text-fg text-sm"
           >
             {t(id)}
           </Link>
@@ -28,7 +28,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
       ))}
       {hasPosts ? (
         <li>
-          <Link href="/blog" className="text-sm text-fg-muted hover:text-fg">
+          <Link href="/blog" className="text-fg-muted hover:text-fg text-sm">
             {t("blog")}
           </Link>
         </li>
@@ -40,11 +40,11 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
     <>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-card focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-fg"
+        className="focus:rounded-card focus:bg-accent focus:text-accent-fg sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2"
       >
         {t("skipToContent")}
       </a>
-      <header className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur">
+      <header className="border-border bg-bg/90 sticky top-0 z-40 border-b backdrop-blur">
         <Container className="flex h-16 items-center justify-between gap-4">
           <Link
             href="/"
@@ -64,12 +64,12 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
             />
             <ThemeToggle label={tTheme("toggle")} />
             <details className="relative md:hidden">
-              <summary className="cursor-pointer list-none rounded-card border border-border px-3 py-2 font-mono text-sm">
+              <summary className="rounded-card border-border cursor-pointer list-none border px-3 py-2 font-mono text-sm">
                 {t("menu")}
               </summary>
               <nav
                 aria-label={t("primary")}
-                className="absolute right-0 mt-2 w-48 rounded-card border border-border bg-bg-elevated p-4"
+                className="rounded-card border-border bg-bg-elevated absolute right-0 mt-2 w-48 border p-4"
               >
                 {links}
               </nav>

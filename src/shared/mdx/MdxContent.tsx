@@ -56,23 +56,23 @@ const components = {
     <ol className="mt-4 list-decimal space-y-2 pl-6" {...props} />
   ),
   strong: (props: ComponentProps<"strong">) => (
-    <strong className="font-semibold text-fg" {...props} />
+    <strong className="text-fg font-semibold" {...props} />
   ),
   blockquote: (props: ComponentProps<"blockquote">) => (
     <blockquote
-      className="mt-6 border-l-2 border-accent pl-4 text-fg-muted"
+      className="border-accent text-fg-muted mt-6 border-l-2 pl-4"
       {...props}
     />
   ),
   code: (props: ComponentProps<"code">) => (
     <code
-      className="rounded bg-bg-elevated px-1.5 py-0.5 font-mono text-[0.9em]"
+      className="bg-bg-elevated rounded px-1.5 py-0.5 font-mono text-[0.9em]"
       {...props}
     />
   ),
   pre: (props: ComponentProps<"pre">) => (
     <pre
-      className="mt-6 overflow-x-auto rounded-card border border-border bg-bg-elevated p-4 font-mono text-sm [&_code]:bg-transparent [&_code]:p-0"
+      className="rounded-card border-border bg-bg-elevated mt-6 overflow-x-auto border p-4 font-mono text-sm [&_code]:bg-transparent [&_code]:p-0"
       {...props}
     />
   ),
@@ -83,22 +83,22 @@ const components = {
   ),
   th: (props: ComponentProps<"th">) => (
     <th
-      className="border border-border bg-bg-elevated px-3 py-2 text-left font-mono"
+      className="border-border bg-bg-elevated border px-3 py-2 text-left font-mono"
       {...props}
     />
   ),
   td: (props: ComponentProps<"td">) => (
-    <td className="border border-border px-3 py-2 align-top" {...props} />
+    <td className="border-border border px-3 py-2 align-top" {...props} />
   ),
-  hr: () => <hr className="my-10 border-border" />
+  hr: () => <hr className="border-border my-10" />
 };
 
 // Velite compiles MDX to a function body that expects the JSX runtime as its
 // first argument. Content is authored in this repo, so evaluating it is safe.
 function getMdxComponent(code: string) {
-  const factory = new Function(code) as (
-    scope: typeof runtime
-  ) => { default: ComponentType<{ components?: object }> };
+  const factory = new Function(code) as (scope: typeof runtime) => {
+    default: ComponentType<{ components?: object }>;
+  };
   return factory({ ...runtime }).default;
 }
 

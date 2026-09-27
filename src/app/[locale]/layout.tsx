@@ -39,7 +39,7 @@ export default async function LocaleLayout({
       </head>
       <body
         suppressHydrationWarning
-        className="min-h-dvh bg-bg font-sans text-fg antialiased"
+        className="bg-bg text-fg min-h-dvh font-sans antialiased"
       >
         <NextIntlClientProvider>
           <SiteHeader locale={locale} />

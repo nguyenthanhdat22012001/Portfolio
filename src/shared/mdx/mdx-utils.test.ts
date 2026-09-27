@@ -4,12 +4,7 @@ import { linkKind, slugify, textContent } from "./mdx-utils";
 
 describe("textContent", () => {
   it("flattens strings, numbers, arrays, and elements", () => {
-    const node = [
-      "Deep dive: ",
-      createElement("code", null, "npm"),
-      " x",
-      2
-    ];
+    const node = ["Deep dive: ", createElement("code", null, "npm"), " x", 2];
     expect(textContent(node)).toBe("Deep dive: npm x2");
   });
 

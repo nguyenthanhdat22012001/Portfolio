@@ -41,7 +41,7 @@ export function ThemeToggle({ label }: { label: string }) {
       aria-label={label}
       aria-pressed={theme === "dark"}
       onClick={toggle}
-      className="inline-flex size-10 items-center justify-center rounded-card border border-border text-fg hover:border-accent hover:text-accent"
+      className="rounded-card border-border text-fg hover:border-accent hover:text-accent inline-flex size-10 items-center justify-center border"
     >
       <svg
         aria-hidden="true"

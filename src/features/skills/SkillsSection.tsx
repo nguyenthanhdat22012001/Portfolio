@@ -19,7 +19,7 @@ export async function SkillsSection() {
         {groups.map((group) => (
           <div
             key={group.name}
-            className="rounded-card border border-border bg-bg-elevated p-5"
+            className="rounded-card border-border bg-bg-elevated border p-5"
           >
             <h3 className="font-mono text-base font-semibold">{group.name}</h3>
             <TagList tags={group.items} className="mt-4" />

@@ -18,7 +18,9 @@ const visuals: Record<ChapterKey, () => Promise<JSX.Element>> = {
 
 export async function WorkSection({ locale }: { locale: Locale }) {
   const t = await getTranslations("work");
-  const bySlug = new Map(getWork(locale).map((entry) => [entry.doc.slug, entry]));
+  const bySlug = new Map(
+    getWork(locale).map((entry) => [entry.doc.slug, entry])
+  );
 
   return (
     <Section id="work" titleId="work-title">

@@ -10,22 +10,17 @@ export async function HeroSection() {
     <section
       id="top"
       aria-labelledby="hero-title"
-      className="border-b border-border"
+      className="border-border border-b"
     >
       <Container className="grid min-h-[calc(100dvh-4rem)] items-center gap-12 py-16 md:grid-cols-[1.2fr_1fr]">
         <div>
-          <p className="font-mono text-sm tracking-widest text-accent uppercase">
+          <p className="text-accent font-mono text-sm tracking-widest uppercase">
             {t("role")}
           </p>
-          <h1
-            id="hero-title"
-            className="mt-4 text-4xl font-bold sm:text-6xl"
-          >
+          <h1 id="hero-title" className="mt-4 text-4xl font-bold sm:text-6xl">
             {t("title")}
           </h1>
-          <p className="mt-6 max-w-xl text-lg text-fg-muted">
-            {t("tagline")}
-          </p>
+          <p className="text-fg-muted mt-6 max-w-xl text-lg">{t("tagline")}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <ButtonLink href="#work">{t("ctaWork")}</ButtonLink>
             <ButtonLink href={site.cv} download variant="secondary">
@@ -37,7 +32,7 @@ export async function HeroSection() {
         <div
           aria-hidden="true"
           data-hero-canvas-slot=""
-          className="hidden aspect-square w-full rounded-card border border-border bg-bg-elevated md:block"
+          className="rounded-card border-border bg-bg-elevated hidden aspect-square w-full border md:block"
         />
       </Container>
     </section>

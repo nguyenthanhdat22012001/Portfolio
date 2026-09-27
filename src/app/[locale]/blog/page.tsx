@@ -41,9 +41,9 @@ export default async function BlogIndexPage({ params }: { params: Params }) {
   return (
     <Container size="narrow" className="py-12 sm:py-16">
       <h1 className="text-3xl font-bold sm:text-4xl">{t("title")}</h1>
-      <p className="mt-4 text-lg text-fg-muted">{t("description")}</p>
+      <p className="text-fg-muted mt-4 text-lg">{t("description")}</p>
       {posts.length === 0 ? (
-        <p className="mt-10 rounded-card border border-border bg-bg-elevated p-6 text-fg-muted">
+        <p className="rounded-card border-border bg-bg-elevated text-fg-muted mt-10 border p-6">
           {t("empty")}
         </p>
       ) : (
@@ -59,14 +59,14 @@ export default async function BlogIndexPage({ params }: { params: Params }) {
                     {doc.title}
                   </Link>
                 </h2>
-                <p className="mt-1 font-mono text-sm text-fg-muted">
+                <p className="text-fg-muted mt-1 font-mono text-sm">
                   {format.dateTime(new Date(doc.datePublished), {
                     year: "numeric",
                     month: "long",
                     day: "numeric"
                   })}
                 </p>
-                <p className="mt-2 text-fg-muted">{doc.summary}</p>
+                <p className="text-fg-muted mt-2">{doc.summary}</p>
               </article>
             </li>
           ))}

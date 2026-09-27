@@ -31,7 +31,10 @@ export function getWorkParams() {
 }
 
 export function getPosts(locale: Locale): Localized<Blog>[] {
-  return newestFirst(selectForLocale(blog, locale), (post) => post.datePublished);
+  return newestFirst(
+    selectForLocale(blog, locale),
+    (post) => post.datePublished
+  );
 }
 
 export function getPostBySlug(

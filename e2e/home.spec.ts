@@ -58,7 +58,7 @@ for (const locale of ["en", "vi"]) {
     page
   }) => {
     await page.goto(`/${locale}`);
-    for (const id of ["about", "skills", "contact"]) {
+    for (const id of ["about", "work", "skills", "contact"]) {
       await expect(page.locator(`section#${id} h2`)).toBeVisible();
     }
   });
@@ -88,7 +88,7 @@ test.describe("without JavaScript", () => {
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       "Nguyen Thanh Dat"
     );
-    for (const id of ["about", "skills", "contact"]) {
+    for (const id of ["about", "work", "skills", "contact"]) {
       await expect(page.locator(`section#${id} h2`)).toBeVisible();
     }
   });

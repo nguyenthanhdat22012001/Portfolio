@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { SiteFooter } from "@/features/layout/SiteFooter";
+import { SiteHeader } from "@/features/layout/SiteHeader";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { fontMono, fontSans } from "@/shared/theme/fonts";
 import { themeScript } from "@/shared/theme/theme-script";
@@ -39,7 +41,13 @@ export default async function LocaleLayout({
         suppressHydrationWarning
         className="min-h-dvh bg-bg font-sans text-fg antialiased"
       >
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <SiteHeader locale={locale} />
+          <main id="main" tabIndex={-1}>
+            {children}
+          </main>
+          <SiteFooter />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -21,3 +21,19 @@ for (const { colorScheme, expected } of cases) {
     });
   });
 }
+
+test("the toggle switches theme and the choice survives a reload", async ({
+  page
+}) => {
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto("/en");
+  const toggle = page.getByRole("button", { name: "Dark theme" });
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+});

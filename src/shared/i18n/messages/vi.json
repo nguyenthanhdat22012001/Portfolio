@@ -104,67 +104,26 @@
     }
   },
   "skills": {
-    "title": "Kỹ năng",
+    "label": "Kỹ năng",
+    "title": "Bộ công cụ",
     "groups": [
-      {
-        "name": "Nền tảng",
-        "items": [
-          "TypeScript (strict)",
-          "JavaScript (ES6+)",
-          "React",
-          "HTML5",
-          "CSS3"
-        ]
-      },
+      { "name": "Nền tảng", "items": ["TypeScript", "React", "HTML / CSS"] },
       {
         "name": "Kiến trúc",
-        "items": [
-          "Monorepo (Turborepo)",
-          "Layered Architecture",
-          "Feature-Driven Architecture",
-          "Component-Driven Development"
-        ]
+        "items": ["Turborepo", "Phân lớp", "Feature-Driven"]
       },
       {
         "name": "State & dữ liệu",
-        "items": [
-          "TanStack Query",
-          "Zustand",
-          "Redux Toolkit",
-          "REST",
-          "GraphQL (Shopify APIs)"
-        ]
+        "items": ["React Query", "Zustand", "Redux Toolkit", "GraphQL"]
       },
       {
         "name": "Build & hiệu năng",
-        "items": [
-          "Vite",
-          "SWC",
-          "Code splitting",
-          "Phân tích bundle",
-          "Web Vitals"
-        ]
+        "items": ["Vite", "Code splitting", "Web Vitals"]
       },
+      { "name": "UI", "items": ["Tailwind", "Polaris", "Figma"] },
       {
-        "name": "UI & styling",
-        "items": [
-          "Responsive design",
-          "Shopify Polaris",
-          "Tailwind CSS",
-          "SCSS Modules",
-          "styled-components",
-          "Figma"
-        ]
-      },
-      {
-        "name": "Công cụ",
-        "items": [
-          "Git",
-          "GitLab CI/CD",
-          "GitHub Actions",
-          "Docker",
-          "Publish package NPM"
-        ]
+        "name": "DevOps",
+        "items": ["GitLab CI", "Docker", "Publish NPM"]
       }
     ]
   },

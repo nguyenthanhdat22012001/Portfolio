@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Section } from "@/shared/ui/Section";
-import { SectionTitle } from "@/shared/ui/SectionTitle";
+import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { TagList } from "@/shared/ui/TagList";
 
 interface SkillGroup {
@@ -14,15 +14,16 @@ export async function SkillsSection() {
 
   return (
     <Section id="skills" titleId="skills-title">
-      <SectionTitle id="skills-title">{t("title")}</SectionTitle>
-      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <SectionHeading id="skills-title" index={3} label={t("label")}>
+        {t("title")}
+      </SectionHeading>
+      <div className="mt-12 grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
         {groups.map((group) => (
-          <div
-            key={group.name}
-            className="rounded-card border-border bg-bg-elevated border p-5"
-          >
-            <h3 className="font-mono text-base font-semibold">{group.name}</h3>
-            <TagList tags={group.items} className="mt-4" />
+          <div key={group.name} className="flex flex-col gap-3">
+            <h3 className="text-fg-muted font-mono text-[0.8125rem] font-normal tracking-normal">
+              {group.name}
+            </h3>
+            <TagList tags={group.items} variant="filled" />
           </div>
         ))}
       </div>

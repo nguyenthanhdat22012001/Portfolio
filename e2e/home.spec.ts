@@ -134,3 +134,21 @@ for (const locale of ["en", "vi"] as const) {
     await expect(about.locator("ol li").first()).toContainText("2022");
   });
 }
+
+test("Skills is a toolbox of six labelled groups", async ({ page }) => {
+  await page.goto("/en");
+  const skills = page.locator("section#skills");
+  await expect(skills.locator("h2")).toHaveText("Toolbox");
+  await expect(skills.locator("h3")).toHaveCount(6);
+  await expect(skills.locator("h3").first()).toHaveText("Core");
+  await expect(skills.locator("h3").last()).toHaveText("DevOps");
+});
+
+test.describe("mobile skills", () => {
+  test.use({ viewport: { width: 375, height: 800 } });
+
+  test("keeps the group labels", async ({ page }) => {
+    await page.goto("/en");
+    await expect(page.locator("section#skills h3").first()).toBeVisible();
+  });
+});

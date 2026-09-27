@@ -19,10 +19,12 @@ export async function ContactSection() {
       </SectionHeading>
       <p className="text-fg-muted mt-6 max-w-xl">{t("description")}</p>
       <div className="mt-10 flex flex-wrap items-center gap-4">
+        {/* The default accent focus ring would vanish on this accent pill, so
+            its controls draw an inset ring in the pill's text color. */}
         <div className="bg-accent text-accent-fg flex w-full flex-col rounded-md font-mono font-semibold sm:w-auto sm:flex-row">
           <a
             href={`mailto:${site.email}`}
-            className="flex min-h-14 items-center px-5 text-sm break-all hover:opacity-90 sm:px-7 sm:text-base"
+            className="focus-visible:outline-accent-fg flex min-h-14 items-center px-5 text-sm break-all hover:opacity-90 focus-visible:-outline-offset-4 sm:px-7 sm:text-base"
           >
             {site.email}
           </a>
@@ -30,7 +32,7 @@ export async function ContactSection() {
             email={site.email}
             label={t("copyEmail")}
             copiedLabel={t("copied")}
-            className="border-accent-fg/20 flex min-h-14 items-center border-t px-5 text-sm hover:opacity-90 sm:border-t-0 sm:border-l sm:text-base"
+            className="border-accent-fg/20 focus-visible:outline-accent-fg flex min-h-14 items-center border-t px-5 text-sm hover:opacity-90 focus-visible:-outline-offset-4 sm:border-t-0 sm:border-l sm:text-base"
           />
         </div>
         <ButtonLink

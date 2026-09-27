@@ -202,3 +202,22 @@ test("the copy button puts the email on the clipboard", async ({
     "nguyenthanhdat22012001@gmail.com"
   );
 });
+
+test("focus rings inside the accent email pill stay visible", async ({
+  page
+}) => {
+  await page.goto("/en");
+  const contact = page.locator("#contact");
+  for (const control of [
+    contact.getByRole("link", { name: "nguyenthanhdat22012001@gmail.com" }),
+    contact.getByRole("button", { name: "Copy email" })
+  ]) {
+    await control.focus();
+    const { outline, pill } = await control.evaluate((element) => ({
+      outline: getComputedStyle(element).outlineColor,
+      pill: getComputedStyle(element.parentElement as HTMLElement)
+        .backgroundColor
+    }));
+    expect(outline).not.toBe(pill);
+  }
+});

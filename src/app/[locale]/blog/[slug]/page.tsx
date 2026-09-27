@@ -17,9 +17,6 @@ export function generateStaticParams() {
   return getPostParams();
 }
 
-// Unknown slugs 404 at the routing layer instead of rendering on demand.
-export const dynamicParams = false;
-
 export async function generateMetadata({
   params
 }: {

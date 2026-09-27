@@ -24,11 +24,12 @@
     "toggle": "Giao diện tối"
   },
   "hero": {
-    "title": "Nguyễn Thành Đạt",
-    "role": "Kỹ sư Front-End · React / TypeScript",
-    "tagline": "Mình xây ứng dụng React nhanh, có cấu trúc — và đo được sự khác biệt.",
+    "role": "Kỹ sư Front-End · TP. Hồ Chí Minh",
+    "titleLines": ["Nguyễn", "Thành Đạt"],
+    "tagline": "Mình xây ứng dụng React & TypeScript nhanh, có cấu trúc — 4 năm làm Shopify embedded app cho merchant trên toàn thế giới.",
     "ctaWork": "Xem dự án",
-    "ctaCv": "Tải CV"
+    "ctaCv": "Tải CV",
+    "scrollHint": "Cuộn"
   },
   "about": {
     "title": "Giới thiệu",

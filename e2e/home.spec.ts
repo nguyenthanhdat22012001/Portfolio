@@ -93,3 +93,26 @@ test.describe("without JavaScript", () => {
     }
   });
 });
+
+test("the hero View work button jumps to the work section", async ({
+  page
+}) => {
+  await page.goto("/en");
+  await expect(
+    page.locator("#top").getByRole("link", { name: "View work" })
+  ).toHaveAttribute("href", "#work");
+});
+
+test.describe("mobile hero", () => {
+  test.use({ viewport: { width: 375, height: 800 } });
+
+  test("shows the avatar slot above the headline", async ({ page }) => {
+    await page.goto("/en");
+    const slot = page.locator("[data-hero-canvas-slot]");
+    await expect(slot).toBeVisible();
+    await expect(slot).toHaveAttribute("aria-hidden", "true");
+    const slotBox = await slot.boundingBox();
+    const titleBox = await page.locator("h1").boundingBox();
+    expect(slotBox?.y ?? Infinity).toBeLessThan(titleBox?.y ?? -Infinity);
+  });
+});

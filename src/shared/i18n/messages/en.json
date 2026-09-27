@@ -24,11 +24,12 @@
     "toggle": "Dark theme"
   },
   "hero": {
-    "title": "Nguyen Thanh Dat",
-    "role": "Front-End Engineer · React / TypeScript",
-    "tagline": "I build fast, well-structured React apps — and measure the difference.",
-    "ctaWork": "See my work",
-    "ctaCv": "Download CV"
+    "role": "Front-End Engineer · Ho Chi Minh City",
+    "titleLines": ["Nguyen", "Thanh Dat"],
+    "tagline": "I build fast, well-structured React & TypeScript apps — 4 years shipping Shopify embedded apps for global merchants.",
+    "ctaWork": "View work",
+    "ctaCv": "Download CV",
+    "scrollHint": "Scroll"
   },
   "about": {
     "title": "About",

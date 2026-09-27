@@ -4,11 +4,11 @@ Sep 25, 2026 · @leoghi
 
 ## Overview & Objectives
 
-A bilingual (EN/VI) personal portfolio designed to convey a clear message to recruiters within 30 seconds: Dat is a Frontend Engineer specializing in React/TypeScript, performance, and architecture. GSAP and Three.js are used for storytelling, not mere decoration.
+A bilingual (EN/VI) personal portfolio designed to convey a clear message to recruiters within 30 seconds: Dat is a Frontend Engineer with strong expertise in React/TypeScript, performance, and architecture. GSAP and Three.js are used to tell the professional story, not merely for decoration.
 
-**Target Audience:** Recruiters and Tech Leads (focusing on remote/international companies); primary usage on desktop, quick scanning on mobile.
+**Target Audience:** Recruiters and Tech Leads (prioritizing remote/international companies); primary usage on desktop, with quick browsing on mobile.
 
-**Key Message:** "I build products quickly and with solid structure" — demonstrated by the site's own speed and code quality.
+**Core Message:** "I build products quickly and with solid structure" — demonstrated by the site's own speed and code quality.
 
 | KPI | Target |
 | --- | --- |
@@ -16,12 +16,12 @@ A bilingual (EN/VI) personal portfolio designed to convey a clear message to rec
 | Lighthouse SEO / Accessibility / Best Practices | 100 / ≥ 95 / 100 |
 | LCP · CLS · INP (mobile, 4G) | < 2.5s · < 0.1 · < 200ms |
 | Initial JS load (excluding 3D assets, gzip) | < 150 KB |
-| Google search "Nguyen Thanh Dat frontend" | Top 3 ranking within 2 months |
+| Google search ranking for "Nguyen Thanh Dat frontend" | Top 3 within 2 months |
 | Conversion | Contact clicks / CV downloads / GitHub visits — tracked via analytics |
 
 ## Scope
 
-Version 1.0 includes a storytelling homepage, 3 case studies, and a blog section; no custom backend or CMS.
+Version 1.0 includes a storytelling homepage, 3 case studies, and a blog; there is no dedicated backend or CMS.
 
 | Page | URL | Content |
 | --- | --- | --- |
@@ -33,15 +33,15 @@ Version 1.0 includes a storytelling homepage, 3 case studies, and a blog section
 
 **In scope:** Bilingual EN (default) + VI, dark/light themes, contact form (email via Resend or Formspree), analytics.
 
-**Out of scope for v1.0:** CMS (Sanity/Contentful), blog comments, admin dashboard, multiple 3D scenes per page, WebGPU.
+**Out of scope for 1.0:** CMS (Sanity/Contentful), blog comments, admin dashboard, multiple 3D scenes per page, WebGPU.
 
 ## Tech stack
 
-Built using Next.js App Router with Static Site Generation (SSG), React Three Fiber for 3D, and GSAP for animations—ensuring strong SEO and turning "Familiar with Next.js" on your CV into genuine, hands-on experience.
+Built on Next.js App Router with Static Site Generation (SSG), React Three Fiber for 3D, and GSAP for animations—ensuring strong SEO and turning "Familiar with Next.js" on the CV into real-world experience.
 
 | Layer | Technology | Rationale |
 | --- | --- | --- |
-| Framework | Next.js App Router + TypeScript strict | SSG/metadata API for SEO; React Server Components reduce client-side JS |
+| Framework | Next.js App Router + TypeScript strict | SSG/metadata API for SEO; React Server Components to reduce client-side JS |
 | 3D | three + @react-three/fiber + @react-three/drei | Component-based Three.js; React-style lifecycle management |
 | 3D Effects | @react-three/postprocessing (minimal usage) | Subtle bloom for the node graph |
 | Animation | gsap + ScrollTrigger + SplitText + @gsap/react (useGSAP) | Free plugins, powerful timelines, automatic cleanup |
@@ -50,10 +50,10 @@ Built using Next.js App Router with Static Site Generation (SSG), React Three Fi
 | Content | MDX (next-mdx-remote or Velite/Content Collections) | Type-safe case studies and blog posts stored in the repo |
 | i18n | next-intl | `/en` and `/vi` routes; Server Component support |
 | Local State | Zustand | Sharing scroll/section state between DOM and canvas |
-| Forms | React Hook Form + Zod, Server Actions with Resend | No dedicated backend required |
+| Forms | React Hook Form + Zod, Server Actions via Resend | No separate backend required |
 | Quality | ESLint, Prettier, Vitest, Playwright, Lighthouse CI | Smoke tests + CI checks to prevent performance regressions |
 | Deployment | Vercel + GitHub Actions | PR previews, Speed ​​Insights, Analytics |
-| 3D Assets | Blender → glTF, compressed via gltf-transform (Draco/Meshopt) | Lightweight models, fast loading |
+| 3D Assets | Blender → glTF, compressed via gltf-transform (Draco/Meshopt) | Lightweight models, fast loading | **Alternative approach:** Astro + React islands, if absolute speed is prioritized over showcasing Next.js skills.
 
 ## Architecture & Directory Structure
 
@@ -92,6 +92,7 @@ public/
 ## Section Content & Storytelling
 
 The page tells a narrative arc: "chaotic → structured → fast"; only the Hero section utilizes Three.js, while other sections rely on GSAP.
+
 | Section | Content | Effects | Libraries |
 | --- | --- | --- | --- |
 | Hero | Name, title, tagline, CTA | 3D node graph: nodes (UI, i18n, admin, storefront...) floating and reacting to mouse movement; scroll down to arrange into neat layers (Feature-Driven → Layered) | R3F, drei (Instances, Line), GSAP ScrollTrigger |
@@ -103,53 +104,53 @@ The page tells a narrative arc: "chaotic → structured → fast"; only the Hero
 | Contact | Email, LinkedIn, GitHub, form, CV download | Magnetic button, footer reveal | GSAP |
 | Global | — | Custom cursor, smooth page transitions, short preloader (< 1s) | GSAP, Lenis |
 
-**Materials to prepare:**
+**Content to prepare:**
 
 - [ ] One-sentence tagline (EN + VI)
-- [ ] 3 case studies: context → problem → solution → results with metrics → key takeaways
+- [ ] 3 case studies: context → problem → solution → quantified results → key takeaways
 - [ ] Interface screenshots/GIFs (permission obtained or merchant data blurred)
-- [ ] Headshot and latest CV (PDF)
+- [ ] Headshot, latest CV (PDF)
 - [ ] 2 blog posts: "Reducing Shopify app load time from 12s to 2s" and "DI loader for i18n in a monorepo"
 
-## SEO Plan
+## SEO plan
 
-The SEO strategy rests on three pillars: readable static HTML, correct structured data, and long-form content (case studies + blog posts) to drive traffic.
+SEO strategy based on 3 pillars: readable static HTML, correct structured data, and long-form content (case studies + blogs) to drive traffic.
 
-**Technical (On-page):**
+**Technical (on-page):**
 
-- [ ] Implement `generateMetadata` for all routes: title ≤ 60 characters, description 140–160 characters, canonical URL
-- [ ] Open Graph + Twitter cards; generate dynamic OG images using `next/og` for each case study/blog post
-- [ ] Configure `hreflang` (en/vi) + `x-default` via `alternates.languages`
-- [ ] Set up `app/sitemap.ts` (covering both locales) and `app/robots.ts`
-- [ ] Ensure exactly one `h1` per page, logical heading hierarchy, and alt text for all images
-- [ ] Ensure canvas-based text always has a corresponding DOM representation
-- [ ] Use short, keyword-rich URLs (e.g., `/work/swift-performance` instead of `/work/1`)
+- [ ] `generateMetadata` for all routes: title ≤ 60 characters, description 140–160 characters, canonical URL
+- [ ] Open Graph + Twitter cards; dynamic OG images generated via `next/og` for each case study/blog post
+- [ ] `hreflang` (en/vi) + `x-default` via `alternates.languages`
+- [ ] `app/sitemap.ts` (covering both locales) and `app/robots.ts`
+- [ ] Exactly one `h1` per page, hierarchical headings, alt text for all images
+- [ ] Canvas text always has a corresponding DOM representation
+- [ ] Short, keyword-rich URLs: `/work/swift-performance` (avoid `/work/1`)
 
 **Structured data (JSON-LD):**
 
-| Trang | Schema | Trường chính |
+| Page | Schema | Key fields |
 | --- | --- | --- |
 | Home | `Person` + `WebSite` | name, jobTitle, image, sameAs (LinkedIn, GitHub), knowsAbout |
 | Case study | `CreativeWork` | name, author, dateCreated, about, url |
 | Blog | `BlogPosting` | headline, datePublished, dateModified, author, image |
-| Mọi trang con | `BreadcrumbList` | position, name, item |
+| All subpages | `BreadcrumbList` | position, name, item |
 
-**Off-page & theo dõi:**
+**Off-page & tracking:**
 
 - [ ] Custom domain (e.g., `nguyenthanhdat.dev`) linked to LinkedIn, GitHub profile, and CV
 - [ ] Google Search Console: verify domain, submit sitemap, monitor indexing
-- [ ] Cross-post blog content to dev.to / Viblo with a `canonical` link pointing to the original site
+- [ ] Republish blog posts to dev.to / Viblo with a `canonical` tag pointing to the original site
 - [ ] Vercel Analytics or Plausible to track Contact clicks / CV downloads
 
 **Target keywords:** "Nguyen Thanh Dat", "Front-End Engineer Vietnam", "React TypeScript developer", "Shopify app developer", "Shopify embedded app frontend".
 
 ## Performance budget & accessibility
 
-3D assets must load after the main content: the LCP element is the Hero section's text or image, never the canvas.
+3D content must load after the main content: LCP is the Hero text/image, never the canvas.
 
 | Category | Budget |
 | --- | --- |
-| Initial JS (gzipped) | < 150 KB |
+| Initial JS (gzip) | < 150 KB |
 | 3D Chunk (three + R3F + scene, lazy-loaded) | < 250 KB |
 | Total .glb models | < 500 KB |
 | Fonts | Max 2 families, self-hosted via `next/font`, Latin + Vietnamese subsets |
@@ -157,20 +158,20 @@ The SEO strategy rests on three pillars: readable static HTML, correct structure
 | Hero scene draw calls | < 50 (use `Instances`) |
 | Target FPS | 60 (desktop), ≥ 30 (mid-range mobile) |
 
-**Performance Optimization:**
+**Performance optimization techniques:**
 
-- Use `dpr={[1, 1.5]}` and drei's `PerformanceMonitor` to lower quality when FPS drops
-- Use `frameloop="demand"` or pause rendering when the canvas is outside the viewport or the tab is hidden
-- Fallback to static images or SVG for low-end mobile devices or environments lacking WebGL support
-- Dispose of geometry, materials, and textures upon unmounting; use `gsap.context` or `useGSAP` for cleanup
+- `dpr={[1, 1.5]}`, use drei's `PerformanceMonitor` to lower quality when FPS drops
+- `frameloop="demand"` or stop rendering when the canvas is out of the viewport/tab is hidden
+- Low-end mobile or no WebGL support → fallback to static image/SVG
+- Dispose of geometry, materials, and textures upon unmounting; use `gsap.context` / `useGSAP` for cleanup
 - Animate only `transform` and `opacity`
 
 **Accessibility:**
 
-- Respect `prefers-reduced-motion`: disable scrubbing/pinning and Lenis, and keep the 3D scene static
-- Ensure keyboard navigability, clear focus rings, and skip links; ensure custom cursors do not obscure the actual cursor on touch devices
-- Maintain a contrast ratio of ≥ 4.5:1 in both dark and light modes
-- Set canvas `aria-hidden="true"`; ensure SplitText preserves the original text in the `aria-label`
+- `prefers-reduced-motion`: disable scrub/pin and Lenis; keep the 3D scene static
+- Keyboard navigable, clear focus rings, skip links; custom cursor must not obscure the actual cursor on touch devices
+- Contrast ratio ≥ 4.5:1 in both dark and light modes
+- Canvas `aria-hidden="true"`; SplitText retains `aria-label` with the original text
 
 ## Roadmap
 
@@ -201,7 +202,7 @@ The biggest risk is getting bogged down in 3D work and never launching—hence, 
 | Lag on low-end mobile | Poor user experience | PerformanceMonitor + static image fallback |
 | GSAP conflicts with React 19 / Strict Mode | Double animation execution, memory leaks | Use `useGSAP`; avoid manual cleanup management |
 | Sharing company/merchant data | NDA issues | Use only public info (App Store); blur screenshots |
-| Slow content writing | Phase 2 bottleneck | Write content during Phase 0, prior to coding |
+| Slow content writing | Phase 2 bottleneck | Write content in Phase 0, prior to coding |
 
 **Definition of Done for v1.0:**
 
@@ -209,7 +210,7 @@ The biggest risk is getting bogged down in 3D work and never launching—hence, 
 - [ ] Functions correctly on Chrome, Safari (iOS + macOS), Firefox, and Edge
 - [ ] Reduced-motion and keyboard navigation fully functional
 - [ ] Sitemap indexed by Search Console; passes Rich Results Test
-- [ ] Public repository; README includes architecture details and Lighthouse scores
-- [ ] Portfolio links added to CV, LinkedIn, and GitHub
+- [ ] Public repo; README includes architecture details and Lighthouse scores
+- [ ] Portfolio link added to CV, LinkedIn, and GitHub
 
-Detailed specifications for each phase for AI implementation: Implementation specifications
+Detailed specifications for AI implementation: Implementation Specs

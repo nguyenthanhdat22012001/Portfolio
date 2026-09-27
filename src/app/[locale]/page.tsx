@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { HeroSection } from "@/features/hero/HeroSection";
 import { buildMetadata } from "@/shared/seo/build-metadata";
 
@@ -8,7 +8,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations("meta");
+  const t = await getTranslations({ locale, namespace: "meta" });
 
   return buildMetadata({
     title: t("title"),
@@ -18,6 +18,13 @@ export async function generateMetadata({
   });
 }
 
-export default function HomePage() {
+export default async function HomePage({
+  params
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
   return <HeroSection />;
 }

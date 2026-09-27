@@ -1,0 +1,25 @@
+import type { ReactNode } from "react";
+import { cx } from "@/shared/lib/cx";
+import { Container } from "./Container";
+
+export function Section({
+  id,
+  titleId,
+  className,
+  children
+}: {
+  id: string;
+  titleId: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      id={id}
+      aria-labelledby={titleId}
+      className={cx("border-b border-border py-section", className)}
+    >
+      <Container>{children}</Container>
+    </section>
+  );
+}

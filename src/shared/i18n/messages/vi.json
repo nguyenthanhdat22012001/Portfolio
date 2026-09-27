@@ -133,14 +133,20 @@
     "description": "Mình đang tìm vị trí front-end ở các team remote và quốc tế.",
     "copyEmail": "Sao chép email",
     "copied": "Đã sao chép",
-    "email": "Email",
     "linkedin": "LinkedIn",
     "github": "GitHub",
     "cv": "Tải CV"
   },
   "footer": {
     "copyright": "© {year} Nguyễn Thành Đạt",
-    "social": "Liên kết mạng xã hội"
+    "builtWith": "Xây dựng với Next.js, GSAP, Three.js",
+    "lighthouse": {
+      "title": "Lighthouse",
+      "performance": "Hiệu năng",
+      "accessibility": "Trợ năng",
+      "bestPractices": "Thực hành tốt",
+      "seo": "SEO"
+    }
   },
   "caseStudy": {
     "back": "Quay lại dự án",

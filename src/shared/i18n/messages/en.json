@@ -133,14 +133,20 @@
     "description": "Open to front-end roles with remote and international teams.",
     "copyEmail": "Copy email",
     "copied": "Copied",
-    "email": "Email",
     "linkedin": "LinkedIn",
     "github": "GitHub",
     "cv": "Download CV"
   },
   "footer": {
     "copyright": "© {year} Nguyen Thanh Dat",
-    "social": "Social links"
+    "builtWith": "Built with Next.js, GSAP, Three.js",
+    "lighthouse": {
+      "title": "Lighthouse",
+      "performance": "Performance",
+      "accessibility": "Accessibility",
+      "bestPractices": "Best practices",
+      "seo": "SEO"
+    }
   },
   "caseStudy": {
     "back": "Back to work",

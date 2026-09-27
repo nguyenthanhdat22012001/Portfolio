@@ -40,20 +40,14 @@ test("the locale switcher keeps the page and changes language", async ({
   );
 });
 
-test("the footer links to email, LinkedIn, and GitHub", async ({ page }) => {
+test("the footer credits the stack and shows four Lighthouse scores", async ({
+  page
+}) => {
   await page.goto("/en");
   const footer = page.getByRole("contentinfo");
-  await expect(footer.getByRole("link", { name: "Email" })).toHaveAttribute(
-    "href",
-    "mailto:nguyenthanhdat22012001@gmail.com"
-  );
-  await expect(footer.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
-    "href",
-    /linkedin\.com/
-  );
-  await expect(footer.getByRole("link", { name: "GitHub" })).toHaveAttribute(
-    "href",
-    /github\.com\/nguyenthanhdat22012001$/
+  await expect(footer).toContainText("Built with Next.js, GSAP, Three.js");
+  await expect(footer).toContainText(
+    /Lighthouse Performance \d{1,3} · Accessibility \d{1,3} · Best practices \d{1,3} · SEO \d{1,3}/
   );
 });
 

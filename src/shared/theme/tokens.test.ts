@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { colorTokens, themes, type ColorToken } from "./tokens";
@@ -65,4 +65,30 @@ describe("globals.css mirrors tokens.ts", () => {
       }
     });
   }
+});
+
+describe("decorative fills", () => {
+  for (const theme of themes) {
+    it(`${theme}: bg-muted is visible on bg-elevated (at least 1.25:1)`, () => {
+      expect(
+        contrast(
+          colorTokens[theme]["bg-muted"],
+          colorTokens[theme]["bg-elevated"]
+        )
+      ).toBeGreaterThanOrEqual(1.25);
+    });
+  }
+
+  it("never uses bg-muted or earth as a text color", () => {
+    const root = path.resolve(process.cwd(), "src");
+    const files = readdirSync(root, { recursive: true, encoding: "utf8" })
+      .filter((file) => file.endsWith(".tsx"))
+      .map((file) => path.join(root, file));
+
+    for (const file of files) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(
+        /\btext-(bg-muted|earth)\b/
+      );
+    }
+  });
 });

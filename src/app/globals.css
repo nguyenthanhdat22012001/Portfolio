@@ -5,6 +5,7 @@
 :root {
   --bg: #f5f4f0;
   --bg-elevated: #ffffff;
+  --bg-muted: #e6e3da;
   --fg: #1f1f21;
   --fg-muted: #5e5e5e;
   --accent: #8a6a10;
@@ -19,6 +20,7 @@
 [data-theme="dark"] {
   --bg: #1a1a1c;
   --bg-elevated: #242427;
+  --bg-muted: #3a3a40;
   --fg: #e6e6e3;
   --fg-muted: #9a9a9a;
   --accent: #c9a227;
@@ -33,6 +35,7 @@
   :root:not([data-theme]) {
     --bg: #1a1a1c;
     --bg-elevated: #242427;
+    --bg-muted: #3a3a40;
     --fg: #e6e6e3;
     --fg-muted: #9a9a9a;
     --accent: #c9a227;
@@ -43,14 +46,16 @@
   }
 }
 
-/* --earth is intentionally not mapped: it is reserved for 3D, never text. */
+/* --bg-muted and --earth are decorative fills only, never text colors. */
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-elevated: var(--bg-elevated);
+  --color-bg-muted: var(--bg-muted);
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-earth: var(--earth);
   --color-border: var(--border);
   --radius-card: var(--radius);
   --spacing-section: var(--space-section);
@@ -85,6 +90,6 @@
   }
 
   section[id] {
-    scroll-margin-top: 5rem;
+    scroll-margin-top: 6rem;
   }
 }

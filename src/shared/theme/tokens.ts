@@ -7,6 +7,7 @@ export type Theme = (typeof themes)[number];
 export type ColorToken =
   | "bg"
   | "bg-elevated"
+  | "bg-muted"
   | "fg"
   | "fg-muted"
   | "accent"
@@ -18,6 +19,7 @@ export const colorTokens: Record<Theme, Record<ColorToken, string>> = {
   dark: {
     bg: "#1A1A1C",
     "bg-elevated": "#242427",
+    "bg-muted": "#3A3A40",
     fg: "#E6E6E3",
     "fg-muted": "#9A9A9A",
     accent: "#C9A227",
@@ -28,6 +30,7 @@ export const colorTokens: Record<Theme, Record<ColorToken, string>> = {
   light: {
     bg: "#F5F4F0",
     "bg-elevated": "#FFFFFF",
+    "bg-muted": "#E6E3DA",
     fg: "#1F1F21",
     "fg-muted": "#5E5E5E",
     accent: "#8A6A10",

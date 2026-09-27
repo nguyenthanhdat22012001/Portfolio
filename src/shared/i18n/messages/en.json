@@ -32,16 +32,19 @@
     "scrollHint": "Scroll"
   },
   "about": {
-    "title": "About",
-    "paragraphs": [
-      "I'm a front-end engineer with 4 years of building Shopify embedded apps in React and TypeScript — from joining Swift as a fresher in 2022 to working as a mid-level engineer on Oneloyalty's monorepo.",
-      "I care most about two things: how fast a product feels, and whether its codebase can keep changing without breaking. I measure the first with Web Vitals and protect the second with layered architecture and enforced boundaries.",
-      "For every feature I write the spec before the code, agree on API contracts early, and use AI tools like Claude and Copilot to move faster on refactors — then verify the result myself."
-    ],
+    "label": "About",
+    "title": "From fresher to mid-level engineer",
+    "lead": "Front-End Engineer with ~4 years building Shopify embedded apps. I rebuilt a production client from legacy JavaScript to strict TypeScript, helped restructure a multi-app monorepo into a layered architecture, and designed an 8-language i18n loader.",
+    "body": "For every feature I write the spec before the code, agree on API contracts early, and use AI tools like Claude and Copilot to move faster on refactors — then verify the result myself.",
     "stats": [
-      { "value": "4+", "label": "years building React apps" },
+      { "value": "4", "label": "years of front-end" },
       { "value": "3", "label": "Shopify apps shipped" },
       { "value": "8", "label": "languages in one i18n system" }
+    ],
+    "timeline": [
+      { "year": "2022", "text": "Joined FireGroup — Swift" },
+      { "year": "2024", "text": "Oneloyalty monorepo" },
+      { "year": "2026", "text": "SafeBulk (side project)" }
     ]
   },
   "work": {

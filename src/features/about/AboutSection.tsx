@@ -1,39 +1,46 @@
 import { getTranslations } from "next-intl/server";
+import { PlaceholderSlot } from "@/shared/ui/PlaceholderSlot";
 import { Section } from "@/shared/ui/Section";
-import { SectionTitle } from "@/shared/ui/SectionTitle";
+import { SectionHeading } from "@/shared/ui/SectionHeading";
+import { Stat, type StatEntry } from "@/shared/ui/Stat";
 
-interface Stat {
-  value: string;
-  label: string;
+interface Milestone {
+  year: string;
+  text: string;
 }
 
 export async function AboutSection() {
   const t = await getTranslations("about");
-  const paragraphs = t.raw("paragraphs") as string[];
-  const stats = t.raw("stats") as Stat[];
+  const stats = t.raw("stats") as StatEntry[];
+  const timeline = t.raw("timeline") as Milestone[];
 
   return (
     <Section id="about" titleId="about-title">
-      <SectionTitle id="about-title">{t("title")}</SectionTitle>
-      <div className="mt-8 grid gap-10 md:grid-cols-[2fr_1fr]">
-        <div className="text-fg-muted space-y-4 leading-relaxed">
-          {paragraphs.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+      <SectionHeading id="about-title" index={1} label={t("label")}>
+        {t("title")}
+      </SectionHeading>
+      <div className="mt-12 grid gap-8 md:grid-cols-12 md:gap-12">
+        {/* Portrait photo goes here later (next/image, same aspect ratio). */}
+        <PlaceholderSlot className="aspect-[4/3] w-full md:col-span-4 md:aspect-[3/4]" />
+        <div className="flex flex-col gap-8 md:col-span-8">
+          <p className="max-w-[42.5rem] text-lg leading-[1.7]">{t("lead")}</p>
+          <p className="text-fg-muted max-w-[42.5rem] leading-[1.7]">
+            {t("body")}
+          </p>
+          <dl className="border-border grid grid-cols-3 gap-6 border-y py-8">
+            {stats.map((stat) => (
+              <Stat key={stat.label} {...stat} size="lg" />
+            ))}
+          </dl>
+          <ol className="grid gap-6 text-sm sm:grid-cols-3">
+            {timeline.map((milestone) => (
+              <li key={milestone.year} className="flex flex-col gap-1">
+                <span className="font-mono">{milestone.year}</span>
+                <span className="text-fg-muted">{milestone.text}</span>
+              </li>
+            ))}
+          </ol>
         </div>
-        <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-1">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-card border-border bg-bg-elevated flex flex-col-reverse border p-4"
-            >
-              <dt className="text-fg-muted mt-1 text-sm">{stat.label}</dt>
-              <dd className="text-accent font-mono text-3xl font-bold">
-                {stat.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
       </div>
     </Section>
   );

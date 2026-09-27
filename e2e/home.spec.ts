@@ -116,3 +116,21 @@ test.describe("mobile hero", () => {
     expect(slotBox?.y ?? Infinity).toBeLessThan(titleBox?.y ?? -Infinity);
   });
 });
+
+const aboutTitles = {
+  en: "From fresher to mid-level engineer",
+  vi: "Từ fresher đến kỹ sư mid-level"
+} as const;
+
+for (const locale of ["en", "vi"] as const) {
+  test(`/${locale} About shows the title, three stats, and a timeline`, async ({
+    page
+  }) => {
+    await page.goto(`/${locale}`);
+    const about = page.locator("section#about");
+    await expect(about.locator("h2")).toHaveText(aboutTitles[locale]);
+    await expect(about.locator("dl dd")).toHaveCount(3);
+    await expect(about.locator("ol li")).toHaveCount(3);
+    await expect(about.locator("ol li").first()).toContainText("2022");
+  });
+}

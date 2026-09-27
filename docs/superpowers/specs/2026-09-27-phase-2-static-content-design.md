@@ -81,11 +81,14 @@ Rules:
 
 - Features import only `shared`; pages compose features. Features do not import each other (the lint config permits it; this is a convention for Phase 2)
   (the `layout` feature is composed by `app/[locale]/layout.tsx`).
-- `ThemeToggle` is the only client component. `LocaleSwitcher` is a server-rendered list of
-  next-intl `Link`s. The mobile nav uses a native `<details>` element.
+- `ThemeToggle` and `LocaleSwitcher` are the only client components. `LocaleSwitcher` needs
+  `usePathname()` to keep the current path (a Server Component cannot read it without making
+  pages dynamic); it still server-renders plain links, so it works without JS. Client
+  components receive translated labels as props; no message catalogs ship to the client. The
+  mobile nav uses a native `<details>` element.
 - `shared/content` is the only module that imports `.velite` data.
 - `CLAUDE.md` is amended in the same change: `"use client"` is also allowed for minimal
-  interactive controls (currently the theme toggle).
+  interactive controls (currently the theme toggle and locale switcher).
 
 ## Theming, tokens, fonts
 
@@ -95,7 +98,8 @@ Rules:
   `@media (prefers-color-scheme: dark)` block on `:root:not([data-theme])` covers the no-JS case.
 - Tokens are mapped to Tailwind v4 via `@theme inline` (`bg-bg`, `bg-bg-elevated`, `text-fg`,
   `text-fg-muted`, `text-accent`, `bg-accent`, `text-accent-fg`, `border-border`). `--earth` is
-  exposed only as a background/border color, never as a text utility. No raw hex in components.
+  not mapped to Tailwind at all (it is for Phase 5 3D only), so no `text-earth` utility exists.
+  No raw hex in components.
 - `theme-script.ts` exports `resolveTheme(stored: string | null, prefersDark: boolean | null):
   "dark" | "light"` — valid stored value wins, then OS preference, else `"dark"` — and the
   inline script string that applies it to `document.documentElement.dataset.theme`. The layout

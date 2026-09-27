@@ -10,7 +10,11 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   `eslint.config.mjs`) — if `pnpm lint` fails on a boundaries error, that is
   the correct signal to redesign the change, not to suppress the rule.
 - Server Components are the default. Add `"use client"` only to a file that
-  directly touches GSAP or the React Three Fiber canvas.
+  directly touches GSAP or the React Three Fiber canvas, or to a minimal
+  interactive control that cannot work without client JS (currently
+  `shared/theme/ThemeToggle.tsx` and `features/layout/LocaleSwitcher.tsx`).
+  Pass translated labels to client components as props instead of shipping
+  message catalogs to the client.
 
 ## 3D and animation conventions (apply once those phases start)
 

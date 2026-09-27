@@ -1,19 +1,90 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
-  --color-bg: #ffffff;
-  --color-fg: #0a0a0a;
-  --color-accent: #6366f1;
+  --bg: #f5f4f0;
+  --bg-elevated: #ffffff;
+  --fg: #1f1f21;
+  --fg-muted: #5e5e5e;
+  --accent: #8a6a10;
+  --accent-fg: #ffffff;
+  --earth: #6e4a2f;
+  --border: #dddad2;
+  --radius: 0.75rem;
+  --space-section: clamp(4rem, 10vw, 7.5rem);
+  color-scheme: light;
 }
 
+[data-theme="dark"] {
+  --bg: #1a1a1c;
+  --bg-elevated: #242427;
+  --fg: #e6e6e3;
+  --fg-muted: #9a9a9a;
+  --accent: #c9a227;
+  --accent-fg: #1a1a1c;
+  --earth: #8b5e3c;
+  --border: #34343a;
+  color-scheme: dark;
+}
+
+/* No-JS fallback: the pre-paint script never ran, so follow the OS. */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #0a0a0a;
-    --color-fg: #f5f5f5;
+  :root:not([data-theme]) {
+    --bg: #1a1a1c;
+    --bg-elevated: #242427;
+    --fg: #e6e6e3;
+    --fg-muted: #9a9a9a;
+    --accent: #c9a227;
+    --accent-fg: #1a1a1c;
+    --earth: #8b5e3c;
+    --border: #34343a;
+    color-scheme: dark;
   }
 }
 
-body {
-  background: var(--color-bg);
-  color: var(--color-fg);
+/* --earth is intentionally not mapped: it is reserved for 3D, never text. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-border: var(--border);
+  --radius-card: var(--radius);
+  --spacing-section: var(--space-section);
+  --font-sans: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-google-sans-code), ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  body {
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-mono);
+    letter-spacing: -0.02em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
+
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
 }

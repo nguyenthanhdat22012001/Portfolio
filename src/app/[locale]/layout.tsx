@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
+import { fontMono, fontSans } from "@/shared/theme/fonts";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -25,8 +26,11 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale}>
-      <body suppressHydrationWarning>
+    <html lang={locale} className={`${fontSans.variable} ${fontMono.variable}`}>
+      <body
+        suppressHydrationWarning
+        className="min-h-dvh bg-bg font-sans text-fg antialiased"
+      >
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>

@@ -3,9 +3,131 @@
     "title": "Nguyễn Thành Đạt — Kỹ sư Frontend",
     "description": "Kỹ sư Frontend chuyên về React, TypeScript, hiệu năng và kiến trúc."
   },
+  "nav": {
+    "skipToContent": "Chuyển đến nội dung",
+    "brand": "Nguyễn Thành Đạt",
+    "homeLabel": "Nguyễn Thành Đạt — trang chủ",
+    "primary": "Điều hướng chính",
+    "menu": "Menu",
+    "about": "Giới thiệu",
+    "work": "Dự án",
+    "skills": "Kỹ năng",
+    "contact": "Liên hệ",
+    "blog": "Blog",
+    "language": "Ngôn ngữ"
+  },
+  "locales": {
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "theme": {
+    "toggle": "Giao diện tối"
+  },
   "hero": {
     "title": "Nguyễn Thành Đạt",
-    "tagline": "Mình xây ứng dụng React nhanh, có cấu trúc — và đo được sự khác biệt."
+    "role": "Kỹ sư Front-End · React / TypeScript",
+    "tagline": "Mình xây ứng dụng React nhanh, có cấu trúc — và đo được sự khác biệt.",
+    "ctaWork": "Xem dự án",
+    "ctaCv": "Tải CV"
+  },
+  "about": {
+    "title": "Giới thiệu",
+    "paragraphs": [
+      "Mình là kỹ sư front-end với 4 năm xây dựng Shopify embedded app bằng React và TypeScript — từ fresher ở Swift năm 2022 đến kỹ sư mid-level trong monorepo của Oneloyalty.",
+      "Mình quan tâm nhất hai điều: sản phẩm có cảm giác nhanh không, và codebase có tiếp tục thay đổi được mà không vỡ không. Điều thứ nhất mình đo bằng Web Vitals, điều thứ hai mình giữ bằng kiến trúc phân lớp và ranh giới được công cụ kiểm soát.",
+      "Với mỗi tính năng, mình viết spec trước khi code, thống nhất API contract sớm, và dùng các công cụ AI như Claude và Copilot để refactor nhanh hơn — rồi tự kiểm chứng kết quả."
+    ],
+    "stats": [
+      { "value": "4+", "label": "năm làm React" },
+      { "value": "3", "label": "Shopify app đã ra mắt" },
+      { "value": "8", "label": "ngôn ngữ trong một hệ i18n" }
+    ]
+  },
+  "work": {
+    "title": "Dự án tiêu biểu",
+    "readCaseStudy": "Đọc case study",
+    "swift": {
+      "metric": "Thời gian tải: 12–13s → 1–3s",
+      "caption": "Thời gian đến màn hình đầu tiên",
+      "before": "Trước",
+      "after": "Sau",
+      "beforeValue": "12–13s",
+      "afterValue": "1–3s"
+    },
+    "oneloyalty": {
+      "metric": "40+ component dùng chung · 8 ngôn ngữ",
+      "caption": "Một lõi i18n, tám ngôn ngữ",
+      "greetings": [
+        { "text": "Hello", "lang": "en" },
+        { "text": "Xin chào", "lang": "vi" },
+        { "text": "Bonjour", "lang": "fr" },
+        { "text": "Hallo", "lang": "de" },
+        { "text": "Hola", "lang": "es" },
+        { "text": "Olá", "lang": "pt" },
+        { "text": "Ciao", "lang": "it" },
+        { "text": "こんにちは", "lang": "ja" }
+      ]
+    },
+    "safebulk": {
+      "metric": "Wizard 3 bước · 4 gói dịch vụ · một mình làm front end",
+      "caption": "Wizard chỉnh sửa hàng loạt",
+      "stepLabel": "Bước {number}",
+      "steps": ["Lọc sản phẩm", "Thiết lập quy tắc", "Xem trước thay đổi"],
+      "github": "Mã nguồn trên GitHub",
+      "demo": "Xem demo"
+    }
+  },
+  "skills": {
+    "title": "Kỹ năng",
+    "groups": [
+      {
+        "name": "Nền tảng",
+        "items": ["TypeScript (strict)", "JavaScript (ES6+)", "React", "HTML5", "CSS3"]
+      },
+      {
+        "name": "Kiến trúc",
+        "items": ["Monorepo (Turborepo)", "Layered Architecture", "Feature-Driven Architecture", "Component-Driven Development"]
+      },
+      {
+        "name": "State & dữ liệu",
+        "items": ["TanStack Query", "Zustand", "Redux Toolkit", "REST", "GraphQL (Shopify APIs)"]
+      },
+      {
+        "name": "Build & hiệu năng",
+        "items": ["Vite", "SWC", "Code splitting", "Phân tích bundle", "Web Vitals"]
+      },
+      {
+        "name": "UI & styling",
+        "items": ["Responsive design", "Shopify Polaris", "Tailwind CSS", "SCSS Modules", "styled-components", "Figma"]
+      },
+      {
+        "name": "Công cụ",
+        "items": ["Git", "GitLab CI/CD", "GitHub Actions", "Docker", "Publish package NPM"]
+      }
+    ]
+  },
+  "contact": {
+    "title": "Cùng làm việc nhé",
+    "description": "Mình đang tìm vị trí front-end ở các team remote và quốc tế. Email là cách nhanh nhất để liên hệ mình.",
+    "email": "Email",
+    "linkedin": "LinkedIn",
+    "github": "GitHub",
+    "cv": "Tải CV"
+  },
+  "footer": {
+    "copyright": "© {year} Nguyễn Thành Đạt",
+    "social": "Liên kết mạng xã hội"
+  },
+  "caseStudy": {
+    "back": "Quay lại dự án",
+    "fallbackNotice": "Bài viết này hiện chỉ có bằng tiếng Anh.",
+    "started": "Bắt đầu {date}"
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "Ghi chép về hiệu năng front-end, kiến trúc và i18n từ quá trình xây dựng Shopify app.",
+    "empty": "Chưa có bài viết nào — những bài đầu tiên sắp ra mắt.",
+    "back": "Quay lại blog"
   },
   "notFound": {
     "title": "Không tìm thấy trang",

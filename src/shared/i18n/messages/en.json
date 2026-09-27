@@ -3,9 +3,131 @@
     "title": "Nguyen Thanh Dat — Frontend Engineer",
     "description": "Frontend Engineer specializing in React, TypeScript, performance, and architecture."
   },
+  "nav": {
+    "skipToContent": "Skip to content",
+    "brand": "Nguyen Thanh Dat",
+    "homeLabel": "Nguyen Thanh Dat — home",
+    "primary": "Primary",
+    "menu": "Menu",
+    "about": "About",
+    "work": "Work",
+    "skills": "Skills",
+    "contact": "Contact",
+    "blog": "Blog",
+    "language": "Language"
+  },
+  "locales": {
+    "en": "English",
+    "vi": "Tiếng Việt"
+  },
+  "theme": {
+    "toggle": "Dark theme"
+  },
   "hero": {
     "title": "Nguyen Thanh Dat",
-    "tagline": "I build fast, well-structured React apps — and measure the difference."
+    "role": "Front-End Engineer · React / TypeScript",
+    "tagline": "I build fast, well-structured React apps — and measure the difference.",
+    "ctaWork": "See my work",
+    "ctaCv": "Download CV"
+  },
+  "about": {
+    "title": "About",
+    "paragraphs": [
+      "I'm a front-end engineer with 4 years of building Shopify embedded apps in React and TypeScript — from joining Swift as a fresher in 2022 to working as a mid-level engineer on Oneloyalty's monorepo.",
+      "I care most about two things: how fast a product feels, and whether its codebase can keep changing without breaking. I measure the first with Web Vitals and protect the second with layered architecture and enforced boundaries.",
+      "For every feature I write the spec before the code, agree on API contracts early, and use AI tools like Claude and Copilot to move faster on refactors — then verify the result myself."
+    ],
+    "stats": [
+      { "value": "4+", "label": "years building React apps" },
+      { "value": "3", "label": "Shopify apps shipped" },
+      { "value": "8", "label": "languages in one i18n system" }
+    ]
+  },
+  "work": {
+    "title": "Selected work",
+    "readCaseStudy": "Read case study",
+    "swift": {
+      "metric": "Initial load: 12–13s → 1–3s",
+      "caption": "Time to first screen",
+      "before": "Before",
+      "after": "After",
+      "beforeValue": "12–13s",
+      "afterValue": "1–3s"
+    },
+    "oneloyalty": {
+      "metric": "40+ shared components · 8 languages",
+      "caption": "One i18n core, eight languages",
+      "greetings": [
+        { "text": "Hello", "lang": "en" },
+        { "text": "Xin chào", "lang": "vi" },
+        { "text": "Bonjour", "lang": "fr" },
+        { "text": "Hallo", "lang": "de" },
+        { "text": "Hola", "lang": "es" },
+        { "text": "Olá", "lang": "pt" },
+        { "text": "Ciao", "lang": "it" },
+        { "text": "こんにちは", "lang": "ja" }
+      ]
+    },
+    "safebulk": {
+      "metric": "3-step wizard · 4 plan tiers · solo front end",
+      "caption": "Bulk edit wizard",
+      "stepLabel": "Step {number}",
+      "steps": ["Filter products", "Configure rules", "Preview changes"],
+      "github": "Source on GitHub",
+      "demo": "Watch the demo"
+    }
+  },
+  "skills": {
+    "title": "Skills",
+    "groups": [
+      {
+        "name": "Core",
+        "items": ["TypeScript (strict)", "JavaScript (ES6+)", "React", "HTML5", "CSS3"]
+      },
+      {
+        "name": "Architecture",
+        "items": ["Monorepo (Turborepo)", "Layered Architecture", "Feature-Driven Architecture", "Component-Driven Development"]
+      },
+      {
+        "name": "State & data",
+        "items": ["TanStack Query", "Zustand", "Redux Toolkit", "REST", "GraphQL (Shopify APIs)"]
+      },
+      {
+        "name": "Build & performance",
+        "items": ["Vite", "SWC", "Code splitting", "Bundle analysis", "Web Vitals"]
+      },
+      {
+        "name": "UI & styling",
+        "items": ["Responsive design", "Shopify Polaris", "Tailwind CSS", "SCSS Modules", "styled-components", "Figma"]
+      },
+      {
+        "name": "Tooling",
+        "items": ["Git", "GitLab CI/CD", "GitHub Actions", "Docker", "NPM package publishing"]
+      }
+    ]
+  },
+  "contact": {
+    "title": "Let's work together",
+    "description": "I'm open to front-end roles with remote and international teams. Email is the fastest way to reach me.",
+    "email": "Email",
+    "linkedin": "LinkedIn",
+    "github": "GitHub",
+    "cv": "Download CV"
+  },
+  "footer": {
+    "copyright": "© {year} Nguyen Thanh Dat",
+    "social": "Social links"
+  },
+  "caseStudy": {
+    "back": "Back to work",
+    "fallbackNotice": "This case study is only available in English for now.",
+    "started": "Started {date}"
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "Notes on front-end performance, architecture, and i18n from building Shopify apps.",
+    "empty": "No posts yet — the first ones are on the way.",
+    "back": "Back to blog"
   },
   "notFound": {
     "title": "Page not found",

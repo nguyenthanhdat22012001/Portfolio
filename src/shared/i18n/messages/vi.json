@@ -128,8 +128,11 @@
     ]
   },
   "contact": {
-    "title": "Cùng làm việc nhé",
-    "description": "Mình đang tìm vị trí front-end ở các team remote và quốc tế. Email là cách nhanh nhất để liên hệ mình.",
+    "label": "Liên hệ",
+    "titleLines": ["Cùng xây", "thứ gì đó thật nhanh."],
+    "description": "Mình đang tìm vị trí front-end ở các team remote và quốc tế.",
+    "copyEmail": "Sao chép email",
+    "copied": "Đã sao chép",
     "email": "Email",
     "linkedin": "LinkedIn",
     "github": "GitHub",

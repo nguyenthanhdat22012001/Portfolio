@@ -12,7 +12,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 - Server Components are the default. Add `"use client"` only to a file that
   directly touches GSAP or the React Three Fiber canvas, or to a minimal
   interactive control that cannot work without client JS (currently
-  `shared/theme/ThemeToggle.tsx` and `features/layout/LocaleSwitcher.tsx`).
+  `shared/theme/ThemeToggle.tsx`, `features/layout/LocaleSwitcher.tsx`, and
+  `features/contact/CopyEmailButton.tsx`, which must sit next to a `mailto:`
+  link as its no-JS fallback).
   Pass translated labels to client components as props instead of shipping
   message catalogs to the client.
 

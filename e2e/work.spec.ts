@@ -25,15 +25,17 @@ for (const locale of ["en", "vi"]) {
 test.describe("mobile", () => {
   test.use({ viewport: { width: 375, height: 800 } });
 
-  test("the home page has no horizontal overflow", async ({ page }) => {
-    await page.goto("/en");
-    const overflow = await page.evaluate(
-      () =>
-        document.documentElement.scrollWidth -
-        document.documentElement.clientWidth
-    );
-    expect(overflow).toBeLessThanOrEqual(0);
-  });
+  for (const locale of ["en", "vi"]) {
+    test(`/${locale} has no horizontal overflow`, async ({ page }) => {
+      await page.goto(`/${locale}`);
+      const overflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth
+      );
+      expect(overflow).toBeLessThanOrEqual(0);
+    });
+  }
 });
 
 test("a chapter link opens its case study", async ({ page }) => {

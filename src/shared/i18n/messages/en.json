@@ -128,8 +128,11 @@
     ]
   },
   "contact": {
-    "title": "Let's work together",
-    "description": "I'm open to front-end roles with remote and international teams. Email is the fastest way to reach me.",
+    "label": "Contact",
+    "titleLines": ["Let's build", "something fast."],
+    "description": "Open to front-end roles with remote and international teams.",
+    "copyEmail": "Copy email",
+    "copied": "Copied",
     "email": "Email",
     "linkedin": "LinkedIn",
     "github": "GitHub",

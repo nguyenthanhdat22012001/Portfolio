@@ -83,6 +83,15 @@ test("the contact section links to email", async ({ page }) => {
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 
+  test("the email is still reachable as a mailto link", async ({ page }) => {
+    await page.goto("/en");
+    await expect(
+      page.locator("#contact").getByRole("link", {
+        name: "nguyenthanhdat22012001@gmail.com"
+      })
+    ).toHaveAttribute("href", "mailto:nguyenthanhdat22012001@gmail.com");
+  });
+
   test("the home page content is fully rendered", async ({ page }) => {
     await page.goto("/en");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
@@ -151,4 +160,45 @@ test.describe("mobile skills", () => {
     await page.goto("/en");
     await expect(page.locator("section#skills h3").first()).toBeVisible();
   });
+});
+
+test("Contact uses the big two-line heading", async ({ page }) => {
+  await page.goto("/en");
+  await expect(page.locator("section#contact h2")).toHaveText(
+    "Let's build something fast."
+  );
+});
+
+test("the contact section links to LinkedIn, GitHub, and the CV", async ({
+  page
+}) => {
+  await page.goto("/en");
+  const contact = page.locator("#contact");
+  await expect(contact.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
+    "href",
+    /linkedin\.com/
+  );
+  await expect(contact.getByRole("link", { name: "GitHub" })).toHaveAttribute(
+    "href",
+    /github\.com\/nguyenthanhdat22012001$/
+  );
+  const cv = contact.getByRole("link", { name: "Download CV" });
+  await expect(cv).toHaveAttribute("href", "/cv.pdf");
+  await expect(cv).toHaveAttribute("download", "");
+});
+
+test("the copy button puts the email on the clipboard", async ({
+  page,
+  context
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/en");
+  await page
+    .locator("#contact")
+    .getByRole("button", { name: "Copy email" })
+    .click();
+  await expect(page.locator("#contact [aria-live]")).toHaveText("Copied");
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "nguyenthanhdat22012001@gmail.com"
+  );
 });

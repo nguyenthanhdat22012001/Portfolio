@@ -1,6 +1,7 @@
 import { blog, work, type Blog, type Work } from "#site/content";
 import type { Locale } from "@/shared/i18n/routing";
 import {
+  assertDefaultLocale,
   assertUnique,
   findForLocale,
   localeParams,
@@ -12,6 +13,8 @@ import {
 // Fails the build loudly instead of silently shadowing a translation.
 assertUnique("work", work);
 assertUnique("blog", blog);
+assertDefaultLocale("work", work);
+assertDefaultLocale("blog", blog);
 
 export type { Blog, Localized, Work };
 

@@ -141,6 +141,8 @@ Each section is an async Server Component using `getTranslations(namespace)` and
 - Velite schema change: `slug` becomes `s.string().regex(/^[a-z0-9-]+$/)` (`s.slug()` enforces
   collection-wide uniqueness, which breaks same-slug `en`/`vi` pairs). Uniqueness is enforced on
   the `(slug, locale)` pair by the content layer (tested).
+- Every document must have an `en` version; a `vi`-only document fails the build. Fallback
+  only runs towards `en`, and the locale switcher links each page to its `en` twin.
 - `shared/content` exposes pure functions that take the Velite arrays as a parameter (with
   thin wrappers binding the real data):
   - `getWork(locale)` → one entry per slug, the `locale` version if present else `en`, each

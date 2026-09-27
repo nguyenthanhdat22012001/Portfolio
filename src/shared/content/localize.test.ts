@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  assertDefaultLocale,
   assertUnique,
   findDuplicate,
   findForLocale,
@@ -100,5 +101,19 @@ describe("duplicate detection", () => {
     expect(() =>
       assertUnique("work", [...docs, { slug: "beta", locale: "en" as const }])
     ).toThrow("Duplicate work entry: en/beta");
+  });
+});
+
+describe("default-locale coverage", () => {
+  it("accepts documents that all have an English version", () => {
+    expect(() => assertDefaultLocale("work", docs.slice(0, 3))).not.toThrow();
+  });
+
+  // The locale switcher links every page to its English twin, so a
+  // Vietnamese-only document would give it a link to a 404.
+  it("rejects a Vietnamese document with no English version", () => {
+    expect(() => assertDefaultLocale("work", docs)).toThrow(
+      "work entry vi/gamma has no en version"
+    );
   });
 });

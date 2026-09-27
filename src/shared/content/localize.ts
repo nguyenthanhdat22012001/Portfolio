@@ -34,6 +34,24 @@ export function assertUnique(
   }
 }
 
+// Every document must exist in the default locale: fallback only runs
+// towards it, and the locale switcher links each page to its twin there.
+export function assertDefaultLocale(
+  collection: string,
+  docs: readonly LocalizedDoc[]
+): void {
+  for (const { slug, locale } of docs) {
+    const hasDefault = docs.some(
+      (doc) => doc.slug === slug && doc.locale === routing.defaultLocale
+    );
+    if (!hasDefault) {
+      throw new Error(
+        `${collection} entry ${locale}/${slug} has no ${routing.defaultLocale} version`
+      );
+    }
+  }
+}
+
 // A missing translation falls back to the default locale (English), never
 // the other way round.
 export function findForLocale<T extends LocalizedDoc>(

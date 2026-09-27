@@ -16,7 +16,8 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "#site/content": ["./.velite"]
     }
   },
   "include": ["global.d.ts","next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -4,7 +4,7 @@ const work = defineCollection({
   name: "Work",
   pattern: "work/**/*.mdx",
   schema: s.object({
-    slug: s.slug("work"),
+    slug: s.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     title: s.string(),
     summary: s.string(),
     locale: s.enum(["en", "vi"]),
@@ -18,7 +18,7 @@ const blog = defineCollection({
   name: "Blog",
   pattern: "blog/**/*.mdx",
   schema: s.object({
-    slug: s.slug("blog"),
+    slug: s.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     title: s.string(),
     summary: s.string(),
     locale: s.enum(["en", "vi"]),

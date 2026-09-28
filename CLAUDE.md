@@ -69,6 +69,8 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 - No hardcoded user-facing strings. Every piece of copy goes through
   next-intl message keys in `shared/i18n/messages/en.json` and
   `shared/i18n/messages/vi.json`. Add a key to both files together.
+- Locale routing lives in `src/proxy.ts` (Next 16's rename of
+  `middleware.ts`).
 
 ## SEO
 

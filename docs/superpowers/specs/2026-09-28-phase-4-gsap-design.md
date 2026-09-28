@@ -230,9 +230,10 @@ Markup changes:
 - **SafeBulk:** "active" styling moves from a render-time boolean to `data-active` with
   Tailwind `data-active:` / `group-data-active:` variants. Static default unchanged: the last
   card is active.
-- **Swift:** bars animate with `scaleX` + `origin-left`. A new `aria-hidden` timer element
-  reserves its space with `invisible` until the effect shows it; the accessible values remain
-  the existing before/after text.
+- **Swift:** bars animate with `scaleX` + `origin-left`. A new `aria-hidden` timer `<span>`
+  sits next to the before-label `<p>`, whose text sets the row's height, so the span starts
+  empty and needs no placeholder text or `invisible` class; the effect fills it in, and the
+  accessible values remain the existing before/after text.
 - **Oneloyalty:** the counter carries the raw ICU template in `data-counter-template`
   (`t.raw("counter")` = `"{current} / {total}"`); the effect reads greetings from the
   existing sr-only list.

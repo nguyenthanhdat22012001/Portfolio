@@ -4,7 +4,6 @@ import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { getSiteUrl } from "@/shared/seo/site-url";
 import { fontMono, fontSans } from "@/shared/theme/fonts";
 import { themeScript } from "@/shared/theme/theme-script";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -61,7 +60,6 @@ export default async function LocaleLayout({
             {children}
           </main>
           <SiteFooter />
-          <SpeedInsights />
         </NextIntlClientProvider>
       </body>
     </html>

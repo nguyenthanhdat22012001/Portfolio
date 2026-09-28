@@ -9,6 +9,10 @@ import { getWorkBySlug, getWorkLocales, getWorkParams } from "@/shared/content";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { MdxContent } from "@/shared/mdx/MdxContent";
 import { buildMetadata } from "@/shared/seo/build-metadata";
+import { buildBreadcrumbs } from "@/shared/seo/json-ld/breadcrumbs";
+import { buildCreativeWork } from "@/shared/seo/json-ld/creative-work";
+import { JsonLd } from "@/shared/seo/JsonLd";
+import { absoluteUrl } from "@/shared/seo/urls";
 import { ArticleLayout } from "@/shared/ui/ArticleLayout";
 
 type Params = Promise<{ locale: string; slug: string }>;
@@ -52,24 +56,46 @@ export default async function WorkCaseStudyPage({
   const t = await getTranslations("caseStudy");
   const format = await getFormatter();
   const { doc, isFallback } = entry;
+  const tSeo = await getTranslations("seo");
+  const path = `/work/${slug}`;
 
   return (
-    <ArticleLayout
-      backHref={{ pathname: "/", hash: "work" }}
-      backLabel={t("back")}
-      title={doc.title}
-      summary={doc.summary}
-      meta={t("started", {
-        date: format.dateTime(new Date(doc.dateCreated), {
-          year: "numeric",
-          month: "long"
-        })
-      })}
-      tags={doc.tags}
-      notice={isFallback ? t("fallbackNotice") : undefined}
-      contentLang={isFallback ? routing.defaultLocale : undefined}
-    >
-      <MdxContent code={doc.content} />
-    </ArticleLayout>
+    <>
+      <JsonLd
+        data={[
+          buildCreativeWork({
+            slug,
+            locale,
+            availableLocales: getWorkLocales(slug),
+            title: doc.title,
+            description: doc.description,
+            dateCreated: doc.dateCreated,
+            tags: doc.tags,
+            contentLocale: doc.locale
+          }),
+          buildBreadcrumbs([
+            { name: tSeo("breadcrumbHome"), url: absoluteUrl(locale, "/") },
+            { name: doc.title, url: absoluteUrl(locale, path) }
+          ])
+        ]}
+      />
+      <ArticleLayout
+        backHref={{ pathname: "/", hash: "work" }}
+        backLabel={t("back")}
+        title={doc.title}
+        summary={doc.summary}
+        meta={t("started", {
+          date: format.dateTime(new Date(doc.dateCreated), {
+            year: "numeric",
+            month: "long"
+          })
+        })}
+        tags={doc.tags}
+        notice={isFallback ? t("fallbackNotice") : undefined}
+        contentLang={isFallback ? routing.defaultLocale : undefined}
+      >
+        <MdxContent code={doc.content} />
+      </ArticleLayout>
+    </>
   );
 }

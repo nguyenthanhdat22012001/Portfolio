@@ -1,6 +1,18 @@
 // Data, not copy: these values are identical in every locale.
 export const site = {
   name: "Nguyen Thanh Dat",
+  alternateName: "Nguyễn Thành Đạt",
+  // schema.org Person.knowsAbout — technology names, identical in every locale.
+  knowsAbout: [
+    "React",
+    "TypeScript",
+    "Next.js",
+    "Front-end performance",
+    "Web Vitals",
+    "Shopify app development",
+    "Monorepo architecture",
+    "Internationalization (i18n)"
+  ],
   email: "nguyenthanhdat22012001@gmail.com",
   linkedin: "https://www.linkedin.com/in/dat-nguyen-b26744277",
   github: "https://github.com/nguyenthanhdat22012001",

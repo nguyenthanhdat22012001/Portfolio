@@ -7,6 +7,9 @@ import { SkillsSection } from "@/features/skills/SkillsSection";
 import { WorkSection } from "@/features/work/WorkSection";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { buildMetadata } from "@/shared/seo/build-metadata";
+import { buildProfilePage } from "@/shared/seo/json-ld/profile-page";
+import { buildWebSite } from "@/shared/seo/json-ld/website";
+import { JsonLd } from "@/shared/seo/JsonLd";
 
 export async function generateMetadata({
   params
@@ -35,9 +38,16 @@ export default async function HomePage({
   const { locale } = await params;
   if (!isValidLocale(locale)) notFound();
   setRequestLocale(locale);
+  const tSeo = await getTranslations("seo");
 
   return (
     <>
+      <JsonLd
+        data={[
+          buildProfilePage({ locale, jobTitle: tSeo("jobTitle") }),
+          buildWebSite()
+        ]}
+      />
       <HeroSection />
       <AboutSection />
       <WorkSection />

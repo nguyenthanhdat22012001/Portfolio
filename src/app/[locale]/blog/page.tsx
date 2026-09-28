@@ -9,7 +9,10 @@ import { getPosts, hasPosts } from "@/shared/content";
 import { Link } from "@/shared/i18n/navigation";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { buildMetadata } from "@/shared/seo/build-metadata";
+import { buildBreadcrumbs } from "@/shared/seo/json-ld/breadcrumbs";
+import { JsonLd } from "@/shared/seo/JsonLd";
 import { ogImagePath } from "@/shared/seo/og/og-image";
+import { absoluteUrl } from "@/shared/seo/urls";
 import { Container } from "@/shared/ui/Container";
 
 type Params = Promise<{ locale: string }>;
@@ -44,9 +47,16 @@ export default async function BlogIndexPage({ params }: { params: Params }) {
   const t = await getTranslations("blog");
   const format = await getFormatter();
   const posts = getPosts(locale);
+  const tSeo = await getTranslations("seo");
 
   return (
     <Container size="narrow" className="py-12 sm:py-16">
+      <JsonLd
+        data={buildBreadcrumbs([
+          { name: tSeo("breadcrumbHome"), url: absoluteUrl(locale, "/") },
+          { name: tSeo("breadcrumbBlog"), url: absoluteUrl(locale, "/blog") }
+        ])}
+      />
       <h1 className="text-3xl font-bold sm:text-4xl">{t("title")}</h1>
       <p className="text-fg-muted mt-4 text-lg">{t("description")}</p>
       {posts.length === 0 ? (

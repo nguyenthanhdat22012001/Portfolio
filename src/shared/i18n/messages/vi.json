@@ -9,6 +9,11 @@
     "caseStudy": "Dự án",
     "blog": "Blog"
   },
+  "seo": {
+    "jobTitle": "Kỹ sư Front-End",
+    "breadcrumbHome": "Trang chủ",
+    "breadcrumbBlog": "Blog"
+  },
   "nav": {
     "skipToContent": "Chuyển đến nội dung",
     "brand": "dat.nguyen",

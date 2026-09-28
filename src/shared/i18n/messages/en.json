@@ -9,6 +9,11 @@
     "caseStudy": "Case study",
     "blog": "Blog"
   },
+  "seo": {
+    "jobTitle": "Front-End Engineer",
+    "breadcrumbHome": "Home",
+    "breadcrumbBlog": "Blog"
+  },
   "nav": {
     "skipToContent": "Skip to content",
     "brand": "dat.nguyen",

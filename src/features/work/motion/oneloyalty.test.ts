@@ -108,4 +108,39 @@ describe("oneloyalty", () => {
     expect(greeting()?.textContent).toBe("Xin chào");
     expect(gsap.from).toHaveBeenCalled();
   });
+
+  it("stops an in-flight morph as soon as the chapter leaves the screen", () => {
+    const el = mount();
+    const { ctx, ScrollTrigger, SplitText, gsap } = createFakeContext();
+    oneloyalty.run(el, ctx);
+    const { onToggle } = ScrollTrigger.create.mock.calls[0]?.[0] as {
+      onToggle: (self: { isActive: boolean }) => void;
+    };
+    onToggle({ isActive: true });
+    vi.advanceTimersByTime(2500);
+    expect(SplitText.create).toHaveBeenCalledTimes(1);
+    const created = SplitText.create.mock.results[0]?.value as ReturnType<
+      typeof SplitText.create
+    >;
+
+    onToggle({ isActive: false });
+    expect(gsap.killTweensOf).toHaveBeenCalled();
+    expect(created.revert).toHaveBeenCalled();
+
+    vi.advanceTimersByTime(10_000);
+    expect(SplitText.create).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not start a second morph while one is already in flight", () => {
+    const el = mount();
+    const { ctx, ScrollTrigger, SplitText } = createFakeContext();
+    oneloyalty.run(el, ctx);
+    const { onToggle } = ScrollTrigger.create.mock.calls[0]?.[0] as {
+      onToggle: (self: { isActive: boolean }) => void;
+    };
+    onToggle({ isActive: true });
+    vi.advanceTimersByTime(2500);
+    vi.advanceTimersByTime(2500);
+    expect(SplitText.create).toHaveBeenCalledTimes(1);
+  });
 });

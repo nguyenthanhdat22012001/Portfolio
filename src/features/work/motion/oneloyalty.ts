@@ -10,6 +10,8 @@ const GREETING_INTERVAL_MS = 2500;
 
 type Split = ReturnType<MotionContext["SplitText"]["create"]>;
 
+const SPLIT_CONFIG = { type: "chars", aria: "none" } as const;
+
 // Scattered components merge into one grid (40+ de-duplicated components),
 // and the greeting cycles through the i18n system's languages. The visible
 // greeting is aria-hidden; the sr-only list stays the accessible source.
@@ -75,10 +77,11 @@ export const oneloyalty: MotionEffectDef = {
           show(index + 1);
           return;
         }
-        const out = SplitText.create(greetingEl, {
-          type: "chars",
-          aria: "none"
-        });
+        // A morph from the previous tick is still running (e.g. a
+        // throttled background tab let the interval outrun the tween) —
+        // skip this tick rather than split an already-split node.
+        if (split) return;
+        const out = SplitText.create(greetingEl, SPLIT_CONFIG);
         split = out;
         gsap.to(out.chars, {
           yPercent: -100,
@@ -89,10 +92,7 @@ export const oneloyalty: MotionEffectDef = {
           onComplete: () => {
             out.revert();
             show(index + 1);
-            const incoming = SplitText.create(greetingEl, {
-              type: "chars",
-              aria: "none"
-            });
+            const incoming = SplitText.create(greetingEl, SPLIT_CONFIG);
             split = incoming;
             gsap.from(incoming.chars, {
               yPercent: 100,
@@ -109,9 +109,19 @@ export const oneloyalty: MotionEffectDef = {
         });
       };
 
+      // Stops the cycle and, if a morph is mid-flight, ends it immediately:
+      // killing the tween prevents its onComplete from swapping text after
+      // the chapter has left the screen, and reverting the split restores
+      // plain text. If the tween was mid-out, that reverts to the greeting
+      // shown before this tick's morph began (show() never ran); if it was
+      // mid-in, it reverts to the greeting show() already swapped to.
+      // Either way the DOM is left holding a real, unsplit greeting.
       const stop = () => {
         if (intervalId !== undefined) window.clearInterval(intervalId);
         intervalId = undefined;
+        gsap.killTweensOf(greetingEl.querySelectorAll("*"));
+        split?.revert();
+        split = null;
       };
       const trigger = ScrollTrigger.create({
         trigger: el,
@@ -128,8 +138,6 @@ export const oneloyalty: MotionEffectDef = {
       cleanups.push(() => {
         stop();
         trigger.kill();
-        gsap.killTweensOf(greetingEl.querySelectorAll("*"));
-        split?.revert();
         greetingEl.textContent = original.text;
         greetingEl.lang = original.lang;
         counterEl.textContent = original.counter;

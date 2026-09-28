@@ -70,15 +70,19 @@ src/
     lib/site.ts                         # + person data (alternateName, knowsAbout)
     seo/
       site-url.ts                       # new: getSiteUrl()
+      urls.ts                           # new: localizedPath, absoluteUrl, canonical/hreflang helpers
+      sitemap.ts, robots.ts             # new: pure buildSitemap / buildRobots
       build-metadata.ts                 # extended
       JsonLd.tsx                        # new: <JsonLd data />
       json-ld/                          # new: person, website, profile-page,
                                         #      creative-work, blog-posting, breadcrumbs
       og/
+        og-image.ts                     # new: ogImageSize, ogImagePath
         OgCard.tsx                      # new: Satori-safe JSX template
-        render-og-image.tsx             # new: renderOgImage({ eyebrow, title })
+        render-og-image.tsx             # new: renderOgImage({ eyebrow, title, name })
         fonts/OpenSans-Bold.ttf         # new (+ OFL.txt)
 velite.config.ts                        # + description, title max, dateModified
+next.config.ts                          # + outputFileTracingIncludes (OG font)
 content/work/*.mdx                      # + description
 ```
 
@@ -119,7 +123,7 @@ interface BuildMetadataInput {
   locale: Locale;             // the URL's locale
   availableLocales: Locale[]; // locales with real (non-fallback) content for this path
   type: "website" | "article";
-  image?: string;             // only for pages reusing the home OG image
+  imagePath?: string;         // defaults to this page's own OG image route
   noindex?: boolean;
 }
 ```
@@ -133,8 +137,13 @@ Behaviour:
   `alternates.languages`.
 - **OpenGraph:** `title`, `description`, `url` (the canonical URL), `siteName` (the person's
   name), `type`, `locale` (`en_US` / `vi_VN`), `alternateLocale` (other available locales,
-  same mapping), and `images: [image]` only when `image` is given.
-- **Twitter:** `card: "summary_large_image"`, `title`, `description`.
+  same mapping), and `images`: one absolute 1200×630 image, `alt` = `title`, at
+  `imagePath ?? ogImagePath(locale, path)` (`/${locale}${path}/opengraph-image`).
+- **Twitter:** `card: "summary_large_image"`, `title`, `description`, same `images`.
+- Images are always set explicitly rather than relying on Next's file-based merge: Next only
+  injects a file-based image when the page's `openGraph` has no `images` key, and its `alt`
+  export cannot be localized. The explicit URL omits Next's cache-busting query, which is
+  harmless.
 - **`noindex`:** sets `robots: { index: false, follow: true }`.
 
 URLs are built as `/${locale}${path}` with `path === "/"` producing `/${locale}` (no trailing
@@ -163,7 +172,7 @@ No code change: Next emits `<meta name="robots" content="noindex">` on 404 respo
 
 `<JsonLd data={object | object[]} />` in `shared/seo/JsonLd.tsx` — a Server Component
 rendering `<script type="application/ld+json">` with `JSON.stringify(data)` where every `<`
-is replaced with `<`, so content can never close the script tag.
+is replaced with the escape sequence `\u003c`, so content can never close the script tag.
 
 ### Builders — `shared/seo/json-ld/`
 
@@ -196,9 +205,9 @@ repeating it.
 
 - `shared/seo/og/OgCard.tsx` — JSX template using only Satori-supported inline flex styles:
   1200×630, dark-theme `bg` background, a gold (`accent`) eyebrow label, the title in large
-  Open Sans Bold, and a footer with the person's name and the site host (from
+  Open Sans Bold, and a footer with the localized name and the site host (from
   `getSiteUrl()`). Colors are imported from the dark palette in `shared/theme/tokens.ts`.
-- `shared/seo/og/render-og-image.tsx` — `renderOgImage({ eyebrow, title })` returns an
+- `shared/seo/og/render-og-image.tsx` — `renderOgImage({ eyebrow, title, name })` returns an
   `ImageResponse`, loading `fonts/OpenSans-Bold.ttf` with `fs.readFile` at build time. The
   TTF covers Latin + Vietnamese; its OFL license ships alongside it. Satori cannot read the
   `next/font` woff2 files, hence the separate TTF. Font bytes never reach the client bundle.
@@ -208,12 +217,15 @@ repeating it.
   - `app/[locale]/work/[slug]/opengraph-image.tsx` — eyebrow `og.caseStudy`, title = doc
     title (fallback pages render the English title with the Vietnamese eyebrow).
   - `app/[locale]/blog/[slug]/opengraph-image.tsx` — eyebrow `og.blog`, title = post title.
-- Alt text is the localized page title.
-- The blog index passes the home image path to `buildMetadata` via
-  `image`. Playwright verifies every indexable page has an `og:image` that returns a PNG; if
-  Next's file-convention URL makes the explicit path unnecessary or different, the e2e test is
-  the source of truth.
-- New message namespace `og` (`portfolio`, `caseStudy`, `blog`) in both locales.
+- Alt text is the localized page title (set by `buildMetadata`).
+- The blog index passes `imagePath: ogImagePath(locale, "/")` to reuse the home image.
+  Playwright verifies every indexable page has an `og:image` that returns a PNG.
+- Each image route exports its own `generateStaticParams` and answers unknown params with
+  a 404 response.
+- New message namespace `og` (`name`, `portfolio`, `caseStudy`, `blog`) in both locales;
+  `og.name` is the footer name ("Nguyễn Thành Đạt" in Vietnamese).
+- `next.config.ts` adds `outputFileTracingIncludes` for the font so on-demand image routes
+  (future blog posts) can read it on Vercel.
 
 ### Sitemap — `app/sitemap.ts`
 
@@ -297,7 +309,7 @@ Vitest (unit):
 - `getSiteUrl`: all four resolution branches, trailing-slash stripping.
 - `buildMetadata`: real page with two locales (canonical, languages, `x-default`,
   `alternateLocale`), fallback page (canonical to `en`, no languages), home path without a
-  trailing slash, `noindex`, `image`.
+  trailing slash, `noindex`, default and overridden `imagePath`.
 - `availableLocales`: exact matches only, `routing.locales` order.
 - JSON-LD builders: required fields, `#person` references, fallback `inLanguage`, breadcrumb
   positions and absolute URLs.

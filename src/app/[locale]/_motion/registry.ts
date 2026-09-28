@@ -1,6 +1,8 @@
 import { count } from "@/shared/animation/effects/count";
+import { footerReveal } from "@/shared/animation/effects/footer-reveal";
 import { hero } from "@/shared/animation/effects/hero";
 import { reveal } from "@/shared/animation/effects/reveal";
+import { stagger } from "@/shared/animation/effects/stagger";
 import type { MotionName } from "@/shared/animation/motion";
 import type { DesktopHandler, MotionEffectDef } from "@/shared/animation/types";
 
@@ -9,7 +11,9 @@ import type { DesktopHandler, MotionEffectDef } from "@/shared/animation/types";
 export const motionRegistry = {
   hero,
   reveal,
-  count
+  count,
+  stagger,
+  "footer-reveal": footerReveal
 } satisfies Record<MotionName, MotionEffectDef>;
 
 export const desktopHandlers: readonly DesktopHandler[] = [];

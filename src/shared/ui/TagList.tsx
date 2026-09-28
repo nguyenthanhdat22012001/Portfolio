@@ -1,3 +1,4 @@
+import { motion } from "@/shared/animation/motion";
 import { cx } from "@/shared/lib/cx";
 
 const variants = {
@@ -8,14 +9,19 @@ const variants = {
 export function TagList({
   tags,
   variant = "outline",
+  stagger = false,
   className
 }: {
   tags: readonly string[];
   variant?: keyof typeof variants;
+  stagger?: boolean;
   className?: string;
 }) {
   return (
-    <ul className={cx("flex flex-wrap gap-2", className)}>
+    <ul
+      className={cx("flex flex-wrap gap-2", className)}
+      {...(stagger ? motion("stagger") : {})}
+    >
       {tags.map((tag) => (
         <li key={tag} className={cx("rounded-xs font-mono", variants[variant])}>
           {tag}

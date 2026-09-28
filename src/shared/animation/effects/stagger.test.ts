@@ -33,4 +33,17 @@ describe("stagger", () => {
       })
     );
   });
+
+  // magnetic.ts drives `y` on the same chips (e.g. Skills), so the reveal
+  // must animate a different property or hovering during the reveal would
+  // interrupt it under GSAP's default overwrite.
+  it("animates yPercent instead of y, so magnetic's y tween doesn't clash", () => {
+    const el = mount();
+    placeBelowFold(el);
+    const { ctx, gsap } = createFakeContext();
+    stagger.run(el, ctx);
+    const vars = gsap.from.mock.calls[0]?.[1] as Record<string, unknown>;
+    expect(vars.yPercent).toBe(50);
+    expect(vars).not.toHaveProperty("y");
+  });
 });

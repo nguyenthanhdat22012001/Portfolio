@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { motion } from "@/shared/animation/motion";
 import { cx } from "@/shared/lib/cx";
 import { Eyebrow } from "./Eyebrow";
 
@@ -25,7 +26,11 @@ export function SectionHeading({
       <Eyebrow tone="accent">
         {String(index).padStart(2, "0")} / {label}
       </Eyebrow>
-      <h2 id={id} className={cx("leading-[1.1]", sizes[size])}>
+      <h2
+        id={id}
+        className={cx("leading-[1.1]", sizes[size])}
+        {...motion("reveal")}
+      >
         {children}
       </h2>
     </div>

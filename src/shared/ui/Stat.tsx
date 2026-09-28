@@ -1,3 +1,4 @@
+import { motion } from "@/shared/animation/motion";
 import { cx } from "@/shared/lib/cx";
 
 export interface StatEntry {
@@ -14,8 +15,9 @@ const sizes = {
 export function Stat({
   value,
   label,
-  size = "md"
-}: StatEntry & { size?: keyof typeof sizes }) {
+  size = "md",
+  countUp = false
+}: StatEntry & { size?: keyof typeof sizes; countUp?: boolean }) {
   return (
     <div className="flex flex-col-reverse gap-1">
       <dt className={cx("text-fg-muted", sizes[size].label)}>{label}</dt>
@@ -24,6 +26,7 @@ export function Stat({
           "text-accent font-mono font-medium tracking-[-0.02em]",
           sizes[size].value
         )}
+        {...(countUp ? motion("count") : {})}
       >
         {value}
       </dd>

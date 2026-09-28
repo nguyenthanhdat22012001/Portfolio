@@ -39,6 +39,15 @@ describe("Stat", () => {
     expect(host.querySelector("dt")?.textContent).toBe("load, from 12–13s");
     expect(host.querySelector("dd")?.textContent).toBe("1–3s");
   });
+
+  it("marks the value for count-up only when asked", () => {
+    const plain = renderToStaticMarkup(<Stat value="4" label="years" />);
+    const counted = renderToStaticMarkup(
+      <Stat value="4" label="years" countUp />
+    );
+    expect(plain).not.toContain("data-motion");
+    expect(counted).toContain('data-motion="count"');
+  });
 });
 
 describe("StackedLines", () => {

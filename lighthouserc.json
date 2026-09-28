@@ -31,6 +31,10 @@
         "resource-summary:script:size": [
           "error",
           { "maxNumericValue": 153600, "aggregationMethod": "median" }
+        ],
+        "cumulative-layout-shift": [
+          "error",
+          { "maxNumericValue": 0.1, "aggregationMethod": "median-run" }
         ]
       }
     },

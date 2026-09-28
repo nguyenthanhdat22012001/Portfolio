@@ -127,4 +127,110 @@ test.describe("navigation", () => {
       /\{current\}/
     );
   });
+
+  test("clicking Read case study while the Swift chapter is pinned navigates to it", async ({
+    page
+  }) => {
+    const pageErrors: Error[] = [];
+    page.on("pageerror", (error) => pageErrors.push(error));
+
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/en");
+    await loadMotion(page);
+
+    const chapter = page.locator('[data-chapter="swift-performance"]');
+    await chapter.scrollIntoViewIfNeeded();
+    const timer = page.locator("[data-swift-timer]");
+    await expect(async () => {
+      await page.mouse.wheel(0, 100);
+      const text = await timer.textContent();
+      expect(text).not.toBe("");
+      expect(text).not.toBe("0.0s");
+    }).toPass({ timeout: 10_000 });
+
+    await chapter.getByRole("link", { name: /Read case study/ }).click();
+    await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Swift"
+    );
+    expect(pageErrors).toEqual([]);
+  });
+});
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("every heading is visible", async ({ page }) => {
+    await page.goto("/en");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    for (const id of ["about", "work", "skills", "contact"]) {
+      await page.locator(`section#${id}`).scrollIntoViewIfNeeded();
+      await expect(page.locator(`section#${id} h2`)).toBeVisible();
+    }
+  });
+});
+
+test.describe("reduced motion", () => {
+  test.use({ reducedMotion: "reduce" });
+
+  test("loads without smooth scroll, pins, or cursor", async ({ page }) => {
+    await page.goto("/en");
+    await loadMotion(page);
+    await expect(page.locator("html")).not.toHaveClass(/lenis/);
+    await expect(page.locator(".pin-spacer")).toHaveCount(0);
+    await expect(page.locator("[data-cursor]")).toHaveCount(0);
+    await page.locator("#skills").scrollIntoViewIfNeeded();
+    await expect(page.locator("#skills li").first()).toHaveCSS("opacity", "1");
+  });
+});
+
+test.describe("touch devices", () => {
+  test.use({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    isMobile: true
+  });
+
+  test("load motion without pins or cursor", async ({ page }) => {
+    await page.goto("/en");
+    const html = page.locator("html");
+    await expect(async () => {
+      await page.touchscreen.tap(195, 400);
+      await expect(html).toHaveAttribute("data-motion-ready", "", {
+        timeout: 500
+      });
+    }).toPass({ timeout: 10_000 });
+    await expect(html).not.toHaveClass(/lenis/);
+    await expect(page.locator(".pin-spacer")).toHaveCount(0);
+    await expect(page.locator("[data-cursor]")).toHaveCount(0);
+  });
+});
+
+test("content scrolled past before motion loads stays visible", async ({
+  page
+}) => {
+  await page.goto("/en");
+  await page.evaluate(() =>
+    document.querySelector("#skills")?.scrollIntoView()
+  );
+  // The scroll above is the first interaction; wait for the engine.
+  await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+  await expect(page.locator("#about h2")).toHaveCSS("opacity", "1");
+  await expect(page.locator("#skills li").first()).toHaveCSS("opacity", "1");
+});
+
+test("shrinking a desktop window to mobile removes pins", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/en");
+  await loadMotion(page);
+  await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator(".pin-spacer")).toHaveCount(0);
+  await page
+    .locator('[data-chapter="swift-performance"]')
+    .scrollIntoViewIfNeeded();
+  await expect(
+    page.locator('[data-chapter="swift-performance"] h3')
+  ).toBeVisible();
 });

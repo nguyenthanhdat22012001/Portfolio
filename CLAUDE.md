@@ -12,9 +12,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 - Server Components are the default. Add `"use client"` only to a file that
   directly touches GSAP or the React Three Fiber canvas, or to a minimal
   interactive control that cannot work without client JS (currently
-  `shared/theme/ThemeToggle.tsx`, `features/layout/LocaleSwitcher.tsx`, and
+  `shared/theme/ThemeToggle.tsx`, `features/layout/LocaleSwitcher.tsx`,
   `features/contact/CopyEmailButton.tsx`, which must sit next to a `mailto:`
-  link as its no-JS fallback).
+  link as its no-JS fallback, and `app/[locale]/_motion/MotionRoot.tsx`).
   Pass translated labels to client components as props instead of shipping
   message catalogs to the client.
 
@@ -32,6 +32,20 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   component.
 - Respect `prefers-reduced-motion`: disable scrubbing/pinning and Lenis, and
   keep any 3D scene static.
+- Motion is declarative: Server Components mark elements with
+  `motion("<name>")` / `magnetic()` from `shared/animation/motion.ts`, and
+  effects live in `shared/animation/effects/` (generic) or
+  `features/*/motion/` (feature-specific). Register every effect in
+  `app/[locale]/_motion/registry.ts`; the name list and the registry are
+  type-checked against each other.
+- `gsap`, `gsap/*`, and `lenis` are imported at runtime only in
+  `app/[locale]/_motion/motion-entry.ts`, which `MotionRoot` loads on the
+  first interaction. Everywhere else use `import type`.
+- Effects never hide or move content that is already on screen or scrolled
+  past when they start (`isAtOrAboveViewport`), and nothing starts at
+  `opacity: 0` in HTML or CSS.
+- Page transitions use React `<ViewTransition>` (`shared/ui/PageTransition.tsx`
+  in each `page.tsx`, never a layout) with `transitionTypes` on links.
 
 ## Performance budget (enforced by Lighthouse CI — `lighthouserc.json`)
 
@@ -46,6 +60,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   on Next 16.3.6, Turbopack's home-page script output was 152 KB versus
   webpack's ~142 KB, and only webpack stays under the 150 KB budget above.
   Re-check this when upgrading Next.
+- Lazy motion chunk (GSAP + ScrollTrigger + SplitText + Lenis + effects)
+  ≤ 70 KB gzip, enforced by `e2e/motion.spec.ts` in CI.
+- CLS ≤ 0.1 (Lighthouse CI).
 
 ## i18n
 

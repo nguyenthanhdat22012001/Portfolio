@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { motion } from "@/shared/animation/motion";
+import { magnetic, motion } from "@/shared/animation/motion";
 import { site } from "@/shared/lib/site";
 import { ButtonLink } from "@/shared/ui/ButtonLink";
 import { Container } from "@/shared/ui/Container";
@@ -29,8 +29,15 @@ export async function HeroSection() {
             {t("tagline")}
           </p>
           <div className="mt-2 flex flex-wrap gap-3">
-            <ButtonLink href="#work">{t("ctaWork")}</ButtonLink>
-            <ButtonLink href={site.cv} download variant="secondary">
+            <ButtonLink href="#work" {...magnetic()}>
+              {t("ctaWork")}
+            </ButtonLink>
+            <ButtonLink
+              href={site.cv}
+              download
+              variant="secondary"
+              {...magnetic()}
+            >
               {t("ctaCv")}
             </ButtonLink>
           </div>

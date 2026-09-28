@@ -1,4 +1,4 @@
-import { motion } from "@/shared/animation/motion";
+import { magnetic, motion } from "@/shared/animation/motion";
 import { cx } from "@/shared/lib/cx";
 
 const variants = {
@@ -10,12 +10,14 @@ export function TagList({
   tags,
   variant = "outline",
   stagger = false,
-  className
+  className,
+  magneticStrength
 }: {
   tags: readonly string[];
   variant?: keyof typeof variants;
   stagger?: boolean;
   className?: string;
+  magneticStrength?: number;
 }) {
   return (
     <ul
@@ -23,7 +25,11 @@ export function TagList({
       {...(stagger ? motion("stagger") : {})}
     >
       {tags.map((tag) => (
-        <li key={tag} className={cx("rounded-xs font-mono", variants[variant])}>
+        <li
+          key={tag}
+          className={cx("rounded-xs font-mono", variants[variant])}
+          {...(magneticStrength ? magnetic(magneticStrength) : {})}
+        >
           {tag}
         </li>
       ))}

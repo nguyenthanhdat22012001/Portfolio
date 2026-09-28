@@ -23,7 +23,12 @@ export async function SkillsSection() {
             <h3 className="text-fg-muted font-mono text-[0.8125rem] font-normal tracking-normal">
               {group.name}
             </h3>
-            <TagList tags={group.items} variant="filled" stagger />
+            <TagList
+              tags={group.items}
+              variant="filled"
+              stagger
+              magneticStrength={0.2}
+            />
           </div>
         ))}
       </div>

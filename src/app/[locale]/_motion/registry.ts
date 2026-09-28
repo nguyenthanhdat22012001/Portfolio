@@ -1,6 +1,9 @@
 import { count } from "@/shared/animation/effects/count";
+import { startCursor } from "@/shared/animation/effects/cursor";
 import { footerReveal } from "@/shared/animation/effects/footer-reveal";
+import { startHashLinks } from "@/shared/animation/effects/hash-links";
 import { hero } from "@/shared/animation/effects/hero";
+import { startMagnetic } from "@/shared/animation/effects/magnetic";
 import { reveal } from "@/shared/animation/effects/reveal";
 import { stagger } from "@/shared/animation/effects/stagger";
 import type { MotionName } from "@/shared/animation/motion";
@@ -16,4 +19,8 @@ export const motionRegistry = {
   "footer-reveal": footerReveal
 } satisfies Record<MotionName, MotionEffectDef>;
 
-export const desktopHandlers: readonly DesktopHandler[] = [];
+export const desktopHandlers: readonly DesktopHandler[] = [
+  startCursor,
+  startMagnetic,
+  startHashLinks
+];

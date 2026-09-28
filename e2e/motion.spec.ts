@@ -46,3 +46,16 @@ test.describe("motion loading", () => {
     expect(gzipBytes).toBeLessThanOrEqual(MOTION_BUDGET_BYTES);
   });
 });
+
+test("header links smooth-scroll to their section on desktop", async ({
+  page
+}) => {
+  await page.goto("/en");
+  await loadMotion(page);
+  await page
+    .getByRole("navigation", { name: "Primary" })
+    .getByRole("link", { name: "Work" })
+    .click();
+  await expect(page).toHaveURL(/#work$/);
+  await expect(page.locator("#work h2")).toBeInViewport();
+});

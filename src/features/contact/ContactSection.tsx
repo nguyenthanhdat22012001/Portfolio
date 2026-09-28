@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { magnetic } from "@/shared/animation/motion";
 import { site } from "@/shared/lib/site";
 import { ButtonLink } from "@/shared/ui/ButtonLink";
 import { Section } from "@/shared/ui/Section";
@@ -40,6 +41,7 @@ export async function ContactSection() {
           variant="secondary"
           size="lg"
           {...external}
+          {...magnetic()}
         >
           {t("linkedin")}
           <span aria-hidden="true">&nbsp;↗</span>
@@ -49,11 +51,18 @@ export async function ContactSection() {
           variant="secondary"
           size="lg"
           {...external}
+          {...magnetic()}
         >
           {t("github")}
           <span aria-hidden="true">&nbsp;↗</span>
         </ButtonLink>
-        <ButtonLink href={site.cv} download variant="secondary" size="lg">
+        <ButtonLink
+          href={site.cv}
+          download
+          variant="secondary"
+          size="lg"
+          {...magnetic()}
+        >
           {t("cv")}
         </ButtonLink>
       </div>

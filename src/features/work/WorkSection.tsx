@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 import { getTranslations } from "next-intl/server";
+import type { MotionName } from "@/shared/animation/motion";
 import { site } from "@/shared/lib/site";
 import { Section } from "@/shared/ui/Section";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
@@ -23,6 +24,11 @@ const visuals: Record<ChapterKey, () => Promise<JSX.Element>> = {
 const linkHrefs: Record<ChapterLink, string> = {
   github: site.safebulkRepo,
   demo: site.safebulkDemo
+};
+
+// Chapters gain entries as their effects land (Tasks 9 and 10).
+const chapterMotion: Partial<Record<ChapterKey, MotionName>> = {
+  swift: "swift"
 };
 
 export async function WorkSection() {
@@ -58,6 +64,7 @@ export async function WorkSection() {
               }))}
               visual={<Visual />}
               reversed={index % 2 === 1}
+              motionName={chapterMotion[chapter.key]}
             />
           );
         })}

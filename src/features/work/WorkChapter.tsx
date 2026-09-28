@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { motion, type MotionName } from "@/shared/animation/motion";
 import { Link } from "@/shared/i18n/navigation";
 import { cx } from "@/shared/lib/cx";
 import { Eyebrow } from "@/shared/ui/Eyebrow";
@@ -15,7 +16,8 @@ export function WorkChapter({
   readLabel,
   links,
   visual,
-  reversed
+  reversed,
+  motionName
 }: {
   slug: string;
   eyebrow: string;
@@ -27,6 +29,7 @@ export function WorkChapter({
   links: readonly { href: string; label: string }[];
   visual: ReactNode;
   reversed: boolean;
+  motionName?: MotionName;
 }) {
   const titleId = `work-${slug}-title`;
 
@@ -36,6 +39,7 @@ export function WorkChapter({
     <article
       aria-labelledby={titleId}
       data-chapter={slug}
+      {...(motionName ? motion(motionName) : {})}
       className="border-border grid gap-8 border-t py-12 first:border-t-0 md:grid-cols-12 md:items-center md:gap-12 md:py-20"
     >
       <div className="flex flex-col gap-5 md:col-span-5">

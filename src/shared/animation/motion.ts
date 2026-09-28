@@ -5,7 +5,8 @@ export const motionNames = [
   "reveal",
   "count",
   "stagger",
-  "footer-reveal"
+  "footer-reveal",
+  "swift"
 ] as const;
 
 export type MotionName = (typeof motionNames)[number];

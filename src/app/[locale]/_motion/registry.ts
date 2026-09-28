@@ -1,3 +1,4 @@
+import { swift } from "@/features/work/motion/swift";
 import { count } from "@/shared/animation/effects/count";
 import { startCursor } from "@/shared/animation/effects/cursor";
 import { footerReveal } from "@/shared/animation/effects/footer-reveal";
@@ -16,7 +17,8 @@ export const motionRegistry = {
   reveal,
   count,
   stagger,
-  "footer-reveal": footerReveal
+  "footer-reveal": footerReveal,
+  swift
 } satisfies Record<MotionName, MotionEffectDef>;
 
 export const desktopHandlers: readonly DesktopHandler[] = [

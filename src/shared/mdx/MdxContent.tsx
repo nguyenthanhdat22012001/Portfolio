@@ -1,4 +1,4 @@
-import type { ComponentProps, ComponentType } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import * as runtime from "react/jsx-runtime";
 import { Link } from "@/shared/i18n/navigation";
 import { linkKind, slugify, textContent } from "./mdx-utils";
@@ -97,12 +97,17 @@ const components = {
 // first argument. Content is authored in this repo, so evaluating it is safe.
 function getMdxComponent(code: string) {
   const factory = new Function(code) as (scope: typeof runtime) => {
-    default: ComponentType<{ components?: object }>;
+    default: (props: { components?: object }) => ReactNode;
   };
   return factory({ ...runtime }).default;
 }
 
+// Called directly (not rendered as a JSX tag) because the component is
+// compiled fresh from each `code` string: an identifier bound to a
+// dynamically-created component would be flagged by
+// react-hooks/static-components, which assumes JSX tags stay stable across
+// renders. This content has no internal state, so invoking it as a plain
+// function produces the same output without that assumption.
 export function MdxContent({ code }: { code: string }) {
-  const Content = getMdxComponent(code);
-  return <Content components={components} />;
+  return getMdxComponent(code)({ components });
 }

@@ -1,9 +1,6 @@
-import { FlatCompat } from "@eslint/eslintrc";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 import boundaries from "eslint-plugin-boundaries";
-
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname
-});
 
 const eslintConfig = [
   {
@@ -15,10 +12,12 @@ const eslintConfig = [
       "playwright-report/**",
       "test-results/**",
       ".velite/**",
+      ".lighthouseci/**",
       "next-env.d.ts"
     ]
   },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextVitals,
+  ...nextTypescript,
   {
     plugins: { boundaries },
     settings: {

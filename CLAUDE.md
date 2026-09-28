@@ -42,6 +42,10 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 - Flag budget-relevant changes during implementation rather than waiting for
   Lighthouse CI to catch them later. Never loosen a `lighthouserc.json`
   threshold to get a PR through; fix the page.
+- Production builds (`pnpm build`) use `next build --webpack`, not Turbopack:
+  on Next 16.3.6, Turbopack's home-page script output was 152 KB versus
+  webpack's ~142 KB, and only webpack stays under the 150 KB budget above.
+  Re-check this when upgrading Next.
 
 ## i18n
 
@@ -85,3 +89,13 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   page, no WebGPU (v1.0 non-goals from the project plan).
 - If a convention here becomes outdated, update this file in the same
   change that changes the convention.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

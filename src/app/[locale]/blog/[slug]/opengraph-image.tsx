@@ -14,9 +14,9 @@ export function generateStaticParams() {
 export default async function Image({
   params
 }: {
-  params: { locale: string; slug: string };
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
   if (!isValidLocale(locale)) return new Response("Not found", { status: 404 });
   const entry = getPostBySlug(slug, locale);
   if (!entry) return new Response("Not found", { status: 404 });

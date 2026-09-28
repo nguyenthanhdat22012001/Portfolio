@@ -54,7 +54,7 @@ export default async function LocaleLayout({
         suppressHydrationWarning
         className="bg-bg text-fg min-h-dvh font-sans antialiased"
       >
-        <NextIntlClientProvider>
+        <NextIntlClientProvider messages={null}>
           <SiteHeader locale={locale} />
           <main id="main" tabIndex={-1}>
             {children}

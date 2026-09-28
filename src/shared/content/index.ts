@@ -3,6 +3,7 @@ import type { Locale } from "@/shared/i18n/routing";
 import {
   assertDefaultLocale,
   assertUnique,
+  availableLocales,
   findForLocale,
   localeParams,
   newestFirst,
@@ -49,4 +50,25 @@ export function getPostBySlug(
 
 export function getPostParams() {
   return localeParams(blog);
+}
+
+export function getWorkLocales(slug: string): Locale[] {
+  return availableLocales(work, slug);
+}
+
+export function getPostLocales(slug: string): Locale[] {
+  return availableLocales(blog, slug);
+}
+
+export function hasPosts(): boolean {
+  return blog.length > 0;
+}
+
+// Every real document in every locale — the sitemap's source.
+export function getAllWork(): readonly Work[] {
+  return work;
+}
+
+export function getAllPosts(): readonly Blog[] {
+  return blog;
 }

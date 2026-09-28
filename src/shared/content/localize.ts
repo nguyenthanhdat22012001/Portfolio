@@ -94,3 +94,15 @@ export function newestFirst<T>(
 ): Localized<T>[] {
   return [...entries].sort((a, b) => date(b.doc).localeCompare(date(a.doc)));
 }
+
+// Locales with a real (non-fallback) document for this slug. Fallback
+// versions are left out: they are canonicalised to the default locale and
+// excluded from hreflang and the sitemap.
+export function availableLocales(
+  docs: readonly LocalizedDoc[],
+  slug: string
+): Locale[] {
+  return routing.locales.filter((locale) =>
+    docs.some((doc) => doc.slug === slug && doc.locale === locale)
+  );
+}

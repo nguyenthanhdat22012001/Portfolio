@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertDefaultLocale,
   assertUnique,
+  availableLocales,
   findDuplicate,
   findForLocale,
   localeParams,
@@ -115,5 +116,25 @@ describe("default-locale coverage", () => {
     expect(() => assertDefaultLocale("work", docs)).toThrow(
       "work entry vi/gamma has no en version"
     );
+  });
+});
+
+describe("availableLocales", () => {
+  it("lists only locales with a real document", () => {
+    expect(availableLocales(docs, "alpha")).toEqual(["en", "vi"]);
+    expect(availableLocales(docs, "beta")).toEqual(["en"]);
+    expect(availableLocales(docs, "gamma")).toEqual(["vi"]);
+  });
+
+  it("returns nothing for an unknown slug", () => {
+    expect(availableLocales(docs, "missing")).toEqual([]);
+  });
+
+  it("orders by routing.locales, not by document order", () => {
+    const reversed = [
+      { slug: "x", locale: "vi" },
+      { slug: "x", locale: "en" }
+    ] as const;
+    expect(availableLocales(reversed, "x")).toEqual(["en", "vi"]);
   });
 });

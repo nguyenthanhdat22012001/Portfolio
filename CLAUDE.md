@@ -33,20 +33,37 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 - Respect `prefers-reduced-motion`: disable scrubbing/pinning and Lenis, and
   keep any 3D scene static.
 
-## Performance budget (informational — enforced by Lighthouse CI from Phase 3)
+## Performance budget (enforced by Lighthouse CI — `lighthouserc.json`)
 
 - Initial JS (gzip) < 150 KB.
 - Lazy-loaded 3D chunk < 250 KB.
 - `.glb` models < 500 KB (except the Phase 5B avatar, budgeted separately at
   ≤ 1.5 MB).
 - Flag budget-relevant changes during implementation rather than waiting for
-  Lighthouse CI to catch them later.
+  Lighthouse CI to catch them later. Never loosen a `lighthouserc.json`
+  threshold to get a PR through; fix the page.
 
 ## i18n
 
 - No hardcoded user-facing strings. Every piece of copy goes through
   next-intl message keys in `shared/i18n/messages/en.json` and
   `shared/i18n/messages/vi.json`. Add a key to both files together.
+
+## SEO
+
+- The site origin comes only from `getSiteUrl()` (`shared/seo/site-url.ts`);
+  production deploys must set `NEXT_PUBLIC_SITE_URL`.
+- Every route's `generateMetadata` goes through `buildMetadata` with
+  `availableLocales` (real, non-fallback locales — `getWorkLocales` /
+  `getPostLocales` for content). Fallback pages are canonicalised to `/en`
+  and left out of hreflang and the sitemap.
+- Every indexable page renders its structured data with `<JsonLd>` and the
+  builders in `shared/seo/json-ld/`.
+- Titles ≤ 60 characters; meta descriptions 140–160. Content frontmatter
+  needs a `description` (Velite enforces it via `velite build --strict`);
+  site-wide meta copy is checked by `messages.test.ts`.
+- A new indexable page type needs: an `opengraph-image.tsx`, a sitemap entry
+  in `shared/seo/sitemap.ts`, and a URL in `lighthouserc.json`.
 
 ## Testing
 

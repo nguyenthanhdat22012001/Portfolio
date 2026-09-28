@@ -6,8 +6,10 @@ export interface FakeConditions {
   reduceMotion: boolean;
 }
 
+// The real conditions object can carry extra always-true keys (e.g. "all")
+// beyond isDesktop/reduceMotion, so this is wider than FakeConditions.
 type MatchMediaCallback = (context: {
-  conditions: FakeConditions;
+  conditions: Record<string, boolean>;
 }) => void | (() => void);
 
 const tween = () => ({ kill: vi.fn() });
@@ -32,10 +34,28 @@ export function createFakeLibs(
     matchMedia: vi.fn(() => {
       const cleanups: Array<() => void> = [];
       return {
-        add: vi.fn((_queries: unknown, callback: MatchMediaCallback) => {
-          const cleanup = callback({ conditions });
-          if (typeof cleanup === "function") cleanups.push(cleanup);
-        }),
+        // Mirrors gsap's real matchMedia gate: a branch only fires when at
+        // least one of its named conditions matches. isDesktop/reduceMotion
+        // resolve from the fake's configured booleans; any other key (e.g.
+        // "all") always resolves true.
+        add: vi.fn(
+          (
+            mediaQueries: Record<string, string>,
+            callback: MatchMediaCallback
+          ) => {
+            const built: Record<string, boolean> = {};
+            for (const key of Object.keys(mediaQueries)) {
+              built[key] =
+                key === "isDesktop" || key === "reduceMotion"
+                  ? conditions[key as "isDesktop" | "reduceMotion"]
+                  : true;
+            }
+            if (!Object.values(built).some(Boolean)) return;
+
+            const cleanup = callback({ conditions: built });
+            if (typeof cleanup === "function") cleanups.push(cleanup);
+          }
+        ),
         revert: vi.fn(() => {
           for (const cleanup of cleanups.splice(0).reverse()) cleanup();
         })

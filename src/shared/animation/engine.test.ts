@@ -50,7 +50,7 @@ describe("startMotion", () => {
   });
 
   it("keeps running other effects when one throws", () => {
-    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     document.body.innerHTML =
       '<p data-motion="broken"></p><p data-motion="fine"></p>';
     const fine = vi.fn();
@@ -64,6 +64,10 @@ describe("startMotion", () => {
     });
 
     expect(fine).toHaveBeenCalledOnce();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining("broken"),
+      expect.anything()
+    );
   });
 
   it("creates one Lenis on desktop and drives it from the GSAP ticker", () => {
@@ -98,6 +102,15 @@ describe("startMotion", () => {
     expect(lenisInstances).toHaveLength(0);
   });
 
+  it("runs page effects on mobile", () => {
+    document.body.innerHTML = '<p data-motion="fade"></p>';
+    const run = vi.fn();
+    start(mobile, { fade: { run } });
+
+    expect(run).toHaveBeenCalledOnce();
+    expect(run.mock.calls[0]?.[1]).toMatchObject({ isDesktop: false });
+  });
+
   it("runs only reducedMotion effects under reduced motion", () => {
     document.body.innerHTML =
       '<p data-motion="fancy"></p><p data-motion="safe"></p>';
@@ -123,6 +136,22 @@ describe("startMotion", () => {
 
     expect(handler).toHaveBeenCalledWith({ gsap, lenis: lenisInstances[0] });
     handle.dispose();
+    expect(stop).toHaveBeenCalledOnce();
+    expect(lenisInstances[0]?.destroy).toHaveBeenCalledOnce();
+  });
+
+  it("dispose is idempotent", () => {
+    const stop = vi.fn();
+    const handler = vi.fn(() => stop);
+    const { lenisInstances, handle } = start(
+      desktop,
+      {},
+      { desktopHandlers: [handler] }
+    );
+
+    handle.dispose();
+    handle.dispose();
+
     expect(stop).toHaveBeenCalledOnce();
     expect(lenisInstances[0]?.destroy).toHaveBeenCalledOnce();
   });

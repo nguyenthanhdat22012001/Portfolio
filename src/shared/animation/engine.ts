@@ -11,7 +11,16 @@ export const DESKTOP_QUERY =
   "(min-width: 768px) and (hover: hover) and (pointer: fine)";
 export const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
 
-const queries = { isDesktop: DESKTOP_QUERY, reduceMotion: REDUCE_QUERY };
+// gsap's matchMedia only invokes a branch's callback when at least one named
+// condition matches (see gsap-core.js's matchMedia: `active` stays 0 and the
+// callback is skipped unless some query in the set matches). "all" always
+// matches, so the branch still runs on mobile without reduced motion, where
+// neither isDesktop nor reduceMotion would otherwise match.
+const queries = {
+  all: "all",
+  isDesktop: DESKTOP_QUERY,
+  reduceMotion: REDUCE_QUERY
+};
 
 export type MotionRegistry = Readonly<Record<string, MotionEffectDef>>;
 
@@ -103,8 +112,11 @@ export function startMotion(
   scan();
   document.documentElement.setAttribute("data-motion-ready", "");
 
+  let disposed = false;
+
   return {
     rescan() {
+      if (disposed) return;
       pageMedia.revert();
       pageMedia = gsap.matchMedia();
       lenis?.scrollTo(window.scrollY, { immediate: true, force: true });
@@ -112,6 +124,8 @@ export function startMotion(
       ScrollTrigger.refresh();
     },
     dispose() {
+      if (disposed) return;
+      disposed = true;
       pageMedia.revert();
       globalMedia.revert();
       document.documentElement.removeAttribute("data-motion-ready");

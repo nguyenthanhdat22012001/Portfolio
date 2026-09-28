@@ -109,7 +109,7 @@ test.describe("navigation", () => {
       .toBeGreaterThan(0);
   });
 
-  test("switching locale keeps motion and uses the new locale's copy", async ({
+  test("switching locale reloads motion on the next interaction", async ({
     page
   }) => {
     await page.goto("/en");
@@ -117,7 +117,10 @@ test.describe("navigation", () => {
     await page.getByRole("link", { name: /VI/ }).first().click();
     await expect(page).toHaveURL(/\/vi$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "vi");
-    await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+    // Each locale has its own root layout, so switching locale unmounts and
+    // remounts it as a new document; motion re-arms and needs a fresh
+    // interaction, same as a first visit.
+    await loadMotion(page);
     await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
     await expect(page.locator("[data-oneloyalty-counter]")).toHaveAttribute(
       "data-counter-template",

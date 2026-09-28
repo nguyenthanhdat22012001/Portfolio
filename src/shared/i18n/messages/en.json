@@ -3,6 +3,12 @@
     "title": "Nguyen Thanh Dat — Frontend Engineer",
     "description": "Frontend Engineer specializing in React, TypeScript, performance, and architecture."
   },
+  "og": {
+    "name": "Nguyen Thanh Dat",
+    "portfolio": "Portfolio",
+    "caseStudy": "Case study",
+    "blog": "Blog"
+  },
   "nav": {
     "skipToContent": "Skip to content",
     "brand": "dat.nguyen",

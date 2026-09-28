@@ -3,6 +3,12 @@
     "title": "Nguyễn Thành Đạt — Kỹ sư Frontend",
     "description": "Kỹ sư Frontend chuyên về React, TypeScript, hiệu năng và kiến trúc."
   },
+  "og": {
+    "name": "Nguyễn Thành Đạt",
+    "portfolio": "Portfolio",
+    "caseStudy": "Dự án",
+    "blog": "Blog"
+  },
   "nav": {
     "skipToContent": "Chuyển đến nội dung",
     "brand": "dat.nguyen",

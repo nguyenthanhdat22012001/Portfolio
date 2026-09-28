@@ -28,6 +28,9 @@ jobs:
 
       - run: pnpm lhci
 
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test e2e/motion.spec.ts
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:

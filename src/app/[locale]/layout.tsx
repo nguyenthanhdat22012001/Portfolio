@@ -9,6 +9,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import { MotionRoot } from "./_motion/MotionRoot";
 import "../globals.css";
 
 export function generateMetadata(): Metadata {
@@ -60,6 +61,7 @@ export default async function LocaleLayout({
             {children}
           </main>
           <SiteFooter />
+          <MotionRoot />
         </NextIntlClientProvider>
       </body>
     </html>

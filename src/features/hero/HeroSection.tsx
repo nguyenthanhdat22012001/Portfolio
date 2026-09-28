@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { motion } from "@/shared/animation/motion";
 import { site } from "@/shared/lib/site";
 import { ButtonLink } from "@/shared/ui/ButtonLink";
 import { Container } from "@/shared/ui/Container";
@@ -11,7 +12,7 @@ export async function HeroSection() {
   const titleLines = t.raw("titleLines") as string[];
 
   return (
-    <section id="top" aria-labelledby="hero-title">
+    <section id="top" aria-labelledby="hero-title" {...motion("hero")}>
       <Container
         size="wide"
         className="relative grid items-center gap-10 py-10 md:min-h-[calc(100dvh-5rem)] md:grid-cols-2 md:gap-12 md:py-16"
@@ -42,6 +43,7 @@ export async function HeroSection() {
         />
         <p
           aria-hidden="true"
+          data-scroll-hint=""
           className="text-fg-muted absolute bottom-8 left-10 hidden font-mono text-xs tracking-[0.08em] uppercase md:block"
         >
           {t("scrollHint")} ↓

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { ViewTransition, type ReactNode } from "react";
 import { motion, type MotionName } from "@/shared/animation/motion";
 import { Link } from "@/shared/i18n/navigation";
 import { cx } from "@/shared/lib/cx";
@@ -44,12 +44,18 @@ export function WorkChapter({
     >
       <div className="flex flex-col gap-5 md:col-span-5">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h3
-          id={titleId}
-          className="text-2xl leading-tight font-semibold md:text-[1.75rem]"
+        <ViewTransition
+          name={`work-title-${slug}`}
+          share="morph"
+          default="none"
         >
-          {title}
-        </h3>
+          <h3
+            id={titleId}
+            className="text-2xl leading-tight font-semibold md:text-[1.75rem]"
+          >
+            {title}
+          </h3>
+        </ViewTransition>
         <p className="text-fg-muted leading-[1.7]">{summary}</p>
         <dl className="flex flex-wrap gap-8">
           {stats.map((stat) => (
@@ -58,7 +64,11 @@ export function WorkChapter({
         </dl>
         <TagList tags={tags} />
         <div className="flex flex-wrap gap-6 font-mono text-[0.9375rem] font-medium">
-          <Link href={`/work/${slug}`} className="text-accent hover:underline">
+          <Link
+            href={`/work/${slug}`}
+            transitionTypes={["nav-forward"]}
+            className="text-accent hover:underline"
+          >
             {readLabel}
             <span className="sr-only">: {title}</span>
             <span aria-hidden="true">&nbsp;→</span>

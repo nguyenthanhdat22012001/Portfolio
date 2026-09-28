@@ -14,6 +14,7 @@ import { buildCreativeWork } from "@/shared/seo/json-ld/creative-work";
 import { JsonLd } from "@/shared/seo/JsonLd";
 import { absoluteUrl } from "@/shared/seo/urls";
 import { ArticleLayout } from "@/shared/ui/ArticleLayout";
+import { PageTransition } from "@/shared/ui/PageTransition";
 
 type Params = Promise<{ locale: string; slug: string }>;
 
@@ -79,23 +80,26 @@ export default async function WorkCaseStudyPage({
           ])
         ]}
       />
-      <ArticleLayout
-        backHref={{ pathname: "/", hash: "work" }}
-        backLabel={t("back")}
-        title={doc.title}
-        summary={doc.summary}
-        meta={t("started", {
-          date: format.dateTime(new Date(doc.dateCreated), {
-            year: "numeric",
-            month: "long"
-          })
-        })}
-        tags={doc.tags}
-        notice={isFallback ? t("fallbackNotice") : undefined}
-        contentLang={isFallback ? routing.defaultLocale : undefined}
-      >
-        <MdxContent code={doc.content} />
-      </ArticleLayout>
+      <PageTransition>
+        <ArticleLayout
+          backHref={{ pathname: "/", hash: "work" }}
+          backLabel={t("back")}
+          title={doc.title}
+          summary={doc.summary}
+          meta={t("started", {
+            date: format.dateTime(new Date(doc.dateCreated), {
+              year: "numeric",
+              month: "long"
+            })
+          })}
+          tags={doc.tags}
+          notice={isFallback ? t("fallbackNotice") : undefined}
+          contentLang={isFallback ? routing.defaultLocale : undefined}
+          titleTransitionName={`work-title-${slug}`}
+        >
+          <MdxContent code={doc.content} />
+        </ArticleLayout>
+      </PageTransition>
     </>
   );
 }

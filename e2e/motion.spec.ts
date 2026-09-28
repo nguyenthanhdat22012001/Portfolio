@@ -66,3 +66,62 @@ test("header links smooth-scroll to their section on desktop", async ({
   await expect(page).toHaveURL(/#work$/);
   await expect(page.locator("#work h2")).toBeInViewport();
 });
+
+test.describe("navigation", () => {
+  test("home → case study → back re-creates the pinned chapters", async ({
+    page
+  }) => {
+    await page.goto("/en");
+    await loadMotion(page);
+    await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
+
+    await page
+      .locator('[data-chapter="swift-performance"]')
+      .getByRole("link", { name: /Read case study/ })
+      .click();
+    await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Swift"
+    );
+
+    await page.getByRole("link", { name: /←/ }).click();
+    await expect(page).toHaveURL(/\/en#work$/);
+    await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+    await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
+  });
+
+  test("browser Back from a case study keeps motion working", async ({
+    page
+  }) => {
+    await page.goto("/en");
+    await loadMotion(page);
+    await page
+      .locator('[data-chapter="swift-performance"]')
+      .getByRole("link", { name: /Read case study/ })
+      .click();
+    await expect(page).toHaveURL(/\/work\/swift-performance$/);
+    await page.goBack();
+    await expect(page).toHaveURL(/\/en(#work)?$/);
+    await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
+    await page.mouse.wheel(0, 800);
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY))
+      .toBeGreaterThan(0);
+  });
+
+  test("switching locale keeps motion and uses the new locale's copy", async ({
+    page
+  }) => {
+    await page.goto("/en");
+    await loadMotion(page);
+    await page.getByRole("link", { name: /VI/ }).first().click();
+    await expect(page).toHaveURL(/\/vi$/);
+    await expect(page.locator("html")).toHaveAttribute("lang", "vi");
+    await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+    await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
+    await expect(page.locator("[data-oneloyalty-counter]")).toHaveAttribute(
+      "data-counter-template",
+      /\{current\}/
+    );
+  });
+});

@@ -10,6 +10,7 @@ import { buildMetadata } from "@/shared/seo/build-metadata";
 import { buildProfilePage } from "@/shared/seo/json-ld/profile-page";
 import { buildWebSite } from "@/shared/seo/json-ld/website";
 import { JsonLd } from "@/shared/seo/JsonLd";
+import { PageTransition } from "@/shared/ui/PageTransition";
 
 export async function generateMetadata({
   params
@@ -48,11 +49,13 @@ export default async function HomePage({
           buildWebSite()
         ]}
       />
-      <HeroSection />
-      <AboutSection />
-      <WorkSection />
-      <SkillsSection />
-      <ContactSection />
+      <PageTransition>
+        <HeroSection />
+        <AboutSection />
+        <WorkSection />
+        <SkillsSection />
+        <ContactSection />
+      </PageTransition>
     </>
   );
 }

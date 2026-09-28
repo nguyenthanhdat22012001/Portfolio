@@ -43,7 +43,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
       >
         {t("skipToContent")}
       </a>
-      <header className="border-border bg-bg/90 sticky top-0 z-40 border-b backdrop-blur">
+      <header className="border-border bg-bg/90 sticky top-0 z-40 border-b backdrop-blur [view-transition-name:site-header]">
         <Container
           size="wide"
           className="flex h-16 items-center justify-between gap-4 md:h-20"

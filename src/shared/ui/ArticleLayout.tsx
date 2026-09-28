@@ -1,4 +1,4 @@
-import type { ComponentProps, ReactNode } from "react";
+import { ViewTransition, type ComponentProps, type ReactNode } from "react";
 import { Link } from "@/shared/i18n/navigation";
 import { Container } from "./Container";
 import { TagList } from "./TagList";
@@ -12,6 +12,7 @@ export function ArticleLayout({
   tags,
   notice,
   contentLang,
+  titleTransitionName,
   children
 }: {
   backHref: ComponentProps<typeof Link>["href"];
@@ -22,12 +23,14 @@ export function ArticleLayout({
   tags: readonly string[];
   notice?: string;
   contentLang?: string;
+  titleTransitionName?: string;
   children: ReactNode;
 }) {
   return (
     <Container size="narrow" className="py-12 sm:py-16">
       <Link
         href={backHref}
+        transitionTypes={["nav-back"]}
         className="text-accent font-mono text-sm hover:underline"
       >
         ← {backLabel}
@@ -43,7 +46,17 @@ export function ArticleLayout({
       ) : null}
       <article lang={contentLang} className="mt-8">
         <header>
-          <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
+          {titleTransitionName ? (
+            <ViewTransition
+              name={titleTransitionName}
+              share="morph"
+              default="none"
+            >
+              <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
+            </ViewTransition>
+          ) : (
+            <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
+          )}
           <p className="text-fg-muted mt-4 text-lg">{summary}</p>
           <p className="text-fg-muted mt-4 font-mono text-sm">{meta}</p>
           <TagList tags={tags} className="mt-4" />

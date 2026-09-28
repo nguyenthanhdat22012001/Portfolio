@@ -57,6 +57,27 @@ describe("safebulk", () => {
     expect(activeIndex()).toBe(2);
   });
 
+  it("clears the zIndex/scale tweens onUpdate created outside the matchMedia context", () => {
+    const el = mount();
+    placeBelowFold(el);
+    const { ctx, ScrollTrigger, gsap } = createFakeContext({ isDesktop: true });
+    const cards = [...el.querySelectorAll<HTMLElement>("[data-safebulk-card]")];
+    const cleanup = safebulk.run(el, ctx);
+
+    const vars = ScrollTrigger.create.mock.calls[0]?.[0] as {
+      onUpdate: (self: { progress: number }) => void;
+    };
+    vars.onUpdate({ progress: 0.5 });
+
+    cleanup?.();
+
+    expect(gsap.killTweensOf).toHaveBeenCalledWith(cards);
+    expect(gsap.set).toHaveBeenCalledWith(
+      cards,
+      expect.objectContaining({ clearProps: expect.stringContaining("scale") })
+    );
+  });
+
   it("staggers the cards in on mobile without pinning", () => {
     const el = mount();
     placeBelowFold(el);

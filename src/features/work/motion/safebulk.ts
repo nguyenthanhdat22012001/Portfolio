@@ -48,6 +48,13 @@ export const safebulk: MotionEffectDef = {
     });
 
     return () => {
+      // show()'s gsap.to() runs from ScrollTrigger's onUpdate, so it is
+      // never recorded into the page matchMedia context and pageMedia.revert()
+      // (engine.ts) won't kill it or clear the inline styles it set. Do that
+      // explicitly so a breakpoint change or a reduced-motion toggle doesn't
+      // leave a stale zIndex/scale behind.
+      gsap.killTweensOf(cards);
+      gsap.set(cards, { clearProps: "zIndex,scale" });
       cards.forEach((card, i) =>
         card.toggleAttribute("data-active", i === initial)
       );

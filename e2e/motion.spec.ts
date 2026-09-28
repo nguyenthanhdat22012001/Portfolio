@@ -4,8 +4,15 @@ import { expect, test, type Page, type Response } from "@playwright/test";
 const MOTION_BUDGET_BYTES = 70 * 1024;
 
 async function loadMotion(page: Page) {
-  await page.mouse.move(200, 200);
-  await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+  const html = page.locator("html");
+  let step = 0;
+  await expect(async () => {
+    step += 1;
+    await page.mouse.move(100 + step * 10, 200);
+    await expect(html).toHaveAttribute("data-motion-ready", "", {
+      timeout: 500
+    });
+  }).toPass({ timeout: 10_000 });
 }
 
 test.describe("motion loading", () => {

@@ -26,9 +26,10 @@ const linkHrefs: Record<ChapterLink, string> = {
   demo: site.safebulkDemo
 };
 
-// Chapters gain entries as their effects land (Tasks 9 and 10).
+// Chapters gain entries as their effects land (Task 10 next).
 const chapterMotion: Partial<Record<ChapterKey, MotionName>> = {
-  swift: "swift"
+  swift: "swift",
+  safebulk: "safebulk"
 };
 
 export async function WorkSection() {

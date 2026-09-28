@@ -8,7 +8,6 @@ const placement = [
   "md:top-[10.625rem] md:right-0 md:left-20 md:h-[16.875rem]"
 ];
 
-// Phase 4 pins these cards and flips through them step by step.
 export async function SafeBulkVisual() {
   const t = await getTranslations("work.safebulk");
   const steps = t.raw("steps") as string[];
@@ -17,43 +16,32 @@ export async function SafeBulkVisual() {
     <figure>
       <figcaption className="sr-only">{t("caption")}</figcaption>
       <ol className="flex flex-col gap-3 md:relative md:block md:h-[27.5rem]">
-        {steps.map((step, index) => {
-          const active = index === steps.length - 1;
-          return (
-            <li
-              key={step}
-              className={cx(
-                "rounded-card flex flex-col gap-3 border p-5 md:absolute md:p-7",
-                placement[index],
-                active ? "border-accent bg-bg-elevated" : "border-border bg-bg"
-              )}
+        {steps.map((step, index) => (
+          <li
+            key={step}
+            data-safebulk-card=""
+            data-active={index === steps.length - 1 ? "" : undefined}
+            className={cx(
+              "group rounded-card border-border bg-bg data-active:border-accent data-active:bg-bg-elevated flex flex-col gap-3 border p-5 md:absolute md:p-7",
+              placement[index]
+            )}
+          >
+            <span className="text-fg-muted group-data-active:text-accent font-mono text-xs tracking-[0.08em] uppercase">
+              {t("stepLabel", { number: index + 1 })}
+            </span>
+            <span className="text-fg-muted group-data-active:text-fg font-mono text-lg md:text-xl">
+              {step}
+            </span>
+            <div
+              aria-hidden="true"
+              className="hidden flex-col gap-2 group-data-active:flex"
             >
-              <span
-                className={cx(
-                  "font-mono text-xs tracking-[0.08em] uppercase",
-                  active ? "text-accent" : "text-fg-muted"
-                )}
-              >
-                {t("stepLabel", { number: index + 1 })}
-              </span>
-              <span
-                className={cx(
-                  "font-mono text-lg md:text-xl",
-                  active ? "text-fg" : "text-fg-muted"
-                )}
-              >
-                {step}
-              </span>
-              {active ? (
-                <div aria-hidden="true" className="flex flex-col gap-2">
-                  <div className="bg-bg-muted h-2.5 w-[90%] rounded-xs" />
-                  <div className="bg-bg-muted h-2.5 w-[70%] rounded-xs" />
-                  <div className="bg-earth h-2.5 w-[80%] rounded-xs" />
-                </div>
-              ) : null}
-            </li>
-          );
-        })}
+              <div className="bg-bg-muted h-2.5 w-[90%] rounded-xs" />
+              <div className="bg-bg-muted h-2.5 w-[70%] rounded-xs" />
+              <div className="bg-earth h-2.5 w-[80%] rounded-xs" />
+            </div>
+          </li>
+        ))}
       </ol>
     </figure>
   );

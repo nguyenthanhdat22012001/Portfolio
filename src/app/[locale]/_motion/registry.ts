@@ -1,3 +1,4 @@
+import { safebulk } from "@/features/work/motion/safebulk";
 import { swift } from "@/features/work/motion/swift";
 import { count } from "@/shared/animation/effects/count";
 import { startCursor } from "@/shared/animation/effects/cursor";
@@ -18,7 +19,8 @@ export const motionRegistry = {
   count,
   stagger,
   "footer-reveal": footerReveal,
-  swift
+  swift,
+  safebulk
 } satisfies Record<MotionName, MotionEffectDef>;
 
 export const desktopHandlers: readonly DesktopHandler[] = [

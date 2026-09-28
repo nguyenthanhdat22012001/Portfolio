@@ -1,14 +1,18 @@
+import { notFound } from "next/navigation";
+import { locale as rootLocale } from "next/root-params";
 import { getRequestConfig } from "next-intl/server";
-import { isValidLocale, routing } from "./routing";
+import { isValidLocale } from "./routing";
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  const requested = await requestLocale;
-  const locale =
-    requested && isValidLocale(requested) ? requested : routing.defaultLocale;
+// An explicit `locale` (e.g. `getTranslations({ locale })`) wins, for code
+// that can't read root params (route handlers, server actions) — the
+// opengraph-image routes pass theirs this way.
+export default getRequestConfig(async ({ locale: explicitLocale }) => {
+  const requested = explicitLocale ?? (await rootLocale());
+  if (!isValidLocale(requested)) notFound();
 
   return {
-    locale,
+    locale: requested,
     timeZone: "Asia/Ho_Chi_Minh",
-    messages: (await import(`./messages/${locale}.json`)).default
+    messages: (await import(`./messages/${requested}.json`)).default
   };
 });

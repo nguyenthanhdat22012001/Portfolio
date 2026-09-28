@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import {
-  getFormatter,
-  getTranslations,
-  setRequestLocale
-} from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { getPostBySlug, getPostLocales, getPostParams } from "@/shared/content";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { MdxContent } from "@/shared/mdx/MdxContent";
@@ -44,8 +40,6 @@ export async function generateMetadata({
 export default async function BlogPostPage({ params }: { params: Params }) {
   const { locale, slug } = await params;
   if (!isValidLocale(locale)) notFound();
-  setRequestLocale(locale);
-
   const entry = getPostBySlug(slug, locale);
   if (!entry) notFound();
 

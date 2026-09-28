@@ -6,11 +6,11 @@ import { fontMono, fontSans } from "@/shared/theme/fonts";
 import { themeScript } from "@/shared/theme/theme-script";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { MotionRoot } from "./_motion/MotionRoot";
 import "../globals.css";
+import { MotionRoot } from "./_motion/MotionRoot";
 
 export function generateMetadata(): Metadata {
   const googleVerification = process.env.GOOGLE_SITE_VERIFICATION;
@@ -23,24 +23,22 @@ export function generateMetadata(): Metadata {
   };
 }
 
+// Pages without their own generateStaticParams (home, blog index) inherit
+// these locales; dropping it makes them render on demand.
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
 export default async function LocaleLayout({
-  children,
-  params
+  children
 }: {
   children: ReactNode;
-  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+  const locale = await getLocale();
 
   if (!isValidLocale(locale)) {
     notFound();
   }
-
-  setRequestLocale(locale);
 
   return (
     <html

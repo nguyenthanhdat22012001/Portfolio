@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { AboutSection } from "@/features/about/AboutSection";
 import { ContactSection } from "@/features/contact/ContactSection";
 import { HeroSection } from "@/features/hero/HeroSection";
@@ -19,7 +19,7 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   if (!isValidLocale(locale)) return {};
-  const t = await getTranslations({ locale, namespace: "meta" });
+  const t = await getTranslations("meta");
 
   return buildMetadata({
     title: t("title"),
@@ -38,7 +38,6 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   if (!isValidLocale(locale)) notFound();
-  setRequestLocale(locale);
   const tSeo = await getTranslations("seo");
 
   return (

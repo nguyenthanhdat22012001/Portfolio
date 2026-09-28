@@ -37,3 +37,25 @@ test("the toggle switches theme and the choice survives a reload", async ({
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
+
+// The locale is the root layout's segment, so a client-side switch would
+// remount <html> without re-running the inline theme script.
+test("the chosen theme survives a locale switch", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("console", (msg) => {
+    if (msg.type() === "error") errors.push(msg.text());
+  });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.goto("/en");
+  await page.getByRole("button", { name: "Dark theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+  await page
+    .getByRole("navigation", { name: "Language" })
+    .getByRole("link", { name: /VI/ })
+    .click();
+  await expect(page).toHaveURL(/\/vi$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "vi");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(errors.filter((e) => e.includes("script tag"))).toEqual([]);
+});

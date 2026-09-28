@@ -1,11 +1,14 @@
 "use client";
 
-import { Link, usePathname } from "@/shared/i18n/navigation";
+import { getPathname, usePathname } from "@/shared/i18n/navigation";
 import { routing, type Locale } from "@/shared/i18n/routing";
 import { cx } from "@/shared/lib/cx";
 
 // Client-only because the current path is needed to link to the same page
 // in the other locale; the links still server-render, so it works without JS.
+// Plain <a>, not <Link>: the locale is the root layout's segment, so a
+// client-side switch would remount <html> without re-running the inline
+// theme script in <head>. A full document load re-runs it.
 export function LocaleSwitcher({
   current,
   label,
@@ -27,9 +30,8 @@ export function LocaleSwitcher({
                 /
               </span>
             ) : null}
-            <Link
-              href={pathname}
-              locale={locale}
+            <a
+              href={getPathname({ href: pathname, locale })}
               hrefLang={locale}
               aria-current={locale === current ? "true" : undefined}
               className={cx(
@@ -41,7 +43,7 @@ export function LocaleSwitcher({
             >
               {locale.toUpperCase()}
               <span className="sr-only"> — {names[locale]}</span>
-            </Link>
+            </a>
           </li>
         ))}
       </ul>

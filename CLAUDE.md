@@ -69,6 +69,11 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 - No hardcoded user-facing strings. Every piece of copy goes through
   next-intl message keys in `shared/i18n/messages/en.json` and
   `shared/i18n/messages/vi.json`. Add a key to both files together.
+- The request locale comes from `next/root-params` in
+  `shared/i18n/request.ts`; don't call `setRequestLocale`. Keep
+  `generateStaticParams` in `app/[locale]/layout.tsx` — pages without their
+  own (home, blog index) rely on it to stay static. Route handlers and
+  server actions can't read root params, so pass `locale` explicitly there.
 - Locale routing lives in `src/proxy.ts` (Next 16's rename of
   `middleware.ts`).
 

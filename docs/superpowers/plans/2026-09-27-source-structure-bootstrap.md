@@ -34,6 +34,7 @@
 ### Task 1: Project scaffold — pnpm, Next.js, TypeScript strict
 
 **Files:**
+
 - Create: `package.json`
 - Create: `pnpm-workspace.yaml`
 - Create: `tsconfig.json`
@@ -44,6 +45,7 @@
 - Create: `src/app/[locale]/page.tsx`
 
 **Interfaces:**
+
 - Produces: path alias `@/*` → `./src/*` (used by every later task); route segment `src/app/[locale]` (used by Tasks 2, 5, 6, 7).
 
 - [ ] **Step 1: Create `package.json`**
@@ -264,11 +266,13 @@ git commit -m "chore: bootstrap Next.js App Router scaffold with pnpm + strict T
 ### Task 2: Tailwind CSS v4 integration
 
 **Files:**
+
 - Create: `postcss.config.mjs`
 - Modify: `src/app/globals.css`
 - Modify: `src/app/[locale]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `src/app/[locale]/page.tsx` from Task 1.
 - Produces: Tailwind utilities available to every component created afterward.
 
@@ -337,11 +341,13 @@ git commit -m "feat: wire up Tailwind CSS v4"
 ### Task 3: ESLint (flat config) + boundaries enforcement + Prettier
 
 **Files:**
+
 - Create: `eslint.config.mjs`
 - Create: `.prettierrc.json`
 - Create: `.prettierignore`
 
 **Interfaces:**
+
 - Produces: `pnpm lint` and `pnpm format:check` scripts, enforced import layering (`app`/`features`/`shared`) that every later task's files must satisfy.
 
 - [ ] **Step 1: Create `eslint.config.mjs`**
@@ -444,11 +450,13 @@ git commit -m "chore: add ESLint flat config with layering enforcement, Prettier
 ### Task 4: Vitest + first shared-layer file (Zustand scroll store)
 
 **Files:**
+
 - Create: `vitest.config.ts`
 - Create: `src/shared/lib/stores/scroll-store.ts`
 - Test: `src/shared/lib/stores/scroll-store.test.ts`
 
 **Interfaces:**
+
 - Produces: `useScrollStore` (Zustand hook with `{ progress: number; setProgress(progress: number): void }` shape) — the store later GSAP/canvas work (Phase 4/5, not this task) will read and write.
 
 - [ ] **Step 1: Create `vitest.config.ts`**
@@ -538,6 +546,7 @@ git commit -m "test: add Vitest and the shared scroll-progress store"
 ### Task 5: Bilingual routing with next-intl
 
 **Files:**
+
 - Create: `src/shared/i18n/routing.ts`
 - Create: `src/shared/i18n/navigation.ts`
 - Create: `src/shared/i18n/request.ts`
@@ -550,6 +559,7 @@ git commit -m "test: add Vitest and the shared scroll-progress store"
 - Create: `src/app/[locale]/not-found.tsx`
 
 **Interfaces:**
+
 - Consumes: `src/app/[locale]/layout.tsx` / `page.tsx` from Tasks 1–2.
 - Produces: `routing.locales` (`["en", "vi"]`), `routing.defaultLocale` (`"en"`), and next-intl message keys `meta.title`, `meta.description`, `hero.title`, `hero.tagline`, `notFound.title`, `notFound.description` — consumed by Task 6.
 
@@ -758,11 +768,13 @@ git commit -m "feat: bilingual routing with next-intl (en default, vi)"
 ### Task 6: Hero feature + SEO metadata helper
 
 **Files:**
+
 - Create: `src/features/hero/HeroSection.tsx`
 - Create: `src/shared/seo/build-metadata.ts`
 - Modify: `src/app/[locale]/page.tsx`
 
 **Interfaces:**
+
 - Consumes: `hero.title`, `hero.tagline`, `meta.title`, `meta.description` message keys from Task 5.
 - Produces: `HeroSection` (Server Component, no props) for later phases to extend; `buildMetadata({ title, description, path, locale })` returning `Metadata`, reusable by every future route's `generateMetadata`.
 
@@ -882,6 +894,7 @@ git commit -m "feat: hero feature section and shared SEO metadata helper"
 ### Task 7: Velite content pipeline (schemas only, no seed content)
 
 **Files:**
+
 - Create: `velite.config.ts`
 - Create: `src/app/[locale]/work/[slug]/page.tsx`
 - Create: `src/app/[locale]/blog/[slug]/page.tsx`
@@ -889,6 +902,7 @@ git commit -m "feat: hero feature section and shared SEO metadata helper"
 - Modify: `.gitignore` (already covers `.velite`, confirm)
 
 **Interfaces:**
+
 - Produces: Velite collections `work` and `blog` (schemas: `slug`, `title`, `summary`, `locale`, `tags`, `dateCreated`/`datePublished`, `content`) — Phase 2 will import and render these; this task leaves the routes as explicit placeholders.
 
 - [ ] **Step 1: Create `velite.config.ts`**
@@ -1011,10 +1025,12 @@ git commit -m "feat: configure Velite content schemas and placeholder work/blog 
 ### Task 8: Playwright e2e smoke suite
 
 **Files:**
+
 - Create: `playwright.config.ts`
 - Create: `e2e/home.spec.ts`
 
 **Interfaces:**
+
 - Consumes: the built app from Tasks 1–7 (via `pnpm build && pnpm start`, orchestrated by Playwright's `webServer`).
 
 - [ ] **Step 1: Create `playwright.config.ts`**
@@ -1093,9 +1109,11 @@ git commit -m "test: add Playwright e2e smoke suite"
 ### Task 9: GitHub Actions CI workflow
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 **Interfaces:**
+
 - Consumes: every script in `package.json` (`lint`, `typecheck`, `test`, `build`) produced by Tasks 1–8.
 
 - [ ] **Step 1: Create `.github/workflows/ci.yml`**
@@ -1154,9 +1172,11 @@ git commit -m "ci: add GitHub Actions workflow (lint, typecheck, test, build)"
 ### Task 10: `CLAUDE.md` rules and final verification
 
 **Files:**
+
 - Create: `CLAUDE.md`
 
 **Interfaces:**
+
 - None — this is documentation plus a full-repo verification pass.
 
 - [ ] **Step 1: Create `CLAUDE.md`**

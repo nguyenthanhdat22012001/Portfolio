@@ -1,6 +1,6 @@
 # Phase 5B — Intro: Waving avatar
 
-**Decision:** The avatar appears *within the Hero section* rather than as a full-screen intro overlay. The `h1` text appears immediately (preserving LCP and SEO); the avatar moves from the background to the foreground, pauses to wave, and then enters an idle state, tracking the cursor with its gaze. The Phase 5 node graph serves as the background, sharing a single `<Canvas>` element.
+**Decision:** The avatar appears _within the Hero section_ rather than as a full-screen intro overlay. The `h1` text appears immediately (preserving LCP and SEO); the avatar moves from the background to the foreground, pauses to wave, and then enters an idle state, tracking the cursor with its gaze. The Phase 5 node graph serves as the background, sharing a single `<Canvas>` element.
 
 **Why no full-screen intro:** Recruiters often leave the page if forced to wait 3–5 seconds; the model has a much heavier rig than the node graph; and an overlay screen slows down LCP.
 
@@ -10,11 +10,11 @@
 
 Direction B (stylized) has been selected: recognizability is achieved through hairstyle, glasses, physique, and clothing; it is lightweight and avoids the "uncanny valley" effect. Clothing and accessory colors are drawn from the established palette (grey, silver, dark gold, earth brown). The table below is retained for reference.
 
-| Direction | Method | Pros | Cons |
-| --- | --- | --- | --- |
-| A. Photo → 3D via AI | Portrait + full-body photos → image-to-3D tools (e.g., Meshy, Tripo, Rodin) → mesh cleanup in Blender | Fast, accurate facial resemblance | Messy mesh, requires retopology; must verify commercial licensing |
-| B. Stylized (recommended) | Create a cartoon-style character in VRoid Studio (free) or use a Blender base mesh; customize hairstyle, glasses, clothing, and skin tone to match your appearance | Lightweight, visually appealing, self-controlled | Recognizable likeness, not a photorealistic portrait |
-| C. Outsourcing | Hire a 3D artist to model and rig from photos | Highest quality | Costly, long turnaround time |
+| Direction                 | Method                                                                                                                                                             | Pros                                             | Cons                                                              |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ | ----------------------------------------------------------------- |
+| A. Photo → 3D via AI      | Portrait + full-body photos → image-to-3D tools (e.g., Meshy, Tripo, Rodin) → mesh cleanup in Blender                                                              | Fast, accurate facial resemblance                | Messy mesh, requires retopology; must verify commercial licensing |
+| B. Stylized (recommended) | Create a cartoon-style character in VRoid Studio (free) or use a Blender base mesh; customize hairstyle, glasses, clothing, and skin tone to match your appearance | Lightweight, visually appealing, self-controlled | Recognizable likeness, not a photorealistic portrait              |
+| C. Outsourcing            | Hire a 3D artist to model and rig from photos                                                                                                                      | Highest quality                                  | Costly, long turnaround time                                      |
 
 **Rigging & animation:** Upload the model to Mixamo (a free auto-rigger for humanoid characters) and download three "In Place" clips: `Walking`, `Waving`, and `Idle` (FBX format, 30 fps; select "without skin" for the latter two). If using VRoid (.vrm), you can load the model via `@pixiv/three-vrm` and retarget the Mixamo clips, but the simplest approach is to export it as a .glb file using Blender.
 
@@ -40,14 +40,14 @@ Direction B (stylized) has been selected: recognizability is achieved through ha
 
 A GSAP timeline controls `group.position.z` and animation action weights; since the animations are "in-place," movement is handled via code rather than root motion.
 
-| Step | Timing | Action |
-| --- | --- | --- |
-| 1 | 0s (model ready) | Avatar at `z = -6`, material `opacity` 0 → 1 over 0.4s; play `walk` |
-| 2 | 0 → 2.2s | Tween `z: -6 → 0`, `ease: 'power1.out'`; `walk` clip speed scales with velocity to prevent foot sliding |
-| 3 | 2.2s | `crossFadeTo(wave, 0.3)`; DOM speech bubble "Hi, I'm Dat 👋" appears near the head (using drei's `Html`; `aria-hidden` set as it's already in `h1`) |
-| 4 | 2.2 → 4.0s | `wave` plays once (`LoopOnce`, `clampWhenFinished`) |
-| 5 | 4.0s | `crossFadeTo(idle, 0.5)`, `LoopRepeat`; speech bubble fades out |
-| 6 | Afterward | Head/neck tracks cursor: `Head` bone constrained to ±30° horizontal, ±15° vertical, damp 5; random blinking every 3–6s (if blend shapes exist) |
+| Step | Timing           | Action                                                                                                                                              |
+| ---- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | 0s (model ready) | Avatar at `z = -6`, material `opacity` 0 → 1 over 0.4s; play `walk`                                                                                 |
+| 2    | 0 → 2.2s         | Tween `z: -6 → 0`, `ease: 'power1.out'`; `walk` clip speed scales with velocity to prevent foot sliding                                             |
+| 3    | 2.2s             | `crossFadeTo(wave, 0.3)`; DOM speech bubble "Hi, I'm Dat 👋" appears near the head (using drei's `Html`; `aria-hidden` set as it's already in `h1`) |
+| 4    | 2.2 → 4.0s       | `wave` plays once (`LoopOnce`, `clampWhenFinished`)                                                                                                 |
+| 5    | 4.0s             | `crossFadeTo(idle, 0.5)`, `LoopRepeat`; speech bubble fades out                                                                                     |
+| 6    | Afterward        | Head/neck tracks cursor: `Head` bone constrained to ±30° horizontal, ±15° vertical, damp 5; random blinking every 3–6s (if blend shapes exist)      |
 
 - Subsequent visits within the same session (using `sessionStorage` and `try/catch`): skip steps 1–4; the avatar starts at `z = 0`, performs a single short wave, then enters the idle state.
 - Clicking the avatar: triggers a wave response (apply `cursor: pointer` via `data-cursor`). Optional Easter egg.
@@ -56,12 +56,12 @@ A GSAP timeline controls `group.position.z` and animation action weights; since 
 
 ## Task 5B.5 — Tiered Fallback Strategy
 
-| Tier (Phase 5) | Avatar |
-| --- | --- |
-| High | Full animation sequence, ContactShadows, cursor tracking |
-| Medium | Full animation sequence, no shadows |
-| Low (mobile) | No `.glb` loading; display `avatar-wave.webp` sliding in via GSAP + simulated "wave" via slight rotation (or a short WebM video with a transparent background—requires HEVC alpha for Safari) |
-| Off / reduced-motion | Static image `avatar-idle.webp`, no animation |
+| Tier (Phase 5)       | Avatar                                                                                                                                                                                        |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| High                 | Full animation sequence, ContactShadows, cursor tracking                                                                                                                                      |
+| Medium               | Full animation sequence, no shadows                                                                                                                                                           |
+| Low (mobile)         | No `.glb` loading; display `avatar-wave.webp` sliding in via GSAP + simulated "wave" via slight rotation (or a short WebM video with a transparent background—requires HEVC alpha for Safari) |
+| Off / reduced-motion | Static image `avatar-idle.webp`, no animation                                                                                                                                                 |
 
 All fallback images must use `next/image` with fixed dimensions (CLS = 0) and `alt="Illustrated avatar of Nguyen Thanh Dat waving"`.
 

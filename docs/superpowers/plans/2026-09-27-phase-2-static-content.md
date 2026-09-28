@@ -38,37 +38,38 @@
 
 ## File map
 
-| File | Responsibility | Task |
-| --- | --- | --- |
-| `src/shared/theme/tokens.ts` | Token values per theme (TS mirror of CSS) | 1 |
-| `src/shared/theme/tokens.test.ts` | Contrast ≥ 4.5:1 and CSS ↔ TS drift check | 1 |
-| `src/shared/theme/fonts.ts` | `next/font` instances | 1 |
-| `src/app/globals.css` | Tokens, Tailwind theme mapping, base styles | 1 |
-| `src/shared/theme/theme-script.ts` | `resolveTheme` + inline pre-paint script | 2 |
-| `src/shared/theme/theme-script.test.ts` | Script and resolver behavior | 2 |
-| `src/shared/theme/ThemeToggle.tsx` | Client toggle button | 2 |
-| `e2e/theme.spec.ts` | First-load theme + toggle persistence | 2, 6 |
-| `velite.config.ts` | Slug schema change | 3 |
-| `src/shared/content/localize.ts` | Pure locale selection / fallback / params | 3 |
-| `src/shared/content/localize.test.ts` | Tests for the above | 3 |
-| `src/shared/content/index.ts` | Binds Velite data to the pure functions | 3 |
-| `src/shared/i18n/messages/{en,vi}.json` | All Phase 2 copy | 4 |
-| `src/shared/i18n/messages/messages.test.ts` | Key-tree and placeholder parity | 4 |
-| `src/shared/lib/cx.ts`, `src/shared/lib/site.ts` | Class join helper, site constants | 5 |
-| `src/shared/ui/*` | Container, Section, SectionTitle, TagList, ButtonLink, ArticleLayout | 5 |
-| `src/features/layout/*` | SiteHeader, SiteFooter, LocaleSwitcher | 6 |
-| `e2e/layout.spec.ts` | Skip link, locale switch, mobile menu | 6 |
-| `src/features/{hero,about,skills,contact}/*` | Home sections | 7 |
-| `src/features/work/*` | Work section, chapters, visuals | 8 |
-| `src/shared/mdx/*` | MDX renderer + helpers | 9 |
-| `src/app/[locale]/work/[slug]/page.tsx` | Case study page | 9 |
-| `src/app/[locale]/blog/page.tsx`, `blog/[slug]/page.tsx` | Blog routes | 10 |
+| File                                                     | Responsibility                                                       | Task |
+| -------------------------------------------------------- | -------------------------------------------------------------------- | ---- |
+| `src/shared/theme/tokens.ts`                             | Token values per theme (TS mirror of CSS)                            | 1    |
+| `src/shared/theme/tokens.test.ts`                        | Contrast ≥ 4.5:1 and CSS ↔ TS drift check                            | 1    |
+| `src/shared/theme/fonts.ts`                              | `next/font` instances                                                | 1    |
+| `src/app/globals.css`                                    | Tokens, Tailwind theme mapping, base styles                          | 1    |
+| `src/shared/theme/theme-script.ts`                       | `resolveTheme` + inline pre-paint script                             | 2    |
+| `src/shared/theme/theme-script.test.ts`                  | Script and resolver behavior                                         | 2    |
+| `src/shared/theme/ThemeToggle.tsx`                       | Client toggle button                                                 | 2    |
+| `e2e/theme.spec.ts`                                      | First-load theme + toggle persistence                                | 2, 6 |
+| `velite.config.ts`                                       | Slug schema change                                                   | 3    |
+| `src/shared/content/localize.ts`                         | Pure locale selection / fallback / params                            | 3    |
+| `src/shared/content/localize.test.ts`                    | Tests for the above                                                  | 3    |
+| `src/shared/content/index.ts`                            | Binds Velite data to the pure functions                              | 3    |
+| `src/shared/i18n/messages/{en,vi}.json`                  | All Phase 2 copy                                                     | 4    |
+| `src/shared/i18n/messages/messages.test.ts`              | Key-tree and placeholder parity                                      | 4    |
+| `src/shared/lib/cx.ts`, `src/shared/lib/site.ts`         | Class join helper, site constants                                    | 5    |
+| `src/shared/ui/*`                                        | Container, Section, SectionTitle, TagList, ButtonLink, ArticleLayout | 5    |
+| `src/features/layout/*`                                  | SiteHeader, SiteFooter, LocaleSwitcher                               | 6    |
+| `e2e/layout.spec.ts`                                     | Skip link, locale switch, mobile menu                                | 6    |
+| `src/features/{hero,about,skills,contact}/*`             | Home sections                                                        | 7    |
+| `src/features/work/*`                                    | Work section, chapters, visuals                                      | 8    |
+| `src/shared/mdx/*`                                       | MDX renderer + helpers                                               | 9    |
+| `src/app/[locale]/work/[slug]/page.tsx`                  | Case study page                                                      | 9    |
+| `src/app/[locale]/blog/page.tsx`, `blog/[slug]/page.tsx` | Blog routes                                                          | 10   |
 
 ---
 
 ### Task 1: Design tokens, fonts, and global styles
 
 **Files:**
+
 - Create: `src/shared/theme/tokens.ts`
 - Create: `src/shared/theme/tokens.test.ts`
 - Create: `src/shared/theme/fonts.ts`
@@ -76,6 +77,7 @@
 - Modify: `src/app/[locale]/layout.tsx`
 
 **Interfaces:**
+
 - Produces: `themes: readonly ["dark", "light"]`, `type Theme = "dark" | "light"`, `colorTokens: Record<Theme, Record<ColorToken, string>>` from `@/shared/theme/tokens`; `fontSans`, `fontMono` from `@/shared/theme/fonts`; Tailwind utilities `bg-bg`, `bg-bg-elevated`, `text-fg`, `text-fg-muted`, `text-accent`, `bg-accent`, `text-accent-fg`, `border-border`, `border-accent`, `rounded-card`, `py-section`, `font-sans`, `font-mono`, and the `dark:` variant keyed on `[data-theme="dark"]`.
 
 - [ ] **Step 1: Write the failing test**
@@ -91,9 +93,7 @@ import { colorTokens, themes, type ColorToken } from "./tokens";
 function luminance(hex: string): number {
   const channel = (offset: number) => {
     const value = parseInt(hex.slice(1 + offset, 3 + offset), 16) / 255;
-    return value <= 0.03928
-      ? value / 12.92
-      : ((value + 0.055) / 1.055) ** 2.4;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
   };
   return 0.2126 * channel(0) + 0.7152 * channel(2) + 0.0722 * channel(4);
 }
@@ -360,6 +360,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 2: Theme pre-paint script, toggle, and CLAUDE.md rule
 
 **Files:**
+
 - Create: `src/shared/theme/theme-script.ts`
 - Create: `src/shared/theme/theme-script.test.ts`
 - Create: `src/shared/theme/ThemeToggle.tsx`
@@ -368,6 +369,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Modify: `CLAUDE.md`
 
 **Interfaces:**
+
 - Consumes: `type Theme` from `./tokens` (Task 1).
 - Produces: `THEME_STORAGE_KEY = "theme"`, `resolveTheme(stored: string | null, prefersDark: boolean | null): Theme`, `themeScript: string` from `@/shared/theme/theme-script`; `ThemeToggle({ label }: { label: string })` from `@/shared/theme/ThemeToggle`. The toggle is rendered by the header in Task 6.
 
@@ -521,7 +523,7 @@ export function ThemeToggle({ label }: { label: string }) {
       aria-label={label}
       aria-pressed={theme === "dark"}
       onClick={toggle}
-      className="inline-flex size-10 items-center justify-center rounded-card border border-border text-fg hover:border-accent hover:text-accent"
+      className="rounded-card border-border text-fg hover:border-accent hover:text-accent inline-flex size-10 items-center justify-center border"
     >
       <svg
         aria-hidden="true"
@@ -641,6 +643,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 3: Content layer with locale fallback
 
 **Files:**
+
 - Modify: `velite.config.ts`
 - Modify: `tsconfig.json`
 - Modify: `vitest.config.ts`
@@ -650,6 +653,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Create: `src/shared/content/index.ts`
 
 **Interfaces:**
+
 - Consumes: `routing`, `type Locale` from `@/shared/i18n/routing`.
 - Produces (from `@/shared/content`):
   - `type Work`, `type Blog` (Velite output types), `interface Localized<T> { doc: T; isFallback: boolean }`
@@ -759,9 +763,9 @@ describe("duplicate detection", () => {
   });
 
   it("reports the first duplicated slug/locale pair", () => {
-    expect(findDuplicate([...docs, { slug: "beta", locale: "en" as const }])).toBe(
-      "en/beta"
-    );
+    expect(
+      findDuplicate([...docs, { slug: "beta", locale: "en" as const }])
+    ).toBe("en/beta");
   });
 
   it("throws with the collection name when duplicates exist", () => {
@@ -958,7 +962,10 @@ export function getWorkParams() {
 }
 
 export function getPosts(locale: Locale): Localized<Blog>[] {
-  return newestFirst(selectForLocale(blog, locale), (post) => post.datePublished);
+  return newestFirst(
+    selectForLocale(blog, locale),
+    (post) => post.datePublished
+  );
 }
 
 export function getPostBySlug(
@@ -992,11 +999,13 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 4: Phase 2 copy and message parity
 
 **Files:**
+
 - Modify: `src/shared/i18n/messages/en.json` (full rewrite)
 - Modify: `src/shared/i18n/messages/vi.json` (full rewrite)
 - Create: `src/shared/i18n/messages/messages.test.ts`
 
 **Interfaces:**
+
 - Produces the namespaces and keys used by Tasks 6–10: `nav.*`, `locales.{en,vi}`, `theme.toggle`, `hero.*`, `about.{title,paragraphs[],stats[{value,label}]}`, `work.{title,readCaseStudy}`, `work.swift.*`, `work.oneloyalty.{metric,caption,greetings[{text,lang}]}`, `work.safebulk.{metric,caption,stepLabel,steps[],github,demo}`, `skills.{title,groups[{name,items[]}]}`, `contact.*`, `footer.{copyright,social}`, `caseStudy.{back,fallbackNotice,started}`, `blog.{title,description,empty,back}`. Arrays are read with `t.raw(...)`.
 
 - [ ] **Step 1: Write the failing test**
@@ -1144,27 +1153,63 @@ Replace `src/shared/i18n/messages/en.json` with:
     "groups": [
       {
         "name": "Core",
-        "items": ["TypeScript (strict)", "JavaScript (ES6+)", "React", "HTML5", "CSS3"]
+        "items": [
+          "TypeScript (strict)",
+          "JavaScript (ES6+)",
+          "React",
+          "HTML5",
+          "CSS3"
+        ]
       },
       {
         "name": "Architecture",
-        "items": ["Monorepo (Turborepo)", "Layered Architecture", "Feature-Driven Architecture", "Component-Driven Development"]
+        "items": [
+          "Monorepo (Turborepo)",
+          "Layered Architecture",
+          "Feature-Driven Architecture",
+          "Component-Driven Development"
+        ]
       },
       {
         "name": "State & data",
-        "items": ["TanStack Query", "Zustand", "Redux Toolkit", "REST", "GraphQL (Shopify APIs)"]
+        "items": [
+          "TanStack Query",
+          "Zustand",
+          "Redux Toolkit",
+          "REST",
+          "GraphQL (Shopify APIs)"
+        ]
       },
       {
         "name": "Build & performance",
-        "items": ["Vite", "SWC", "Code splitting", "Bundle analysis", "Web Vitals"]
+        "items": [
+          "Vite",
+          "SWC",
+          "Code splitting",
+          "Bundle analysis",
+          "Web Vitals"
+        ]
       },
       {
         "name": "UI & styling",
-        "items": ["Responsive design", "Shopify Polaris", "Tailwind CSS", "SCSS Modules", "styled-components", "Figma"]
+        "items": [
+          "Responsive design",
+          "Shopify Polaris",
+          "Tailwind CSS",
+          "SCSS Modules",
+          "styled-components",
+          "Figma"
+        ]
       },
       {
         "name": "Tooling",
-        "items": ["Git", "GitLab CI/CD", "GitHub Actions", "Docker", "NPM package publishing"]
+        "items": [
+          "Git",
+          "GitLab CI/CD",
+          "GitHub Actions",
+          "Docker",
+          "NPM package publishing"
+        ]
       }
     ]
   },
@@ -1287,27 +1332,63 @@ Replace `src/shared/i18n/messages/vi.json` with:
     "groups": [
       {
         "name": "Nền tảng",
-        "items": ["TypeScript (strict)", "JavaScript (ES6+)", "React", "HTML5", "CSS3"]
+        "items": [
+          "TypeScript (strict)",
+          "JavaScript (ES6+)",
+          "React",
+          "HTML5",
+          "CSS3"
+        ]
       },
       {
         "name": "Kiến trúc",
-        "items": ["Monorepo (Turborepo)", "Layered Architecture", "Feature-Driven Architecture", "Component-Driven Development"]
+        "items": [
+          "Monorepo (Turborepo)",
+          "Layered Architecture",
+          "Feature-Driven Architecture",
+          "Component-Driven Development"
+        ]
       },
       {
         "name": "State & dữ liệu",
-        "items": ["TanStack Query", "Zustand", "Redux Toolkit", "REST", "GraphQL (Shopify APIs)"]
+        "items": [
+          "TanStack Query",
+          "Zustand",
+          "Redux Toolkit",
+          "REST",
+          "GraphQL (Shopify APIs)"
+        ]
       },
       {
         "name": "Build & hiệu năng",
-        "items": ["Vite", "SWC", "Code splitting", "Phân tích bundle", "Web Vitals"]
+        "items": [
+          "Vite",
+          "SWC",
+          "Code splitting",
+          "Phân tích bundle",
+          "Web Vitals"
+        ]
       },
       {
         "name": "UI & styling",
-        "items": ["Responsive design", "Shopify Polaris", "Tailwind CSS", "SCSS Modules", "styled-components", "Figma"]
+        "items": [
+          "Responsive design",
+          "Shopify Polaris",
+          "Tailwind CSS",
+          "SCSS Modules",
+          "styled-components",
+          "Figma"
+        ]
       },
       {
         "name": "Công cụ",
-        "items": ["Git", "GitLab CI/CD", "GitHub Actions", "Docker", "Publish package NPM"]
+        "items": [
+          "Git",
+          "GitLab CI/CD",
+          "GitHub Actions",
+          "Docker",
+          "Publish package NPM"
+        ]
       }
     ]
   },
@@ -1363,6 +1444,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 5: Shared UI primitives and site constants
 
 **Files:**
+
 - Create: `src/shared/lib/cx.ts`
 - Create: `src/shared/lib/cx.test.ts`
 - Create: `src/shared/lib/site.ts`
@@ -1374,6 +1456,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Create: `src/shared/ui/ArticleLayout.tsx`
 
 **Interfaces:**
+
 - Consumes: `Link` from `@/shared/i18n/navigation`.
 - Produces:
   - `cx(...classes: Array<string | false | null | undefined>): string`
@@ -1490,7 +1573,7 @@ export function Section({
     <section
       id={id}
       aria-labelledby={titleId}
-      className={cx("border-b border-border py-section", className)}
+      className={cx("border-border py-section border-b", className)}
     >
       <Container>{children}</Container>
     </section>
@@ -1535,7 +1618,7 @@ export function TagList({
       {tags.map((tag) => (
         <li
           key={tag}
-          className="rounded-full border border-border px-3 py-1 font-mono text-xs text-fg-muted"
+          className="border-border text-fg-muted rounded-full border px-3 py-1 font-mono text-xs"
         >
           {tag}
         </li>
@@ -1553,7 +1636,8 @@ import { cx } from "@/shared/lib/cx";
 
 const variants = {
   primary: "bg-accent text-accent-fg hover:opacity-90",
-  secondary: "border border-border text-fg hover:border-accent hover:text-accent"
+  secondary:
+    "border border-border text-fg hover:border-accent hover:text-accent"
 } as const;
 
 export function ButtonLink({
@@ -1564,7 +1648,7 @@ export function ButtonLink({
   return (
     <a
       className={cx(
-        "inline-flex items-center justify-center rounded-card px-5 py-3 font-mono text-sm font-semibold transition-colors",
+        "rounded-card inline-flex items-center justify-center px-5 py-3 font-mono text-sm font-semibold transition-colors",
         variants[variant],
         className
       )}
@@ -1607,7 +1691,7 @@ export function ArticleLayout({
     <Container size="narrow" className="py-12 sm:py-16">
       <Link
         href={backHref}
-        className="font-mono text-sm text-accent hover:underline"
+        className="text-accent font-mono text-sm hover:underline"
       >
         ← {backLabel}
       </Link>
@@ -1615,7 +1699,7 @@ export function ArticleLayout({
         <p
           role="note"
           data-testid="fallback-notice"
-          className="mt-6 rounded-card border border-border bg-bg-elevated p-4 text-sm text-fg-muted"
+          className="rounded-card border-border bg-bg-elevated text-fg-muted mt-6 border p-4 text-sm"
         >
           {notice}
         </p>
@@ -1623,8 +1707,8 @@ export function ArticleLayout({
       <article lang={contentLang} className="mt-8">
         <header>
           <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
-          <p className="mt-4 text-lg text-fg-muted">{summary}</p>
-          <p className="mt-4 font-mono text-sm text-fg-muted">{meta}</p>
+          <p className="text-fg-muted mt-4 text-lg">{summary}</p>
+          <p className="text-fg-muted mt-4 font-mono text-sm">{meta}</p>
           <TagList tags={tags} className="mt-4" />
         </header>
         <div className="mt-10">{children}</div>
@@ -1651,6 +1735,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 6: Site header, footer, locale switcher, and `<main>` landmark
 
 **Files:**
+
 - Create: `src/features/layout/LocaleSwitcher.tsx`
 - Create: `src/features/layout/SiteHeader.tsx`
 - Create: `src/features/layout/SiteFooter.tsx`
@@ -1661,6 +1746,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Modify: `src/app/[locale]/not-found.tsx`
 
 **Interfaces:**
+
 - Consumes: `ThemeToggle` (Task 2), `getPosts` (Task 3), `nav.*`, `locales.*`, `theme.toggle`, `footer.*`, `contact.{email,linkedin,github}` messages (Task 4), `Container`, `site`, `cx` (Task 5), `Link`, `usePathname` from `@/shared/i18n/navigation`, `routing`, `type Locale` from `@/shared/i18n/routing`.
 - Produces: `SiteHeader({ locale }: { locale: Locale })`, `SiteFooter()`; the layout renders `<main id="main" tabIndex={-1}>` around page content, so **pages and sections must not render their own `<main>`**. Section anchors used by the header: `about`, `work`, `skills`, `contact`.
 
@@ -1837,7 +1923,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
         <li key={id}>
           <Link
             href={{ pathname: "/", hash: id }}
-            className="text-sm text-fg-muted hover:text-fg"
+            className="text-fg-muted hover:text-fg text-sm"
           >
             {t(id)}
           </Link>
@@ -1845,7 +1931,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
       ))}
       {hasPosts ? (
         <li>
-          <Link href="/blog" className="text-sm text-fg-muted hover:text-fg">
+          <Link href="/blog" className="text-fg-muted hover:text-fg text-sm">
             {t("blog")}
           </Link>
         </li>
@@ -1857,11 +1943,11 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
     <>
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-card focus:bg-accent focus:px-4 focus:py-2 focus:text-accent-fg"
+        className="focus:rounded-card focus:bg-accent focus:text-accent-fg sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2"
       >
         {t("skipToContent")}
       </a>
-      <header className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur">
+      <header className="border-border bg-bg/90 sticky top-0 z-40 border-b backdrop-blur">
         <Container className="flex h-16 items-center justify-between gap-4">
           <Link
             href="/"
@@ -1881,12 +1967,12 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
             />
             <ThemeToggle label={tTheme("toggle")} />
             <details className="relative md:hidden">
-              <summary className="cursor-pointer list-none rounded-card border border-border px-3 py-2 font-mono text-sm">
+              <summary className="rounded-card border-border cursor-pointer list-none border px-3 py-2 font-mono text-sm">
                 {t("menu")}
               </summary>
               <nav
                 aria-label={t("primary")}
-                className="absolute right-0 mt-2 w-48 rounded-card border border-border bg-bg-elevated p-4"
+                className="rounded-card border-border bg-bg-elevated absolute right-0 mt-2 w-48 border p-4"
               >
                 {links}
               </nav>
@@ -1919,8 +2005,8 @@ export async function SiteFooter() {
   ];
 
   return (
-    <footer className="border-t border-border">
-      <Container className="flex flex-col gap-4 py-8 text-sm text-fg-muted sm:flex-row sm:items-center sm:justify-between">
+    <footer className="border-border border-t">
+      <Container className="text-fg-muted flex flex-col gap-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
         <p>{t("copyright", { year: new Date().getFullYear() })}</p>
         <ul aria-label={t("social")} className="flex gap-6">
           {links.map(({ href, label, external }) => (
@@ -1953,13 +2039,13 @@ import { SiteHeader } from "@/features/layout/SiteHeader";
 ```
 
 ```tsx
-        <NextIntlClientProvider>
-          <SiteHeader locale={locale} />
-          <main id="main" tabIndex={-1}>
-            {children}
-          </main>
-          <SiteFooter />
-        </NextIntlClientProvider>
+<NextIntlClientProvider>
+  <SiteHeader locale={locale} />
+  <main id="main" tabIndex={-1}>
+    {children}
+  </main>
+  <SiteFooter />
+</NextIntlClientProvider>
 ```
 
 - [ ] **Step 7: Remove nested `<main>` elements**
@@ -1993,7 +2079,7 @@ export default function NotFound() {
   return (
     <Container className="py-section">
       <h1 className="text-3xl font-bold sm:text-4xl">{t("title")}</h1>
-      <p className="mt-4 text-fg-muted">{t("description")}</p>
+      <p className="text-fg-muted mt-4">{t("description")}</p>
     </Container>
   );
 }
@@ -2021,6 +2107,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 7: Hero, About, Skills, and Contact sections
 
 **Files:**
+
 - Modify: `src/features/hero/HeroSection.tsx` (full rewrite)
 - Create: `src/features/about/AboutSection.tsx`
 - Create: `src/features/skills/SkillsSection.tsx`
@@ -2029,6 +2116,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Modify: `e2e/home.spec.ts` (append)
 
 **Interfaces:**
+
 - Consumes: `hero.*`, `about.*`, `skills.*`, `contact.*` messages; `Section`, `SectionTitle`, `Container`, `TagList`, `ButtonLink`, `site`.
 - Produces: `HeroSection()`, `AboutSection()`, `SkillsSection()`, `ContactSection()` — all async Server Components with no props. Section ids `about`, `skills`, `contact`; the hero keeps the page's only `h1`.
 
@@ -2106,22 +2194,17 @@ export async function HeroSection() {
     <section
       id="top"
       aria-labelledby="hero-title"
-      className="border-b border-border"
+      className="border-border border-b"
     >
       <Container className="grid min-h-[calc(100dvh-4rem)] items-center gap-12 py-16 md:grid-cols-[1.2fr_1fr]">
         <div>
-          <p className="font-mono text-sm tracking-widest text-accent uppercase">
+          <p className="text-accent font-mono text-sm tracking-widest uppercase">
             {t("role")}
           </p>
-          <h1
-            id="hero-title"
-            className="mt-4 text-4xl font-bold sm:text-6xl"
-          >
+          <h1 id="hero-title" className="mt-4 text-4xl font-bold sm:text-6xl">
             {t("title")}
           </h1>
-          <p className="mt-6 max-w-xl text-lg text-fg-muted">
-            {t("tagline")}
-          </p>
+          <p className="text-fg-muted mt-6 max-w-xl text-lg">{t("tagline")}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <ButtonLink href="#work">{t("ctaWork")}</ButtonLink>
             <ButtonLink href={site.cv} download variant="secondary">
@@ -2133,7 +2216,7 @@ export async function HeroSection() {
         <div
           aria-hidden="true"
           data-hero-canvas-slot=""
-          className="hidden aspect-square w-full rounded-card border border-border bg-bg-elevated md:block"
+          className="rounded-card border-border bg-bg-elevated hidden aspect-square w-full border md:block"
         />
       </Container>
     </section>
@@ -2164,7 +2247,7 @@ export async function AboutSection() {
     <Section id="about" titleId="about-title">
       <SectionTitle id="about-title">{t("title")}</SectionTitle>
       <div className="mt-8 grid gap-10 md:grid-cols-[2fr_1fr]">
-        <div className="space-y-4 leading-relaxed text-fg-muted">
+        <div className="text-fg-muted space-y-4 leading-relaxed">
           {paragraphs.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
@@ -2173,10 +2256,10 @@ export async function AboutSection() {
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="flex flex-col-reverse rounded-card border border-border bg-bg-elevated p-4"
+              className="rounded-card border-border bg-bg-elevated flex flex-col-reverse border p-4"
             >
-              <dt className="mt-1 text-sm text-fg-muted">{stat.label}</dt>
-              <dd className="font-mono text-3xl font-bold text-accent">
+              <dt className="text-fg-muted mt-1 text-sm">{stat.label}</dt>
+              <dd className="text-accent font-mono text-3xl font-bold">
                 {stat.value}
               </dd>
             </div>
@@ -2214,7 +2297,7 @@ export async function SkillsSection() {
         {groups.map((group) => (
           <div
             key={group.name}
-            className="rounded-card border border-border bg-bg-elevated p-5"
+            className="rounded-card border-border bg-bg-elevated border p-5"
           >
             <h3 className="font-mono text-base font-semibold">{group.name}</h3>
             <TagList tags={group.items} className="mt-4" />
@@ -2243,10 +2326,10 @@ export async function ContactSection() {
   return (
     <Section id="contact" titleId="contact-title" className="border-b-0">
       <SectionTitle id="contact-title">{t("title")}</SectionTitle>
-      <p className="mt-4 max-w-xl text-fg-muted">{t("description")}</p>
+      <p className="text-fg-muted mt-4 max-w-xl">{t("description")}</p>
       <a
         href={`mailto:${site.email}`}
-        className="mt-8 inline-block font-mono text-lg break-all text-accent underline underline-offset-4 sm:text-2xl"
+        className="text-accent mt-8 inline-block font-mono text-lg break-all underline underline-offset-4 sm:text-2xl"
       >
         {site.email}
       </a>
@@ -2287,14 +2370,14 @@ import { SkillsSection } from "@/features/skills/SkillsSection";
 ```
 
 ```tsx
-  return (
-    <>
-      <HeroSection />
-      <AboutSection />
-      <SkillsSection />
-      <ContactSection />
-    </>
-  );
+return (
+  <>
+    <HeroSection />
+    <AboutSection />
+    <SkillsSection />
+    <ContactSection />
+  </>
+);
 ```
 
 - [ ] **Step 8: Run e2e to verify they pass**
@@ -2319,6 +2402,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 8: Work section with per-project chapters
 
 **Files:**
+
 - Create: `src/features/work/chapter-order.ts`
 - Create: `src/features/work/chapter-order.test.ts`
 - Create: `src/features/work/WorkChapter.tsx`
@@ -2330,6 +2414,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Create: `e2e/work.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `getWork`, `getWorkBySlug` (Task 3); `work.*` messages (Task 4); `Section`, `SectionTitle`, `TagList`, `site` (Task 5); `Link` from `@/shared/i18n/navigation`.
 - Produces: `chapterOrder` (readonly array of `{ slug, key }`), `type ChapterKey = "swift" | "oneloyalty" | "safebulk"`, `WorkSection({ locale }: { locale: Locale })`. Chapter `<article>` elements carry `data-chapter={slug}` and link to `/work/<slug>`. Phase 4 animates the three `*Visual` components.
 
@@ -2468,21 +2553,21 @@ export function WorkChapter({
     <article
       aria-labelledby={titleId}
       data-chapter={slug}
-      className="grid gap-8 border-t border-border py-12 first:border-t-0 md:grid-cols-2 md:gap-12"
+      className="border-border grid gap-8 border-t py-12 first:border-t-0 md:grid-cols-2 md:gap-12"
     >
       <div>
-        <p className="font-mono text-sm text-accent">
+        <p className="text-accent font-mono text-sm">
           {String(index).padStart(2, "0")}
         </p>
         <h3 id={titleId} className="mt-2 text-xl font-semibold sm:text-2xl">
           {title}
         </h3>
-        <p className="mt-4 font-mono text-lg text-accent">{metric}</p>
-        <p className="mt-4 leading-relaxed text-fg-muted">{summary}</p>
+        <p className="text-accent mt-4 font-mono text-lg">{metric}</p>
+        <p className="text-fg-muted mt-4 leading-relaxed">{summary}</p>
         <TagList tags={tags} className="mt-4" />
         <Link
           href={`/work/${slug}`}
-          className="mt-6 inline-flex font-mono text-sm font-semibold text-accent underline underline-offset-4"
+          className="text-accent mt-6 inline-flex font-mono text-sm font-semibold underline underline-offset-4"
         >
           {readLabel}
           <span className="sr-only">: {title}</span>
@@ -2519,7 +2604,7 @@ function LoadBar({
         <span className="text-fg-muted">{label}</span>
         <span className={highlight ? "text-accent" : "text-fg"}>{value}</span>
       </dt>
-      <dd className="mt-2 h-3 rounded-full bg-bg">
+      <dd className="bg-bg mt-2 h-3 rounded-full">
         <div
           className={`h-full rounded-full ${highlight ? "bg-accent" : "bg-fg-muted"}`}
           style={{ width }}
@@ -2534,8 +2619,8 @@ export async function SwiftVisual() {
   const t = await getTranslations("work.swift");
 
   return (
-    <figure className="rounded-card border border-border bg-bg-elevated p-6">
-      <figcaption className="font-mono text-sm text-fg-muted">
+    <figure className="rounded-card border-border bg-bg-elevated border p-6">
+      <figcaption className="text-fg-muted font-mono text-sm">
         {t("caption")}
       </figcaption>
       <dl className="mt-6 space-y-5">
@@ -2573,8 +2658,8 @@ export async function OneloyaltyVisual() {
   const greetings = t.raw("greetings") as Greeting[];
 
   return (
-    <figure className="rounded-card border border-border bg-bg-elevated p-6">
-      <figcaption className="font-mono text-sm text-fg-muted">
+    <figure className="rounded-card border-border bg-bg-elevated border p-6">
+      <figcaption className="text-fg-muted font-mono text-sm">
         {t("caption")}
       </figcaption>
       <ul className="mt-6 grid grid-cols-2 gap-3">
@@ -2582,7 +2667,7 @@ export async function OneloyaltyVisual() {
           <li
             key={greeting.lang}
             lang={greeting.lang}
-            className="rounded-card border border-border px-3 py-2 font-mono text-sm"
+            className="rounded-card border-border border px-3 py-2 font-mono text-sm"
           >
             {greeting.text}
           </li>
@@ -2605,18 +2690,18 @@ export async function SafeBulkVisual() {
   const steps = t.raw("steps") as string[];
 
   return (
-    <figure className="rounded-card border border-border bg-bg-elevated p-6">
-      <figcaption className="font-mono text-sm text-fg-muted">
+    <figure className="rounded-card border-border bg-bg-elevated border p-6">
+      <figcaption className="text-fg-muted font-mono text-sm">
         {t("caption")}
       </figcaption>
       <ol className="mt-6 space-y-3">
         {steps.map((step, index) => (
           <li
             key={step}
-            className="rounded-card border border-border bg-bg p-4"
+            className="rounded-card border-border bg-bg border p-4"
             style={{ marginLeft: `${index * 1.25}rem` }}
           >
-            <span className="block font-mono text-xs text-accent">
+            <span className="text-accent block font-mono text-xs">
               {t("stepLabel", { number: index + 1 })}
             </span>
             <span className="mt-1 block">{step}</span>
@@ -2671,7 +2756,9 @@ const visuals: Record<ChapterKey, () => Promise<JSX.Element>> = {
 
 export async function WorkSection({ locale }: { locale: Locale }) {
   const t = await getTranslations("work");
-  const bySlug = new Map(getWork(locale).map((entry) => [entry.doc.slug, entry]));
+  const bySlug = new Map(
+    getWork(locale).map((entry) => [entry.doc.slug, entry])
+  );
 
   return (
     <Section id="work" titleId="work-title">
@@ -2713,19 +2800,19 @@ import { isValidLocale } from "@/shared/i18n/routing";
 ```
 
 ```tsx
-  const { locale } = await params;
-  if (!isValidLocale(locale)) notFound();
-  setRequestLocale(locale);
+const { locale } = await params;
+if (!isValidLocale(locale)) notFound();
+setRequestLocale(locale);
 
-  return (
-    <>
-      <HeroSection />
-      <AboutSection />
-      <WorkSection locale={locale} />
-      <SkillsSection />
-      <ContactSection />
-    </>
-  );
+return (
+  <>
+    <HeroSection />
+    <AboutSection />
+    <WorkSection locale={locale} />
+    <SkillsSection />
+    <ContactSection />
+  </>
+);
 ```
 
 Also extend the section list in `e2e/home.spec.ts` — in both the `renders the About, Skills, and Contact sections` test and the no-JS test, change `["about", "skills", "contact"]` to `["about", "work", "skills", "contact"]`.
@@ -2752,6 +2839,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 9: MDX renderer and case study pages
 
 **Files:**
+
 - Create: `src/shared/mdx/mdx-utils.ts`
 - Create: `src/shared/mdx/mdx-utils.test.ts`
 - Create: `src/shared/mdx/MdxContent.tsx`
@@ -2760,6 +2848,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 - Modify: `e2e/work.spec.ts` (append)
 
 **Interfaces:**
+
 - Consumes: `getWorkBySlug`, `getWorkParams` (Task 3); `caseStudy.*` messages (Task 4); `ArticleLayout` (Task 5); `buildMetadata` from `@/shared/seo/build-metadata`; `Link` from `@/shared/i18n/navigation`.
 - Produces: `MdxContent({ code }: { code: string })` from `@/shared/mdx/MdxContent`; `textContent(node: ReactNode): string`, `slugify(text: string): string`, `linkKind(href: string): "internal" | "hash" | "external"` from `@/shared/mdx/mdx-utils`. The blog post page in Task 10 reuses `MdxContent` and `ArticleLayout`.
 
@@ -2774,12 +2863,7 @@ import { linkKind, slugify, textContent } from "./mdx-utils";
 
 describe("textContent", () => {
   it("flattens strings, numbers, arrays, and elements", () => {
-    const node = [
-      "Deep dive: ",
-      createElement("code", null, "npm"),
-      " x",
-      2
-    ];
+    const node = ["Deep dive: ", createElement("code", null, "npm"), " x", 2];
     expect(textContent(node)).toBe("Deep dive: npm x2");
   });
 
@@ -2922,23 +3006,23 @@ const components = {
     <ol className="mt-4 list-decimal space-y-2 pl-6" {...props} />
   ),
   strong: (props: ComponentProps<"strong">) => (
-    <strong className="font-semibold text-fg" {...props} />
+    <strong className="text-fg font-semibold" {...props} />
   ),
   blockquote: (props: ComponentProps<"blockquote">) => (
     <blockquote
-      className="mt-6 border-l-2 border-accent pl-4 text-fg-muted"
+      className="border-accent text-fg-muted mt-6 border-l-2 pl-4"
       {...props}
     />
   ),
   code: (props: ComponentProps<"code">) => (
     <code
-      className="rounded bg-bg-elevated px-1.5 py-0.5 font-mono text-[0.9em]"
+      className="bg-bg-elevated rounded px-1.5 py-0.5 font-mono text-[0.9em]"
       {...props}
     />
   ),
   pre: (props: ComponentProps<"pre">) => (
     <pre
-      className="mt-6 overflow-x-auto rounded-card border border-border bg-bg-elevated p-4 font-mono text-sm [&_code]:bg-transparent [&_code]:p-0"
+      className="rounded-card border-border bg-bg-elevated mt-6 overflow-x-auto border p-4 font-mono text-sm [&_code]:bg-transparent [&_code]:p-0"
       {...props}
     />
   ),
@@ -2949,22 +3033,22 @@ const components = {
   ),
   th: (props: ComponentProps<"th">) => (
     <th
-      className="border border-border bg-bg-elevated px-3 py-2 text-left font-mono"
+      className="border-border bg-bg-elevated border px-3 py-2 text-left font-mono"
       {...props}
     />
   ),
   td: (props: ComponentProps<"td">) => (
-    <td className="border border-border px-3 py-2 align-top" {...props} />
+    <td className="border-border border px-3 py-2 align-top" {...props} />
   ),
-  hr: () => <hr className="my-10 border-border" />
+  hr: () => <hr className="border-border my-10" />
 };
 
 // Velite compiles MDX to a function body that expects the JSX runtime as its
 // first argument. Content is authored in this repo, so evaluating it is safe.
 function getMdxComponent(code: string) {
-  const factory = new Function(code) as (
-    scope: typeof runtime
-  ) => { default: ComponentType<{ components?: object }> };
+  const factory = new Function(code) as (scope: typeof runtime) => {
+    default: ComponentType<{ components?: object }>;
+  };
   return factory({ ...runtime }).default;
 }
 
@@ -2979,11 +3063,11 @@ export function MdxContent({ code }: { code: string }) {
 In `src/shared/i18n/request.ts`, add `timeZone` to the returned config (avoids next-intl's `ENVIRONMENT_FALLBACK` warning and keeps build-time dates stable):
 
 ```ts
-  return {
-    locale,
-    timeZone: "Asia/Ho_Chi_Minh",
-    messages: (await import(`./messages/${locale}.json`)).default
-  };
+return {
+  locale,
+  timeZone: "Asia/Ho_Chi_Minh",
+  messages: (await import(`./messages/${locale}.json`)).default
+};
 ```
 
 - [ ] **Step 7: Write the failing e2e tests**
@@ -3020,7 +3104,9 @@ test("Vietnamese falls back to English with a notice", async ({ page }) => {
     "Bài viết này hiện chỉ có bằng tiếng Anh."
   );
   await expect(page.locator("article")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("link", { name: /Quay lại dự án/ })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /Quay lại dự án/ })
+  ).toBeVisible();
 });
 
 test("the locale switcher keeps the case study slug", async ({ page }) => {
@@ -3169,11 +3255,13 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 10: Blog index and post routes
 
 **Files:**
+
 - Create: `src/app/[locale]/blog/page.tsx`
 - Modify: `src/app/[locale]/blog/[slug]/page.tsx` (full rewrite)
 - Create: `e2e/blog.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `getPosts`, `getPostBySlug`, `getPostParams` (Task 3); `blog.*`, `caseStudy.fallbackNotice` messages (Task 4); `Container`, `ArticleLayout` (Task 5); `MdxContent` (Task 9); `Link`; `buildMetadata`.
 - Produces: `/[locale]/blog` (static list or empty state) and `/[locale]/blog/[slug]` (prerendered per post; currently none). The header's conditional "Blog" link (Task 6) already points at `/blog`.
 
@@ -3269,9 +3357,9 @@ export default async function BlogIndexPage({ params }: { params: Params }) {
   return (
     <Container size="narrow" className="py-12 sm:py-16">
       <h1 className="text-3xl font-bold sm:text-4xl">{t("title")}</h1>
-      <p className="mt-4 text-lg text-fg-muted">{t("description")}</p>
+      <p className="text-fg-muted mt-4 text-lg">{t("description")}</p>
       {posts.length === 0 ? (
-        <p className="mt-10 rounded-card border border-border bg-bg-elevated p-6 text-fg-muted">
+        <p className="rounded-card border-border bg-bg-elevated text-fg-muted mt-10 border p-6">
           {t("empty")}
         </p>
       ) : (
@@ -3287,14 +3375,14 @@ export default async function BlogIndexPage({ params }: { params: Params }) {
                     {doc.title}
                   </Link>
                 </h2>
-                <p className="mt-1 font-mono text-sm text-fg-muted">
+                <p className="text-fg-muted mt-1 font-mono text-sm">
                   {format.dateTime(new Date(doc.datePublished), {
                     year: "numeric",
                     month: "long",
                     day: "numeric"
                   })}
                 </p>
-                <p className="mt-2 text-fg-muted">{doc.summary}</p>
+                <p className="text-fg-muted mt-2">{doc.summary}</p>
               </article>
             </li>
           ))}
@@ -3405,6 +3493,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 ### Task 11: Full verification and budget report
 
 **Files:**
+
 - No source changes expected. If a check fails, fix it in the file that owns the behavior and commit it separately.
 
 - [ ] **Step 1: Run the full quality gate**

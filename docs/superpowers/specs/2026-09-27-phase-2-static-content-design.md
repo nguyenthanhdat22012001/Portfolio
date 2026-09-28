@@ -101,7 +101,7 @@ Rules:
   not mapped to Tailwind at all (it is for Phase 5 3D only), so no `text-earth` utility exists.
   No raw hex in components.
 - `theme-script.ts` exports `resolveTheme(stored: string | null, prefersDark: boolean | null):
-  "dark" | "light"` — valid stored value wins, then OS preference, else `"dark"` — and the
+"dark" | "light"` — valid stored value wins, then OS preference, else `"dark"` — and the
   inline script string that applies it to `document.documentElement.dataset.theme`. The layout
   renders it in `<head>`; `<html>` gets `suppressHydrationWarning`.
 - `ThemeToggle`: a `<button>` with `aria-pressed` and a translated `aria-label`; flips
@@ -151,7 +151,7 @@ Each section is an async Server Component using `getTranslations(namespace)` and
   - `getPosts(locale)` / `getPostBySlug(slug, locale)` → same pattern, posts sorted by
     `datePublished` descending.
 - **`work/[slug]`**: `generateStaticParams` returns every slug × locale; `dynamicParams =
-  false`. Page: back link to `/#work`, `h1` title, summary, meta (date, tags), translated
+false`. Page: back link to `/#work`, `h1` title, summary, meta (date, tags), translated
   fallback notice when `isFallback` (article gets `lang="en"`), then `<MdxContent>`.
   `generateMetadata` uses `buildMetadata` with title and summary.
 - **`blog`**: list of posts (title, date, summary) or translated empty state. **`blog/[slug]`**

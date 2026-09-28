@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-import type { ReactNode } from "react";
-import { NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
-import { notFound } from "next/navigation";
 import { SiteFooter } from "@/features/layout/SiteFooter";
 import { SiteHeader } from "@/features/layout/SiteHeader";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { getSiteUrl } from "@/shared/seo/site-url";
 import { fontMono, fontSans } from "@/shared/theme/fonts";
 import { themeScript } from "@/shared/theme/theme-script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import "../globals.css";
 
 export function generateMetadata(): Metadata {
@@ -60,6 +61,7 @@ export default async function LocaleLayout({
             {children}
           </main>
           <SiteFooter />
+          <SpeedInsights />
         </NextIntlClientProvider>
       </body>
     </html>

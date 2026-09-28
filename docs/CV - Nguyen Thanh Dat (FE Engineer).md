@@ -2,7 +2,7 @@
 
 **Nguyen Thanh Dat** Front-End Engineer — React / TypeScript · Shopify Embedded Apps · 4 years
 
-📧 nguyenthanhdat22012001@gmail.com  |  📱 038 564 2061 📍 306 Hoa Binh, Phu Thanh, Ho Chi Minh, Viet Nam 🔗 linkedin.com/in/dat-nguyen-b26744277, https://github.com/nguyenthanhdat22012001
+📧 nguyenthanhdat22012001@gmail.com | 📱 038 564 2061 📍 306 Hoa Binh, Phu Thanh, Ho Chi Minh, Viet Nam 🔗 linkedin.com/in/dat-nguyen-b26744277, https://github.com/nguyenthanhdat22012001
 
 ## Professional Summary
 
@@ -40,10 +40,9 @@ Front-End Engineer with ~4 years of experience building Shopify embedded applica
 - Designed and published an internal NPM package for store speed-auditing, using an inversion-of-control pattern (host app supplies callbacks; React/UI libraries kept as peer dependencies) so two separate teams could adopt it independently
 - Built UI for theme speed optimization (JS/CSS minification, image lazy-loading, HTML cleanup) and SEO tooling (alt-text automation, meta tags, structured snippets, sitemaps).
 
-
 ## Personal Project
 
-**SafeBulk — Shopify Bulk Product Editor** *(Side project, team of 2)* | Jul 2026 – Present Sole Frontend Developer — React 19, TypeScript (strict), TanStack Router + Query, Zustand, GraphQL (Shopify Admin API), Docker, GitHub Actions
+**SafeBulk — Shopify Bulk Product Editor** _(Side project, team of 2)_ | Jul 2026 – Present Sole Frontend Developer — React 19, TypeScript (strict), TanStack Router + Query, Zustand, GraphQL (Shopify Admin API), Docker, GitHub Actions
 
 - Built and own the entire frontend solo, working with 1 backend engineer on API contracts (wrote design specs before each feature to reduce rework)
 - Designed a 3-step Bulk Edit Wizard (filter → configure rules → preview with per-row severity) and a resumable CSV import/export flow with validation preview

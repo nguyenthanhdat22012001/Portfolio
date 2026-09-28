@@ -30,11 +30,11 @@ a. Nếu bị hỏi thẳng: "Vậy đây có phải circular dependency thật 
 
 Quyết định chọn Turborepo là do anh senior đưa ra dựa trên đánh giá của ảnh, em không phải người trực tiếp so sánh và chốt giữa các lựa chọn. Nhưng qua trao đổi với ảnh lúc đó và quá trình dùng thực tế, em hiểu lý do chọn Turborepo là vì:
 
-+ Turborepo: nhẹ, cấu hình đơn giản (chỉ 1 file turbo.json), tối ưu mạnh về remote caching (cache lại kết quả build/lint/test không đổi) và chạy task song song → phù hợp với hệ thống chỉ toàn app/package React (không đa framework), học nhanh cho cả team.
+- Turborepo: nhẹ, cấu hình đơn giản (chỉ 1 file turbo.json), tối ưu mạnh về remote caching (cache lại kết quả build/lint/test không đổi) và chạy task song song → phù hợp với hệ thống chỉ toàn app/package React (không đa framework), học nhanh cho cả team.
 
-+ Nx: mạnh hơn về plugin ecosystem, generator, dependency graph visualization — phù hợp monorepo rất lớn, nhiều loại framework khác nhau (Angular + React + Node...), nhưng cấu hình phức tạp hơn, "nặng" hơn để học và maintain. 
+- Nx: mạnh hơn về plugin ecosystem, generator, dependency graph visualization — phù hợp monorepo rất lớn, nhiều loại framework khác nhau (Angular + React + Node...), nhưng cấu hình phức tạp hơn, "nặng" hơn để học và maintain.
 
-+ Lerna: chủ yếu giải quyết bài toán publish/versioning nhiều package, không mạnh về task orchestration/caching như Turborepo (thực tế hiện nay Lerna thường dùng kèm Nx, hoặc bị thay bằng changesets).
+- Lerna: chủ yếu giải quyết bài toán publish/versioning nhiều package, không mạnh về task orchestration/caching như Turborepo (thực tế hiện nay Lerna thường dùng kèm Nx, hoặc bị thay bằng changesets).
 
 → Với team chỉ có app admin + extension (đều React), Turborepo là lựa chọn "vừa đủ": đơn giản, cache hiệu quả, không cần learning curve cao như Nx.
 
@@ -50,7 +50,6 @@ Về giai đoạn 2 hệ thống chạy song song — trong lúc migrate, team �
 
 Vấn đề cụ thể hay gặp nhất là khi production phát sinh hotfix đúng vào UI component đang trong quá trình migrate dở — phải fix ở cả 2 nơi: bản cũ đang chạy production (GitLab package) và bản mới đang migrate trong Turborepo, để tránh khi migrate xong lại bị mất fix đó. Việc này khá tốn thời gian và dễ sót nếu không ghi chú cẩn thận component nào đã fix ở đâu.
 
-
 a. Nếu bị hỏi thêm: "Vậy làm sao đảm bảo không bị sót/nhầm trong lúc chạy song song 2 hệ thống?"
 
 Thực tế team không có tool riêng để track, cách xử lý là: ngay sau khi hotfix xong ở 1 bên, việc ưu tiên tiếp theo là đồng bộ luôn sang bên còn lại trong cùng ngày để tránh bị quên. Nếu đúng lúc đó có việc gấp hơn cần xử lý ngay, mình sẽ note lại rõ ràng — component nào, sửa gì, cần đồng bộ sang đâu — rồi tranh thủ lúc rảnh trong ngày (sáng sớm hoặc buổi chiều) để cập nhật, đảm bảo không để qua ngày hôm sau mới nhớ ra.
@@ -63,10 +62,9 @@ Bản dịch không nằm tĩnh trong repo dạng file JSON, mà fetch runtime t
 
 Về xử lý dịch thiếu, hệ thống dựa vào cơ chế mặc định của i18next: thiếu ở locale hiện tại thì tự fallback về tiếng Anh, còn thiếu ở cả 2 thì trả về chính key thô thay vì crash app. Điểm mình nhận ra khi rà lại là hiện tại chưa có cơ chế log/telemetry khi thiếu key — nghĩa là nếu thiếu bản dịch, team chỉ phát hiện được khi ai đó tự nhìn thấy key thô hiển thị trên UI. Đây là điểm mình nghĩ nên bổ sung, có thể thêm bản JSON tiếng Anh tĩnh vào repo, Nếu request tới backend fail thì load bản tĩnh
 
-
 a. "Vì sao không lưu bản dịch dạng file tĩnh trong repo mà phải gọi API runtime?"
 
-Lý do chính là để phục vụ các vai trò non-dev như customer service, translator, hay PM có thể tự cập nhật nội dung dịch mà không cần dev can thiệp hay deploy lại app. Ví dụ thực tế: khi khách hàng (merchant) phản hồi muốn đổi câu chữ trong 1 thông báo hoặc nhãn nào đó, customer service có thể chỉnh sửa trực tiếp trên hệ thống quản lý nội dung ở backend và merchant thấy thay đổi gần như ngay lập tức, thay vì phải tạo ticket cho dev sửa file JSON, code review, rồi chờ đến  deploy tiếp theo — có thể mất vài ngày. Nếu để bản dịch dạng file tĩnh trong repo, mọi thay đổi dù nhỏ nhất cũng phải đi qua toàn bộ quy trình phát triển phần mềm, không phù hợp với tốc độ phản hồi khách hàng mà team customer service cần.
+Lý do chính là để phục vụ các vai trò non-dev như customer service, translator, hay PM có thể tự cập nhật nội dung dịch mà không cần dev can thiệp hay deploy lại app. Ví dụ thực tế: khi khách hàng (merchant) phản hồi muốn đổi câu chữ trong 1 thông báo hoặc nhãn nào đó, customer service có thể chỉnh sửa trực tiếp trên hệ thống quản lý nội dung ở backend và merchant thấy thay đổi gần như ngay lập tức, thay vì phải tạo ticket cho dev sửa file JSON, code review, rồi chờ đến deploy tiếp theo — có thể mất vài ngày. Nếu để bản dịch dạng file tĩnh trong repo, mọi thay đổi dù nhỏ nhất cũng phải đi qua toàn bộ quy trình phát triển phần mềm, không phù hợp với tốc độ phản hồi khách hàng mà team customer service cần.
 
 ### 6. Kể về lần bạn debug CI/CD pipeline (GitLab CI + Docker) bị fail — quy trình debug của bạn thế nào?
 
@@ -79,7 +77,7 @@ npm error notsup Actual: {"npm":"10.6.2","node":"v18.12.0"}
 
 Mình xác nhận lại bằng cách kiểm tra version Node ở máy local (node -v) để so sánh trực tiếp với version báo lỗi trên CI, khớp đúng với nghi ngờ. Vì phần Docker image dùng trong .gitlab-ci.yml không thuộc quyền mình chỉnh sửa, mình báo cho DevOps kèm log lỗi cụ thể và yêu cầu bump version Node trong Docker image lên tương thích với yêu cầu của package (>=22), khớp với version mình đang dùng ở local. Sau khi DevOps cập nhật, pipeline chạy pass bình thường."
 
-*****
+---
 
 Một case khác: pipeline build Docker image cũng bị fail với triệu chứng ban đầu trông giống lỗi version Node — nhưng lần này mình không vội kết luận giống case trước (chỉ đơn giản bump Node version), mà đọc kỹ log hơn thì thấy có dòng console.log('install packages shopify apps extension...') xuất hiện ngay trong quá trình npm install — đây là điều bất thường, vì log này không phải log tiêu chuẩn của npm install.
 
@@ -111,13 +109,11 @@ Em thiết kế theo hướng component nhận props thay vì để app khác đ
 
 Về xác thực, có 1 API nhận store_id, app_name, shopify_domain để verify ban đầu, còn các API còn lại chỉ nhận store_id — không có verify thêm, và verify lần đầu cũng không trả về token/session nào để các API sau dùng lại.
 
-
 Về quy trình version, publish, breaking change:
 
 Version tăng thủ công, repo chưa có CHANGELOG, chưa có git tag khớp với version npm. Khi có thay đổi/breaking change, không có cơ chế thông báo chính thức (như thay đổi ở packages/ui/i18n) — mọi thay đổi mới nhất được ghi vào file README, app nào muốn integrate hoặc update thì tự đọc README để biết.
 
 Điểm đặc biệt là package này có 2 team cùng phát triển và dùng chung — app Swift và app Transy — em là người tạo package đầu tiên, sau đó có thêm thành viên từ cả 2 team tham gia phát triển tiếp.
-
 
 a. Nếu bị hỏi thẳng: "Vậy các API sau không xác thực gì thì có phải lỗ hổng bảo mật không?"
 
@@ -127,7 +123,6 @@ b. Nếu bị hỏi tiếp: "2 team cùng dev chung 1 package thì làm sao trá
 
 Thực tế quy trình khá thủ công — không có semver rõ ràng hay changeset để track ai thay đổi gì, breaking change gì. Cách xử lý dựa nhiều vào giao tiếp trực tiếp giữa 2 team hơn là quy trình tự động: ai sửa gì ảnh hưởng đến interface dùng chung thì cần báo trước, cập nhật README, và các app dùng phải tự kiểm tra khi bump version mới. Đây rõ ràng là điểm có thể cải thiện — nếu làm lại, em sẽ đề xuất dùng Changesets để mỗi thay đổi được khai báo rõ loại (patch/minor/major), tự sinh changelog, và bump version có kiểm soát thay vì để 2 team tự thống nhất bằng lời.
 
-
 ### 11. Docker containerized builds: Multi-stage build bạn từng cấu hình chưa? Cách giảm image size, cache layer để build nhanh hơn?
 
 Em chưa từng trực tiếp cấu hình multi-stage build — phần Dockerfile/CI config ở dự án không thuộc quyền của em, em chủ yếu là người debug CI/CD mỗi khi có vấn đề và làm việc với DevOps để họ điều chỉnh, chứ không tự viết/tối ưu Dockerfile.
@@ -136,21 +131,20 @@ trong dự án oneloyalty thì em thấy đang cấu hình multi-stage với 2 s
 
 Lợi ích chính: image cuối cùng chạy production không hề chứa Node.js, node_modules, source code hay dev dependencies — chỉ có static files + nginx. Giảm size đáng kể (từ vài trăm MB xuống chỉ còn ~20-30MB) và giảm luôn attack surface vì không có toolchain build nằm trong container chạy thật.
 
-
 Cách giảm image size:
 
-* Dùng alpine base image thay vì full image (node:20-alpine thay vì node:20).
-* Multi-stage như trên — tách biệt build-time dependency và runtime.
-* Dùng .dockerignore để loại node_modules, .git, dist cũ... ra khỏi build context, tránh copy thừa và tránh cache bị sai.
-* Nếu cần, dùng npm ci --omit=dev hoặc chỉ cài prod dependencies ở stage nào cần.
+- Dùng alpine base image thay vì full image (node:20-alpine thay vì node:20).
+- Multi-stage như trên — tách biệt build-time dependency và runtime.
+- Dùng .dockerignore để loại node_modules, .git, dist cũ... ra khỏi build context, tránh copy thừa và tránh cache bị sai.
+- Nếu cần, dùng npm ci --omit=dev hoặc chỉ cài prod dependencies ở stage nào cần.
 
 Cách tối ưu cache layer để build nhanh hơn:
 
-* Nguyên tắc: layer nào ít đổi thì đặt trước, layer nào đổi thường xuyên thì đặt sau.
-* Copy package.json + package-lock.json trước, chạy npm ci ngay sau đó, rồi mới COPY . . để lấy source code. Như vậy nếu chỉ sửa code mà không đổi dependency, Docker sẽ tái sử dụng cache của layer npm ci — không phải install lại từ đầu mỗi lần build.
-* Dùng npm ci thay vì npm install — nhanh và deterministic hơn vì nó đọc thẳng lock file, không resolve lại version.
-* Có thể tận dụng BuildKit cache mount (--mount=type=cache,target=/root/.npm) để cache npm cache giữa các lần build kể cả khi layer bị invalidate.
-* Tận dụng registry cache (--cache-from) trong CI để pull layer cache từ image build trước đó.
+- Nguyên tắc: layer nào ít đổi thì đặt trước, layer nào đổi thường xuyên thì đặt sau.
+- Copy package.json + package-lock.json trước, chạy npm ci ngay sau đó, rồi mới COPY . . để lấy source code. Như vậy nếu chỉ sửa code mà không đổi dependency, Docker sẽ tái sử dụng cache của layer npm ci — không phải install lại từ đầu mỗi lần build.
+- Dùng npm ci thay vì npm install — nhanh và deterministic hơn vì nó đọc thẳng lock file, không resolve lại version.
+- Có thể tận dụng BuildKit cache mount (--mount=type=cache,target=/root/.npm) để cache npm cache giữa các lần build kể cả khi layer bị invalidate.
+- Tận dụng registry cache (--cache-from) trong CI để pull layer cache từ image build trước đó.
 
 Thực ra khi review lại Dockerfile hiện tại của mình, mình nhận ra đang copy toàn bộ source (COPY . .) trước khi install — điều này vô tình làm mất tác dụng của việc tách riêng package*.json, vì bất kỳ thay đổi source nào cũng làm invalidate cache của bước install. Đây là lỗi khá phổ biến, và cách sửa là đảm bảo thứ tự: copy lock file → install → copy source.
 
@@ -163,7 +157,6 @@ Về đo lường hiệu quả trước/sau, công cụ em dùng để chứng m
 Về cách xử lý lazy-load ảnh mà không ảnh hưởng LCP — phần này em thật sự không nắm được cách BE/senior xử lý cụ thể lúc đó, vì không phải phần em trực tiếp làm.
 
 Về nguyên lý chung mà em biết , vấn đề lazy-load ảnh mà ảnh hưởng LCP thường do áp dụng lazy-loading đồng loạt cho mọi ảnh trên trang. mà ảnh nằm trong viewport ban đầu - ảnh đó thường chính là LCP element, nên lazy nó sẽ trì hoãn thời điểm ảnh được tải, làm tăng LCP. Cách xử lý đúng là chỉ lazy-load các ảnh nằm dưới màn hình đầu tiên (below-the-fold), còn ảnh đầu tiên/ảnh hero thì để tải ngay (loading="eager", thậm chí thêm fetchpriority="high") để trình duyệt ưu tiên tải sớm nhất có thể.
-
 
 ## PHẦN 2. Kỹ thuật sâu (Technical Deep-dive)
 
@@ -185,15 +178,15 @@ b. "skipLibCheck rủi ro thế nào, sao vẫn bật?"
 
 Việc upgrade version là quyết định của senior khi đánh giá thấy lợi ích lớn hơn chi phí migrate, em không phải người đề xuất/chốt việc này. Nhưng em hiểu lý do nâng cấp là:
 
-+ API thống nhất hơn: v5 gộp các hook (useQuery, useQueries, useInfiniteQuery) dùng chung 1 dạng object API, bỏ nhiều overload gây rối.
-+ Object-only API (useQuery({ queryKey, queryFn })) giúp TypeScript infer type tốt hơn — quan trọng vì dự án dùng Strict TypeScript.
-+ Đổi isLoading → isPending để phân biệt rõ "chưa có data lần đầu" và "đang fetch lại".
-+ Giảm bundle size, tương thích tốt hơn với React 18 Suspense/concurrent features.
+- API thống nhất hơn: v5 gộp các hook (useQuery, useQueries, useInfiniteQuery) dùng chung 1 dạng object API, bỏ nhiều overload gây rối.
+- Object-only API (useQuery({ queryKey, queryFn })) giúp TypeScript infer type tốt hơn — quan trọng vì dự án dùng Strict TypeScript.
+- Đổi isLoading → isPending để phân biệt rõ "chưa có data lần đầu" và "đang fetch lại".
+- Giảm bundle size, tương thích tốt hơn với React 18 Suspense/concurrent features.
 
 ### 3.React Query giải quyết vấn đề gì so với Redux/Zustand? Khi nào bạn chọn server state (React Query) vs client state (Zustand/Redux)?
 
-+ React Query dùng cho server state (dữ liệu từ API/GraphQL) — tự động lo caching, refetch, stale time, invalidation, tránh phải tự viết loading/error state thủ công.
-+ Zustand/Redux dùng cho client state thuần (UI state, filter, form step, theme...) không cần đồng bộ với server.
+- React Query dùng cho server state (dữ liệu từ API/GraphQL) — tự động lo caching, refetch, stale time, invalidation, tránh phải tự viết loading/error state thủ công.
+- Zustand/Redux dùng cho client state thuần (UI state, filter, form step, theme...) không cần đồng bộ với server.
 
 ### 4.Giải thích cách bạn tối ưu bundle size / code splitting với Vite + SWC. Cách phân tích bundle chunk (dùng tool gì)?
 
@@ -203,35 +196,34 @@ Về code splitting, dự án áp dụng route-level splitting bằng React.lazy
 
 Về công cụ phân tích bundle, ở Oneloyalty có setup vite-bundle-analyzer nhưng đang tắt, ít dùng thực tế trong công việc. Để tự học thêm, em có 1 dự án cá nhân dùng rollup-plugin-visualizer để xem treemap kích thước từng module kèm gzip/brotli size, và knip để tìm code/dependency không dùng tới trước khi build — giúp giảm bundle từ gốc thay vì chỉ tối ưu ở bước bundling.
 
-a. Vì sao Oneloyalty tắt vite-bundle-analyzer?" 
+a. Vì sao Oneloyalty tắt vite-bundle-analyzer?"
 
 → team ít debug, chỉ cần bật khi cần debug, để mặc định tắt tránh ảnh hưởng build thường ngày
 
-b. "knip có ảnh hưởng gì tới runtime không hay chỉ là dev tool?" 
+b. "knip có ảnh hưởng gì tới runtime không hay chỉ là dev tool?"
 
 → Chỉ là dev-time tool, chạy như 1 lệnh riêng (thường trong CI hoặc chạy tay), không ảnh hưởng gì đến bundle/runtime production — nó chỉ giúp phát hiện để mình tự xóa code thừa.
 
 ### 5.Web Vitals bạn theo dõi những chỉ số nào (LCP, FID/INP, CLS...)? Cách cải thiện từng chỉ số trong Shopify embedded app?
 
-  Định nghĩa nhanh 3 chỉ số (để mở đầu câu trả lời)
+Định nghĩa nhanh 3 chỉ số (để mở đầu câu trả lời)
 
-  + LCP (Largest Contentful Paint): thời gian để phần tử lớn nhất trong viewport (thường là ảnh, block text lớn, hoặc component chính) render xong. Đo "cảm giác trang đã tải xong nội dung chính" chưa. (≤2500ms)
+- LCP (Largest Contentful Paint): thời gian để phần tử lớn nhất trong viewport (thường là ảnh, block text lớn, hoặc component chính) render xong. Đo "cảm giác trang đã tải xong nội dung chính" chưa. (≤2500ms)
 
-  -> LCP là thời gian để phần tử có diện tích hiển thị lớn nhất trong viewport hoàn tất render lên màn hình. Không phải mọi phần tử đều được tính — trình duyệt chỉ xét các loại có nội dung thực sự như ảnh, poster video, background-image, hoặc block chứa text — một div rỗng dùng để tạo khoảng trống thì dù to cỡ nào cũng không tính. Con số LCP đo bằng thời gian (giây), không phải kích thước — ý nghĩa của nó là đo 'cảm giác người dùng thấy nội dung chính của trang đã sẵn sàng' nhanh hay chậm.
+-> LCP là thời gian để phần tử có diện tích hiển thị lớn nhất trong viewport hoàn tất render lên màn hình. Không phải mọi phần tử đều được tính — trình duyệt chỉ xét các loại có nội dung thực sự như ảnh, poster video, background-image, hoặc block chứa text — một div rỗng dùng để tạo khoảng trống thì dù to cỡ nào cũng không tính. Con số LCP đo bằng thời gian (giây), không phải kích thước — ý nghĩa của nó là đo 'cảm giác người dùng thấy nội dung chính của trang đã sẵn sàng' nhanh hay chậm.
 
+- CLS (Cumulative Layout Shift): đo độ "giật" của layout khi các phần tử dịch chuyển vị trí ngoài ý muốn trong lúc trang đang tải. (≤0.1)
 
-  + CLS (Cumulative Layout Shift): đo độ "giật" của layout khi các phần tử dịch chuyển vị trí ngoài ý muốn trong lúc trang đang tải. (≤0.1)
+- INP (Interaction to Next Paint): thay thế FID từ 3/2024, đo thời gian từ lúc người dùng tương tác (click/tap/gõ phím) đến khi trình duyệt vẽ xong khung hình phản hồi tiếp theo — tính cho mọi tương tác trong suốt vòng đời trang (không chỉ tương tác đầu tiên như FID cũ). (≤200ms)
 
-  + INP (Interaction to Next Paint): thay thế FID từ 3/2024, đo thời gian từ lúc người dùng tương tác (click/tap/gõ phím) đến khi trình duyệt vẽ xong khung hình phản hồi tiếp theo — tính cho mọi tương tác trong suốt vòng đời trang (không chỉ tương tác đầu tiên như FID cũ). (≤200ms)
-
-  + FCP (First Contentful Paint): thời gian từ lúc bắt đầu load đến khi phần tử đầu tiên (bất kỳ — text, ảnh, canvas...) xuất hiện trên màn hình. Đo "cảm giác trang bắt đầu có gì đó hiển thị" chưa, sớm hơn LCP. (≤1800ms)
+- FCP (First Contentful Paint): thời gian từ lúc bắt đầu load đến khi phần tử đầu tiên (bất kỳ — text, ảnh, canvas...) xuất hiện trên màn hình. Đo "cảm giác trang bắt đầu có gì đó hiển thị" chưa, sớm hơn LCP. (≤1800ms)
 
 --- câu trả lời ----
 Ở Oneloyalty, 3 chỉ số team quan tâm là LCP, FCP, và CLS.
 
 Về CLS, nguyên nhân chính là các section/component thay đổi kích thước đột ngột khi data thật về — ví dụ ban đầu section rỗng hoặc chỉ có skeleton nhỏ, sau khi fetch xong nội dung dài ra làm đẩy các phần tử phía dưới dịch chuyển. Cách xử lý là đặt trước width/height cố định hoặc xấp xỉ đúng cho các section đó ngay từ lúc chưa có data, sao cho kích thước skeleton gần bằng kích thước khi data thật render ra — không gian đã được 'giữ chỗ' từ trước nên khi data về, layout không bị nhảy. Với phần khó đoán trước kích thước chính xác (nội dung text dài ngắn tuỳ dữ liệu), em ưu tiên dùng min-height thay vì height cố định tuyệt đối để tránh vỡ layout khi data thật lớn hơn dự đoán.
 
-Về FCP, chủ yếu tối ưu bằng cách giảm JS/CSS chặn render ban đầu — code-splitting theo route và tách vendor chunk (đã áp dụng ở phần bundle size) giúp trình duyệt không phải tải một bundle lớn trước khi vẽ được gì lên màn hình. 
+Về FCP, chủ yếu tối ưu bằng cách giảm JS/CSS chặn render ban đầu — code-splitting theo route và tách vendor chunk (đã áp dụng ở phần bundle size) giúp trình duyệt không phải tải một bundle lớn trước khi vẽ được gì lên màn hình.
 
 Về LCP, cần xác định đúng phần tử nào đang là LCP element trên từng page bằng Lighthouse hoặc DevTools Performance, sau đó ưu tiên tải sớm phần tử đó — nếu là ảnh thì không lazy-load nó, còn nếu phụ thuộc data từ API thì tối ưu tốc độ API đó hoặc tận dụng cache của React Query (staleTime) để tránh phải chờ fetch lại mỗi lần vào trang
 
@@ -251,31 +243,30 @@ a. Concurrent renderer (bộ render đồng thời)
 
 Trước React 18: rendering là "blocking" : Khi state thay đổi, React dựng lại cây component và commit ra DOM trong một mạch không thể ngắt. Nếu cây lớn, việc này chiếm main thread 50–200ms → trong khoảng đó browser không xử lý được gõ phím, click, animation → UI "đơ".
 
-setState  ──►  render toàn bộ (không dừng được)  ──►  commit DOM
-              [main thread bị khóa ở đây]
-
+setState ──► render toàn bộ (không dừng được) ──► commit DOM
+[main thread bị khóa ở đây]
 
 Từ React 18: rendering có thể "interruptible (ngắt quãng)"
 
 Concurrent renderer cho phép React:
 
-+ Tạm dừng việc render giữa chừng, trả main thread lại cho browser xử lý việc gấp (gõ phím), rồi quay lại render tiếp.
-+ Bỏ luôn một lần render đang dở nếu có state mới hơn (kết quả cũ không còn cần).
-+ Chuẩn bị một phiên bản UI trong bộ nhớ (chưa hiện lên màn hình) rồi mới hiển thị khi sẵn sàng.
-+ Gán mức ưu tiên khác nhau cho các lần update: gõ phím = gấp, lọc danh sách = có thể chờ.
+- Tạm dừng việc render giữa chừng, trả main thread lại cho browser xử lý việc gấp (gõ phím), rồi quay lại render tiếp.
+- Bỏ luôn một lần render đang dở nếu có state mới hơn (kết quả cũ không còn cần).
+- Chuẩn bị một phiên bản UI trong bộ nhớ (chưa hiện lên màn hình) rồi mới hiển thị khi sẵn sàng.
+- Gán mức ưu tiên khác nhau cho các lần update: gõ phím = gấp, lọc danh sách = có thể chờ.
 
 Quan trọng: bật createRoot không tự động làm app nhanh hơn. Nó chỉ cho phép các tính năng bên dưới (Suspense streaming, useSyncExternalStore, useTransition, useDeferredValue, startTransition,...) hoạt động. Nếu bạn không dùng gì thì hành vi gần như y hệt cũ.
-
 
 b. useSyncExternalStore : Vấn đề: "tearing" (state không nhất quán khi hiên thị ở các component khác nhau)
 
 "External store" = state nằm ngoài React: Zustand, Redux, một biến module, window.matchMedia, v.v.
-Với concurrent renderer, một lần render có thể bị chia làm nhiều lát cắt theo thời gian. 
+Với concurrent renderer, một lần render có thể bị chia làm nhiều lát cắt theo thời gian.
 
 Nếu store bên ngoài đổi giá trị giữa các lát cắt, thì:
-* Component A (render lúc 10:00:00.000) đọc count = 5
-* Store update → count = 6
-* Component B (render lúc 10:00:00.050, cùng một lần render) đọc count = 6
+
+- Component A (render lúc 10:00:00.000) đọc count = 5
+- Store update → count = 6
+- Component B (render lúc 10:00:00.050, cùng một lần render) đọc count = 6
 
 → Trên màn hình: A hiển thị 5, B hiển thị 6 cùng lúc, dù chúng đọc cùng một nguồn. Đó là tearing — trạng thái không nhất quán. State nội bộ của React (useState) không bị vì React quản lý được; store ngoài thì không.
 
@@ -285,7 +276,10 @@ useSyncExternalStore là API React cung cấp để thư viện store đăng ký
 ```typescript
 function useWindowWidth() {
   return useSyncExternalStore(
-    (cb) => { window.addEventListener("resize", cb); return () => window.removeEventListener("resize", cb); },
+    (cb) => {
+      window.addEventListener("resize", cb);
+      return () => window.removeEventListener("resize", cb);
+    },
     () => window.innerWidth,
     () => 1024 // SSR fallback
   );
@@ -303,23 +297,23 @@ const [results, setResults] = useState(allItems);
 
 function onChange(e) {
   const value = e.target.value;
-  setQuery(value);                    // URGENT: input phải cập nhật ngay
+  setQuery(value); // URGENT: input phải cập nhật ngay
 
   startTransition(() => {
     setResults(filterHugeList(value)); // TRANSITION: lọc 10k item, có thể ngắt
   });
 }
 ```
+
 Điều gì xảy ra:
 
-* setQuery chạy ngay → ô input hiển thị ký tự vừa gõ, không delay.
-* setResults chạy ở priority thấp. Nếu user gõ tiếp ký tự nữa khi React đang lọc dở → React vứt lần lọc cũ, làm lại với giá trị mới. Không bao giờ có tình trạng bàn phím bị "nuốt phím".
-* isPending === true trong lúc transition đang chạy → dùng để làm mờ danh sách cũ, hiện spinner nhẹ.
+- setQuery chạy ngay → ô input hiển thị ký tự vừa gõ, không delay.
+- setResults chạy ở priority thấp. Nếu user gõ tiếp ký tự nữa khi React đang lọc dở → React vứt lần lọc cũ, làm lại với giá trị mới. Không bao giờ có tình trạng bàn phím bị "nuốt phím".
+- isPending === true trong lúc transition đang chạy → dùng để làm mờ danh sách cũ, hiện spinner nhẹ.
 
-- useTransition vs startTransition (bản import rời)
+* useTransition vs startTransition (bản import rời)
 
-
-d. useDeferredValue 
+d. useDeferredValue
 
 Cùng mục tiêu với useTransition nhưng tiếp cận từ phía giá trị thay vì phía update. Dùng khi bạn nhận một giá trị (từ props, từ state của người khác) và không kiểm soát chỗ setState.
 
@@ -339,12 +333,12 @@ function SearchResults({ query }) {
   return <div style={{ opacity: isStale ? 0.5 : 1 }}>{list}</div>;
 }
 ```
+
 Cơ chế:
 
-* Khi query đổi, useDeferredValue trước tiên trả về giá trị cũ → React render nhanh với data cũ, commit ngay (UI phản hồi).
-* Sau đó React render lại "ở nền" với giá trị mới. Nếu bị update gấp hơn cắt ngang → bỏ, làm lại.
-* Khi xong → hiển thị kết quả mới.
-
+- Khi query đổi, useDeferredValue trước tiên trả về giá trị cũ → React render nhanh với data cũ, commit ngay (UI phản hồi).
+- Sau đó React render lại "ở nền" với giá trị mới. Nếu bị update gấp hơn cắt ngang → bỏ, làm lại.
+- Khi xong → hiển thị kết quả mới.
 
 *** lưu ý ***
 
@@ -355,18 +349,20 @@ các hook trên chỉ có tác dụng khi phần render thực sự nặng. Vớ
 ### 7.Sự khác biệt giữa REST và GraphQL ?
 
 REST
-+ Cấu trúc: Nhiều endpoint riêng (/products, /orders, /customers...)
-+ Lấy data: Dễ bị over-fetching (nhận dư field không cần) hoặc under-fetching (phải gọi nhiều request nối tiếp để lấy đủ data liên quan)
-+ Version API: Thường versioning qua URL (/api/2024-01/products.json)
-+ Hiệu năng: Nhiều request nhỏ hơn nhưng đơn giản hơn để cache (HTTP cache theo URL)
-+ Học/dùng: Dễ hiểu, quen thuộc
+
+- Cấu trúc: Nhiều endpoint riêng (/products, /orders, /customers...)
+- Lấy data: Dễ bị over-fetching (nhận dư field không cần) hoặc under-fetching (phải gọi nhiều request nối tiếp để lấy đủ data liên quan)
+- Version API: Thường versioning qua URL (/api/2024-01/products.json)
+- Hiệu năng: Nhiều request nhỏ hơn nhưng đơn giản hơn để cache (HTTP cache theo URL)
+- Học/dùng: Dễ hiểu, quen thuộc
 
 GraphQL
-+ 1 endpoint duy nhất, client tự định nghĩa cần field gì
-+ Lấy data: Client chỉ định chính xác field cần, lấy nhiều resource liên quan trong 1 request duy nhất (ví dụ: lấy product kèm luôn variants, images, collections trong 1 query)
-+ Version API: Có type system + schema rõ ràng, dễ biết field nào deprecated
-+ Hiệu năng: Ít request hơn nhưng mỗi query có thể phức tạp hơn, khó cache theo URL truyền thống
-+ Học/dùng: Cần học schema, viết query/mutation, dùng codegen để có type-safe
+
+- 1 endpoint duy nhất, client tự định nghĩa cần field gì
+- Lấy data: Client chỉ định chính xác field cần, lấy nhiều resource liên quan trong 1 request duy nhất (ví dụ: lấy product kèm luôn variants, images, collections trong 1 query)
+- Version API: Có type system + schema rõ ràng, dễ biết field nào deprecated
+- Hiệu năng: Ít request hơn nhưng mỗi query có thể phức tạp hơn, khó cache theo URL truyền thống
+- Học/dùng: Cần học schema, viết query/mutation, dùng codegen để có type-safe
 
 ### 8.Giải thích React Router v7 Data Router — loader/action pattern khác gì với cách routing cũ?
 
@@ -398,9 +394,9 @@ Về reconnect và mất kết nối, tụi tôi không tự viết logic riêng
 
 a. câu hỏi mở: 'vậy nếu cần đồng bộ chặt hơn thì sẽ làm gì?'
 
-+ Có thể thêm cơ chế polling fallback: nếu Pusher mất kết nối quá lâu, gọi API để lấy trạng thái mới nhất thay vì chỉ chờ event.
-+ Dùng presence channel hoặc lưu last_event_id/timestamp để khi reconnect, client có thể query lại các event đã bỏ lỡ từ backend.
-+ Với use case quan trọng hơn (giao dịch tài chính, redeem point real-time), cần thiết kế idempotent + versioned state thay vì tin tưởng hoàn toàn vào delivery của Pusher.
+- Có thể thêm cơ chế polling fallback: nếu Pusher mất kết nối quá lâu, gọi API để lấy trạng thái mới nhất thay vì chỉ chờ event.
+- Dùng presence channel hoặc lưu last_event_id/timestamp để khi reconnect, client có thể query lại các event đã bỏ lỡ từ backend.
+- Với use case quan trọng hơn (giao dịch tài chính, redeem point real-time), cần thiết kế idempotent + versioned state thay vì tin tưởng hoàn toàn vào delivery của Pusher.
 
 ### 11.Component-Driven Development (CDD) áp dụng thế nào trong team bạn (Storybook? testing?)?
 
@@ -426,10 +422,9 @@ Nếu cần publish ra ngoài monorepo, tụi em sẽ cần công cụ quản l�
 
 Thật ra 2 dự án không dùng chung/dùng cả hai cùng lúc, mà mỗi dự án chọn 1 thư viện riêng ở 2 thời điểm khác nhau: Swift (bắt đầu 2022) dùng Redux Toolkit, còn Oneloyalty (bắt đầu 2024) dùng Zustand.
 
-+ Redux Toolkit thời điểm 2022 đã là chuẩn phổ biến, có DevTools mạnh để debug state, pattern rõ ràng (slice, reducer, action) phù hợp với 1 codebase lớn nhiều người maintain, dễ trace được state thay đổi từ đâu.
+- Redux Toolkit thời điểm 2022 đã là chuẩn phổ biến, có DevTools mạnh để debug state, pattern rõ ràng (slice, reducer, action) phù hợp với 1 codebase lớn nhiều người maintain, dễ trace được state thay đổi từ đâu.
 
-+ Zustand thì gọn nhẹ — không cần boilerplate action/reducer/dispatch như Redux, chỉ cần 1 hook store đơn giản, giảm lượng code viết cho mỗi phần state mới. Vì phần lớn state phức tạp/đồng bộ với server đã được React Query đảm nhiệm rồi, nên phần client state còn lại (UI state, filter, wizard step...) không cần đến sức mạnh đầy đủ của Redux nữa — Zustand vừa đủ.
-
+- Zustand thì gọn nhẹ — không cần boilerplate action/reducer/dispatch như Redux, chỉ cần 1 hook store đơn giản, giảm lượng code viết cho mỗi phần state mới. Vì phần lớn state phức tạp/đồng bộ với server đã được React Query đảm nhiệm rồi, nên phần client state còn lại (UI state, filter, wizard step...) không cần đến sức mạnh đầy đủ của Redux nữa — Zustand vừa đủ.
 
 ## PHẦN 3. Câu hỏi hệ thống/thiết kế (thường gặp ở level Middle→Senior)
 
@@ -498,5 +493,3 @@ Vì iframe và trang cha (Admin) là 2 origin khác nhau, chúng không thể tr
 Dùng App Bridge để điều hướng/tương tác thay vì thao tác trực tiếp window.top hay full page reload.
 Không tự quản lý session bằng cookie, dựa vào id_token lấy qua App Bridge cho mọi API call.
 Hạn chế số lần round-trip postMessage không cần thiết giữa iframe và Admin, vì mỗi lần đều có độ trễ nhất định dù nhỏ.
-
-

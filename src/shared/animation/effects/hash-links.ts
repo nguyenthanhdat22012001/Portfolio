@@ -38,7 +38,14 @@ export const startHashLinks: DesktopHandler = ({ lenis }) => {
     event.stopPropagation();
     const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
     lenis.scrollTo(target, { offset: -margin });
-    history.pushState(null, "", url.hash);
+    // Clicking the same hash link again re-scrolls to the same target; it
+    // shouldn't push a second, identical history entry that Back would then
+    // have to skip past.
+    if (url.hash === location.hash) {
+      history.replaceState(null, "", url.hash);
+    } else {
+      history.pushState(null, "", url.hash);
+    }
   };
 
   window.addEventListener("click", onClick, { capture: true });

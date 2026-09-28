@@ -157,6 +157,53 @@ test.describe("navigation", () => {
   });
 });
 
+test.describe("Lenis momentum vs. navigation scroll reset", () => {
+  test.use({ viewport: { width: 1280, height: 800 } });
+
+  test("wheel momentum doesn't override the scroll reset when navigating into a case study", async ({
+    page
+  }) => {
+    await page.goto("/en");
+    await loadMotion(page);
+
+    await page.mouse.wheel(0, 1200);
+    // force: true skips Playwright's default actionability wait (which
+    // scrolls the target into view and waits for its position to stop
+    // moving) — that wait happens to outlast Lenis's momentum tail, which
+    // would hide the regression under test. A real click can land mid-tail.
+    await page
+      .locator('[data-chapter="swift-performance"]')
+      .getByRole("link", { name: /Read case study/ })
+      .click({ force: true });
+
+    await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+    await expect
+      .poll(() => page.evaluate(() => window.scrollY), { timeout: 10_000 })
+      .toBeLessThan(50);
+    await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
+  });
+
+  test("wheel momentum doesn't override the scroll reset when using the back link", async ({
+    page
+  }) => {
+    await page.goto("/en");
+    await loadMotion(page);
+    await page
+      .locator('[data-chapter="swift-performance"]')
+      .getByRole("link", { name: /Read case study/ })
+      .click();
+    await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+
+    await page.mouse.wheel(0, 300);
+    await page.getByRole("link", { name: /←/ }).click();
+
+    await expect(page).toHaveURL(/\/en#work$/);
+    await expect(page.locator("#work h2")).toBeInViewport({
+      timeout: 10_000
+    });
+  });
+});
+
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
 

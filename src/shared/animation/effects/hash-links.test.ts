@@ -79,4 +79,15 @@ describe("startHashLinks", () => {
     click(link);
     expect(lenis.scrollTo).not.toHaveBeenCalled();
   });
+
+  it("does not grow history length when clicking the same hash link twice", () => {
+    const { link } = setup("#about");
+    click(link);
+    expect(location.hash).toBe("#about");
+    const lengthAfterFirst = history.length;
+
+    click(link);
+
+    expect(history.length).toBe(lengthAfterFirst);
+  });
 });

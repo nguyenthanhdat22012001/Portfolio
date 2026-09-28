@@ -75,7 +75,10 @@ describe("startMotion", () => {
 
     expect(lenisInstances).toHaveLength(1);
     const [lenis] = lenisInstances;
-    expect(lenis?.options).toMatchObject({ autoRaf: false });
+    expect(lenis?.options).toMatchObject({
+      autoRaf: false,
+      stopInertiaOnNavigate: true
+    });
     expect(lenis?.on).toHaveBeenCalledWith("scroll", ScrollTrigger.update);
     expect(gsap.ticker.add).toHaveBeenCalledOnce();
     expect(gsap.ticker.lagSmoothing).toHaveBeenCalledWith(0);
@@ -83,6 +86,18 @@ describe("startMotion", () => {
     const raf = gsap.ticker.add.mock.calls[0]?.[0] as (t: number) => void;
     raf(2);
     expect(lenis?.raf).toHaveBeenCalledWith(2000);
+  });
+
+  it("resets Lenis momentum on popstate while running, but not after dispose", () => {
+    const { lenisInstances, handle } = start(desktop, {});
+    const [lenis] = lenisInstances;
+
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(lenis?.reset).toHaveBeenCalledOnce();
+
+    handle.dispose();
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    expect(lenis?.reset).toHaveBeenCalledOnce();
   });
 
   it("passes the Lenis instance to page effects", () => {

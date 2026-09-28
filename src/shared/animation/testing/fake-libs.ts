@@ -56,6 +56,11 @@ export function createFakeLibs(
             if (typeof cleanup === "function") cleanups.push(cleanup);
           }
         ),
+        // Only runs the cleanups a branch callback returned — unlike a real
+        // gsap context, it does not revert tweens/ScrollTriggers created
+        // outside that callback's own scope (e.g. from a ScrollTrigger
+        // `onUpdate`). An effect that creates tweens that way must kill/reset
+        // them itself in its returned cleanup rather than relying on revert.
         revert: vi.fn(() => {
           for (const cleanup of cleanups.splice(0).reverse()) cleanup();
         })
@@ -90,6 +95,7 @@ export function createFakeLibs(
     raf = vi.fn();
     destroy = vi.fn();
     scrollTo = vi.fn();
+    reset = vi.fn();
     constructor(public options?: unknown) {
       lenisInstances.push(this);
     }

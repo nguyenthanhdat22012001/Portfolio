@@ -53,18 +53,38 @@ export function startMotion(
       {}) as Conditions;
     if (!isDesktop || reduceMotion) return;
 
-    const instance = new LenisClass({ autoRaf: false });
+    // stopInertiaOnNavigate makes Lenis reset its own inertia when a link to
+    // a different pathname is clicked (lenis.mjs onClick), but that only
+    // covers clicks; the browser Back/Forward buttons fire `popstate` with
+    // no click, so momentum from an in-flight smooth scroll can keep writing
+    // scroll position after Next has already restored/changed it. `reset()`
+    // clears that without the `stop()`/`start()` side effects (toggling
+    // isStopped, emitting a scroll event, flipping the lenis-stopped class).
+    // It's typed `private` in lenis's .d.ts (it's normally only called
+    // internally by stop()/start()) but is a real, stable public method at
+    // runtime — see packages/core/src/lenis.ts's `reset()` in the published
+    // package. Cast around the private modifier to call it directly.
+    const instance = new LenisClass({
+      autoRaf: false,
+      stopInertiaOnNavigate: true
+    });
     const raf = (time: number) => instance.raf(time * 1000);
     instance.on("scroll", ScrollTrigger.update);
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
     lenis = instance;
 
+    const onPopState = () => {
+      (instance as unknown as { reset(): void }).reset();
+    };
+    window.addEventListener("popstate", onPopState);
+
     const stops = desktopHandlers.map((startHandler) =>
       startHandler({ gsap, lenis: instance })
     );
 
     return () => {
+      window.removeEventListener("popstate", onPopState);
       for (const stop of stops) stop();
       gsap.ticker.remove(raf);
       gsap.ticker.lagSmoothing(500, 33);

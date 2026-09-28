@@ -42,3 +42,24 @@ describe("message catalogs", () => {
     );
   });
 });
+
+describe("SEO copy lengths", () => {
+  for (const [name, catalog] of [
+    ["en", en],
+    ["vi", vi]
+  ] as const) {
+    it(`${name}: meta.title is at most 60 characters`, () => {
+      expect(catalog.meta.title.length).toBeLessThanOrEqual(60);
+    });
+
+    for (const [key, value] of [
+      ["meta.description", catalog.meta.description],
+      ["blog.description", catalog.blog.description]
+    ] as const) {
+      it(`${name}: ${key} is 140–160 characters`, () => {
+        expect(value.length).toBeGreaterThanOrEqual(140);
+        expect(value.length).toBeLessThanOrEqual(160);
+      });
+    }
+  }
+});

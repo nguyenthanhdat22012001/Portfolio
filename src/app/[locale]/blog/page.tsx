@@ -5,10 +5,11 @@ import {
   getTranslations,
   setRequestLocale
 } from "next-intl/server";
-import { getPosts } from "@/shared/content";
+import { getPosts, hasPosts } from "@/shared/content";
 import { Link } from "@/shared/i18n/navigation";
-import { isValidLocale } from "@/shared/i18n/routing";
+import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { buildMetadata } from "@/shared/seo/build-metadata";
+import { ogImagePath } from "@/shared/seo/og/og-image";
 import { Container } from "@/shared/ui/Container";
 
 type Params = Promise<{ locale: string }>;
@@ -19,13 +20,19 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { locale } = await params;
+  if (!isValidLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "blog" });
 
   return buildMetadata({
     title: t("title"),
     description: t("description"),
     path: "/blog",
-    locale
+    locale,
+    availableLocales: routing.locales,
+    type: "website",
+    imagePath: ogImagePath(locale, "/"),
+    // An empty index is thin content; it becomes indexable with the first post.
+    noindex: !hasPosts()
   });
 }
 

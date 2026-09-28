@@ -5,7 +5,7 @@ import {
   getTranslations,
   setRequestLocale
 } from "next-intl/server";
-import { getPostBySlug, getPostParams } from "@/shared/content";
+import { getPostBySlug, getPostLocales, getPostParams } from "@/shared/content";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { MdxContent } from "@/shared/mdx/MdxContent";
 import { buildMetadata } from "@/shared/seo/build-metadata";
@@ -23,14 +23,17 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const entry = isValidLocale(locale) ? getPostBySlug(slug, locale) : null;
+  if (!isValidLocale(locale)) return {};
+  const entry = getPostBySlug(slug, locale);
   if (!entry) return {};
 
   return buildMetadata({
     title: entry.doc.title,
-    description: entry.doc.summary,
+    description: entry.doc.description,
     path: `/blog/${slug}`,
-    locale
+    locale,
+    availableLocales: getPostLocales(slug),
+    type: "article"
   });
 }
 

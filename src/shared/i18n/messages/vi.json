@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Nguyễn Thành Đạt — Kỹ sư Frontend",
-    "description": "Kỹ sư Frontend chuyên về React, TypeScript, hiệu năng và kiến trúc."
+    "description": "Nguyễn Thành Đạt, kỹ sư Front-End tại TP. Hồ Chí Minh. 4 năm xây dựng ứng dụng React và TypeScript nhanh, có cấu trúc tốt cho các merchant Shopify toàn cầu."
   },
   "og": {
     "name": "Nguyễn Thành Đạt",
@@ -161,7 +161,7 @@
   },
   "blog": {
     "title": "Blog",
-    "description": "Ghi chép về hiệu năng front-end, kiến trúc và i18n từ quá trình xây dựng Shopify app.",
+    "description": "Ghi chép về hiệu năng front-end, kiến trúc và i18n từ bốn năm xây dựng Shopify embedded app bằng React và TypeScript cho các merchant trên toàn thế giới.",
     "empty": "Chưa có bài viết nào — những bài đầu tiên sắp ra mắt.",
     "back": "Quay lại blog"
   },

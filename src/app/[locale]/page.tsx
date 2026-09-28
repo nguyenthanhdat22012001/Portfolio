@@ -5,7 +5,7 @@ import { ContactSection } from "@/features/contact/ContactSection";
 import { HeroSection } from "@/features/hero/HeroSection";
 import { SkillsSection } from "@/features/skills/SkillsSection";
 import { WorkSection } from "@/features/work/WorkSection";
-import { isValidLocale } from "@/shared/i18n/routing";
+import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { buildMetadata } from "@/shared/seo/build-metadata";
 
 export async function generateMetadata({
@@ -14,13 +14,16 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  if (!isValidLocale(locale)) return {};
   const t = await getTranslations({ locale, namespace: "meta" });
 
   return buildMetadata({
     title: t("title"),
     description: t("description"),
     path: "/",
-    locale
+    locale,
+    availableLocales: routing.locales,
+    type: "website"
   });
 }
 

@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Nguyen Thanh Dat — Frontend Engineer",
-    "description": "Frontend Engineer specializing in React, TypeScript, performance, and architecture."
+    "description": "Nguyen Thanh Dat, Front-End Engineer in Ho Chi Minh City. 4 years building fast, well-structured React and TypeScript apps for Shopify merchants worldwide."
   },
   "og": {
     "name": "Nguyen Thanh Dat",
@@ -161,7 +161,7 @@
   },
   "blog": {
     "title": "Blog",
-    "description": "Notes on front-end performance, architecture, and i18n from building Shopify apps.",
+    "description": "Notes on front-end performance, architecture, and i18n from four years of building Shopify embedded apps with React and TypeScript for merchants worldwide.",
     "empty": "No posts yet — the first ones are on the way.",
     "back": "Back to blog"
   },

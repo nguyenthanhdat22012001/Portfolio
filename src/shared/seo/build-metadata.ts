@@ -1,38 +1,74 @@
 import type { Metadata } from "next";
+import type { Locale } from "@/shared/i18n/routing";
+import { site } from "@/shared/lib/site";
+import { ogImagePath, ogImageSize } from "./og/og-image";
+import { getSiteUrl } from "./site-url";
+import { absoluteUrl, canonicalLocale, languageAlternates } from "./urls";
 
-interface BuildMetadataInput {
+const ogLocale: Record<Locale, string> = { en: "en_US", vi: "vi_VN" };
+
+export interface BuildMetadataInput {
   title: string;
   description: string;
   path: string;
-  locale: string;
+  locale: Locale;
+  // Locales with real (non-fallback) content for this path.
+  availableLocales: readonly Locale[];
+  type: "website" | "article";
+  // Defaults to this page's own OG image route.
+  imagePath?: string;
+  noindex?: boolean;
 }
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export function buildMetadata({
   title,
   description,
   path,
-  locale
+  locale,
+  availableLocales,
+  type,
+  imagePath,
+  noindex
 }: BuildMetadataInput): Metadata {
-  const url = `${siteUrl}/${locale}${path}`;
+  const isRealPage = availableLocales.includes(locale);
+  const canonical = absoluteUrl(
+    canonicalLocale(locale, availableLocales),
+    path
+  );
+  // Set explicitly: Next only injects a file-based image when `images` is
+  // absent, and its `alt` export cannot be localized.
+  const images = [
+    {
+      url: `${getSiteUrl()}${imagePath ?? ogImagePath(locale, path)}`,
+      ...ogImageSize,
+      alt: title
+    }
+  ];
 
   return {
     title,
     description,
-    alternates: {
-      canonical: url
-    },
+    alternates: isRealPage
+      ? { canonical, languages: languageAlternates(path, availableLocales) }
+      : { canonical },
     openGraph: {
+      type,
+      siteName: site.name,
       title,
       description,
-      url,
-      locale
+      url: canonical,
+      locale: ogLocale[locale],
+      alternateLocale: availableLocales
+        .filter((other) => other !== locale)
+        .map((other) => ogLocale[other]),
+      images
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description
-    }
+      description,
+      images
+    },
+    ...(noindex ? { robots: { index: false, follow: true } } : {})
   };
 }

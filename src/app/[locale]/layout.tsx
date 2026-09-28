@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
@@ -5,9 +6,21 @@ import { notFound } from "next/navigation";
 import { SiteFooter } from "@/features/layout/SiteFooter";
 import { SiteHeader } from "@/features/layout/SiteHeader";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
+import { getSiteUrl } from "@/shared/seo/site-url";
 import { fontMono, fontSans } from "@/shared/theme/fonts";
 import { themeScript } from "@/shared/theme/theme-script";
 import "../globals.css";
+
+export function generateMetadata(): Metadata {
+  const googleVerification = process.env.GOOGLE_SITE_VERIFICATION;
+
+  return {
+    metadataBase: new URL(getSiteUrl()),
+    ...(googleVerification
+      ? { verification: { google: googleVerification } }
+      : {})
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

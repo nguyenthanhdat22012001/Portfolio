@@ -1,5 +1,6 @@
 // Data, not copy: these values are identical in every locale.
 export const site = {
+  name: "Nguyen Thanh Dat",
   email: "nguyenthanhdat22012001@gmail.com",
   linkedin: "https://www.linkedin.com/in/dat-nguyen-b26744277",
   github: "https://github.com/nguyenthanhdat22012001",

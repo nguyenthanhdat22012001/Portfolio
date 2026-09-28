@@ -147,15 +147,18 @@ export interface MotionLibs {
   Lenis: typeof import("lenis").default;
 }
 export interface MotionContext extends Omit<MotionLibs, "Lenis"> {
-  isDesktop: boolean;       // (min-width: 768px) and (hover: hover) and (pointer: fine)
+  isDesktop: boolean; // (min-width: 768px) and (hover: hover) and (pointer: fine)
   reduceMotion: boolean;
   lenis: import("lenis").default | null;
 }
 export type MotionCleanup = () => void;
-export type MotionEffect = (el: HTMLElement, ctx: MotionContext) => void | MotionCleanup;
+export type MotionEffect = (
+  el: HTMLElement,
+  ctx: MotionContext
+) => void | MotionCleanup;
 export interface MotionEffectDef {
   run: MotionEffect;
-  reducedMotion?: boolean;  // true = also runs under prefers-reduced-motion
+  reducedMotion?: boolean; // true = also runs under prefers-reduced-motion
 }
 ```
 
@@ -208,19 +211,19 @@ No React state is updated per frame.
 
 "Desktop" = `isDesktop`; every row assumes reduced motion is off (see next section).
 
-| Effect | Where | Desktop | Mobile |
-|---|---|---|---|
-| `reveal` | About lead and body, every `SectionHeading` `h2` | SplitText into masked lines (`aria: "auto"`), stagger `yPercent` + `opacity`, once | same |
-| `count` | About stats (`Stat` `dd`) | integer/decimal prefix counts 0 → value on enter, suffix kept; `aria-label` = final text; values like `1–3s` are left alone | same |
-| `swift` | Swift chapter `article` | pinned (+150%, scrub): grey "before" bar fills (`scaleX`) while an `aria-hidden` mono timer runs 0.0s → 12.0s, then the accent bar snaps in, "1–3s" lands, and steps ①②③ light up | one-shot (~1.2 s) on enter, no pin |
-| `oneloyalty` | Oneloyalty chapter `article` | the 12 blocks start scattered/rotated and merge into the grid on enter (`gsap.to` x/y/rotation → 0); the greeting cycles all 8 languages with a SplitText char out/in every 2.5 s, updating `lang` and the `n / 8` counter, only while on screen | same |
-| `safebulk` | SafeBulk chapter `article` | pinned (+200%): scroll progress picks the active step; the active card moves to the front (`zIndex`, `scale`) and gets `data-active` | cards stagger in on enter |
-| `stagger` | Skills chip lists | chips fade and rise in, staggered | same |
-| `footer-reveal` | `SiteFooter` | slides up and fades in on enter | same |
-| `hero` | `#top` | scroll hint bobs; writes hero progress to the store; the `h1` and tagline are never animated | store write only |
-| magnetic (global) | `[data-magnetic]`: hero CTAs, Contact buttons, Skills chips (strength 0.2) | `gsap.quickTo` x/y toward the pointer; springs back on leave | off |
-| cursor (global) | one element appended to `body` | ring follows with lag (`quickTo`); grows over `a`, `button`, `summary`, `[data-magnetic]`; hides when the pointer leaves the window; `aria-hidden`, `pointer-events: none` | off |
-| hash links (global) | same-page `#hash` links clicked with a mouse | `lenis.scrollTo(target, { offset: -headerHeight })`; keyboard activation (`event.detail === 0`) keeps native behaviour so focus moves | off |
+| Effect              | Where                                                                      | Desktop                                                                                                                                                                                                                                          | Mobile                             |
+| ------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
+| `reveal`            | About lead and body, every `SectionHeading` `h2`                           | SplitText into masked lines (`aria: "auto"`), stagger `yPercent` + `opacity`, once                                                                                                                                                               | same                               |
+| `count`             | About stats (`Stat` `dd`)                                                  | integer/decimal prefix counts 0 → value on enter, suffix kept; `aria-label` = final text; values like `1–3s` are left alone                                                                                                                      | same                               |
+| `swift`             | Swift chapter `article`                                                    | pinned (+150%, scrub): grey "before" bar fills (`scaleX`) while an `aria-hidden` mono timer runs 0.0s → 12.0s, then the accent bar snaps in, "1–3s" lands, and steps ①②③ light up                                                                | one-shot (~1.2 s) on enter, no pin |
+| `oneloyalty`        | Oneloyalty chapter `article`                                               | the 12 blocks start scattered/rotated and merge into the grid on enter (`gsap.to` x/y/rotation → 0); the greeting cycles all 8 languages with a SplitText char out/in every 2.5 s, updating `lang` and the `n / 8` counter, only while on screen | same                               |
+| `safebulk`          | SafeBulk chapter `article`                                                 | pinned (+200%): scroll progress picks the active step; the active card moves to the front (`zIndex`, `scale`) and gets `data-active`                                                                                                             | cards stagger in on enter          |
+| `stagger`           | Skills chip lists                                                          | chips fade and rise in, staggered                                                                                                                                                                                                                | same                               |
+| `footer-reveal`     | `SiteFooter`                                                               | slides up and fades in on enter                                                                                                                                                                                                                  | same                               |
+| `hero`              | `#top`                                                                     | scroll hint bobs; writes hero progress to the store; the `h1` and tagline are never animated                                                                                                                                                     | store write only                   |
+| magnetic (global)   | `[data-magnetic]`: hero CTAs, Contact buttons, Skills chips (strength 0.2) | `gsap.quickTo` x/y toward the pointer; springs back on leave                                                                                                                                                                                     | off                                |
+| cursor (global)     | one element appended to `body`                                             | ring follows with lag (`quickTo`); grows over `a`, `button`, `summary`, `[data-magnetic]`; hides when the pointer leaves the window; `aria-hidden`, `pointer-events: none`                                                                       | off                                |
+| hash links (global) | same-page `#hash` links clicked with a mouse                               | `lenis.scrollTo(target, { offset: -headerHeight })`; keyboard activation (`event.detail === 0`) keeps native behaviour so focus moves                                                                                                            | off                                |
 
 Markup changes:
 
@@ -267,7 +270,7 @@ Follows https://nextjs.org/docs/app/guides/view-transitions (Next 16.3).
 - `SiteHeader`'s `<header>` has `viewTransitionName: "site-header"` and CSS that keeps it still.
 - `globals.css` holds the guide's `nav-forward` / `nav-back` slide keyframes (60 px, 150 ms
   exit / 210 ms enter / 400 ms move), a 400 ms `.morph` group, `::view-transition
-  { pointer-events: none }`, and the reduced-motion rule.
+{ pointer-events: none }`, and the reduced-motion rule.
 - Untyped navigations (locale switch, header nav, browser Back) get no directional slide;
   the morph still plays on browser Back when both pages have the named title.
 - Unsupported browsers navigate instantly.

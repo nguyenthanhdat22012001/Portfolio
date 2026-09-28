@@ -119,11 +119,11 @@ Input:
 interface BuildMetadataInput {
   title: string;
   description: string;
-  path: string;               // "/" | "/blog" | "/work/<slug>" | "/blog/<slug>"
-  locale: Locale;             // the URL's locale
+  path: string; // "/" | "/blog" | "/work/<slug>" | "/blog/<slug>"
+  locale: Locale; // the URL's locale
   availableLocales: Locale[]; // locales with real (non-fallback) content for this path
   type: "website" | "article";
-  imagePath?: string;         // defaults to this page's own OG image route
+  imagePath?: string; // defaults to this page's own OG image route
   noindex?: boolean;
 }
 ```
@@ -151,11 +151,11 @@ slash), matching the existing routes.
 
 `availableLocales` per route:
 
-| Route | `availableLocales` |
-| --- | --- |
+| Route            | `availableLocales`                             |
+| ---------------- | ---------------------------------------------- |
 | Home, blog index | `routing.locales` (both are real translations) |
-| Case study | `getWorkLocales(slug)` |
-| Blog post | `getPostLocales(slug)` |
+| Case study       | `getWorkLocales(slug)`                         |
+| Blog post        | `getPostLocales(slug)`                         |
 
 `getWorkLocales` / `getPostLocales` in `shared/content/index.ts` wrap a new pure helper
 `availableLocales(docs, slug)` in `localize.ts` that returns the locales with an exact
@@ -178,15 +178,16 @@ is replaced with the escape sequence `\u003c`, so content can never close the sc
 
 Pure functions returning hand-written TypeScript types (each including `@context` only at the
 top level of what `<JsonLd>` renders). The person has one stable identifier,
-`${siteUrl}/#person`; every other schema references it as `author: { "@id": … }` rather than
-repeating it.
+`${siteUrl}/#person`; every other schema's `author` is `{ "@type": "Person", "@id", name,
+url }` — the shared `@id` plus the minimum Google needs, because it does not resolve an `@id`
+defined on another page.
 
-| Page | Schemas | Fields |
-| --- | --- | --- |
-| Home | `ProfilePage` with `mainEntity: Person`, plus `WebSite` | Person: `@id`, `name` "Nguyen Thanh Dat", `alternateName` "Nguyễn Thành Đạt", `jobTitle` (i18n), `url` (site origin), `sameAs` [LinkedIn, GitHub], `knowsAbout`. WebSite: `@id` `${siteUrl}/#website`, `name`, `url`, `inLanguage` ["en", "vi"]. ProfilePage: `url` (canonical), `inLanguage` (locale). |
-| Case study | `CreativeWork` + `BreadcrumbList` | `name`, `description`, `author` → `#person`, `dateCreated`, `about` (tags), `url` (canonical), `inLanguage` (the content's language — `en` on a fallback page), `image` (the page's OG image URL) |
-| Blog index | `BreadcrumbList` | Home → Blog |
-| Blog post | `BlogPosting` + `BreadcrumbList` | `headline`, `description`, `datePublished`, `dateModified`, `author` → `#person`, `image`, `mainEntityOfPage` (canonical), `inLanguage` |
+| Page       | Schemas                                                 | Fields                                                                                                                                                                                                                                                                                                  |
+| ---------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Home       | `ProfilePage` with `mainEntity: Person`, plus `WebSite` | Person: `@id`, `name` "Nguyen Thanh Dat", `alternateName` "Nguyễn Thành Đạt", `jobTitle` (i18n), `url` (site origin), `sameAs` [LinkedIn, GitHub], `knowsAbout`. WebSite: `@id` `${siteUrl}/#website`, `name`, `url`, `inLanguage` ["en", "vi"]. ProfilePage: `url` (canonical), `inLanguage` (locale). |
+| Case study | `CreativeWork` + `BreadcrumbList`                       | `name`, `description`, `author` → `#person`, `dateCreated`, `about` (tags), `url` (canonical), `inLanguage` (the content's language — `en` on a fallback page), `image` (the page's OG image URL)                                                                                                       |
+| Blog index | `BreadcrumbList`                                        | Home → Blog                                                                                                                                                                                                                                                                                             |
+| Blog post  | `BlogPosting` + `BreadcrumbList`                        | `headline`, `description`, `datePublished`, `dateModified`, `author` → `#person`, `image`, `mainEntityOfPage` (canonical), `inLanguage`                                                                                                                                                                 |
 
 - `ProfilePage` is used because Google recognises it in the Rich Results Test while a bare
   `Person` is not reported; it still satisfies the plan's "Person + WebSite".

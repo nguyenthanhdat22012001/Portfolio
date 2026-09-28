@@ -2,12 +2,13 @@ import { site } from "@/shared/lib/site";
 import { getSiteUrl } from "../site-url";
 
 export interface PersonRef {
+  "@type": "Person";
   "@id": string;
+  name: string;
+  url: string;
 }
 
 export interface Person extends PersonRef {
-  "@type": "Person";
-  name: string;
   alternateName: string;
   jobTitle: string;
   url: string;
@@ -15,19 +16,22 @@ export interface Person extends PersonRef {
   knowsAbout: string[];
 }
 
-// Other schemas point at the person by @id instead of repeating it.
+// Shares the home page's @id, but carries name and url too: Google does not
+// resolve an @id defined on another page, and Article authors need a name.
 export function personRef(): PersonRef {
-  return { "@id": `${getSiteUrl()}/#person` };
+  return {
+    "@type": "Person",
+    "@id": `${getSiteUrl()}/#person`,
+    name: site.name,
+    url: getSiteUrl()
+  };
 }
 
 export function buildPerson(jobTitle: string): Person {
   return {
-    "@type": "Person",
     ...personRef(),
-    name: site.name,
     alternateName: site.alternateName,
     jobTitle,
-    url: getSiteUrl(),
     sameAs: [site.linkedin, site.github],
     knowsAbout: [...site.knowsAbout]
   };

@@ -18,7 +18,13 @@ afterEach(() => {
 
 describe("person", () => {
   it("has a stable @id and the public profile fields", () => {
-    expect(personRef()).toEqual({ "@id": `${origin}/#person` });
+    // Self-contained: Google does not resolve an @id defined on another page.
+    expect(personRef()).toEqual({
+      "@type": "Person",
+      "@id": `${origin}/#person`,
+      name: "Nguyen Thanh Dat",
+      url: origin
+    });
     expect(buildPerson("Front-End Engineer")).toEqual({
       "@type": "Person",
       "@id": `${origin}/#person`,
@@ -85,7 +91,12 @@ describe("buildCreativeWork", () => {
       "@type": "CreativeWork",
       name: "Swift",
       description: "A case study.",
-      author: { "@id": `${origin}/#person` },
+      author: {
+        "@type": "Person",
+        "@id": `${origin}/#person`,
+        name: "Nguyen Thanh Dat",
+        url: origin
+      },
       dateCreated: "2022-10-01T00:00:00.000Z",
       about: ["React", "Performance"],
       url: `${origin}/en/work/swift`,
@@ -129,7 +140,12 @@ describe("buildBlogPosting", () => {
       description: "A post.",
       datePublished: "2026-10-01T00:00:00.000Z",
       dateModified: "2026-10-01T00:00:00.000Z",
-      author: { "@id": `${origin}/#person` },
+      author: {
+        "@type": "Person",
+        "@id": `${origin}/#person`,
+        name: "Nguyen Thanh Dat",
+        url: origin
+      },
       image: `${origin}/en/blog/load-time/opengraph-image`,
       mainEntityOfPage: `${origin}/en/blog/load-time`,
       inLanguage: "en"

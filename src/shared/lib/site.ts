@@ -19,10 +19,10 @@ export const site = {
   cv: "/cv.pdf",
   safebulkRepo: "https://github.com/nguyenthanhdat22012001/safe-bulk-shopify",
   safebulkDemo: "https://www.loom.com/share/6c30f307347d4555b0214ff8be0ab84f",
-  // Lighthouse (mobile) for /en, measured by hand on 2026-09-27; replace with
-  // Lighthouse CI output once Phase 3 lands.
+  // Lighthouse (mobile) for /en. Update from the latest LHCI report
+  // (.lighthouseci/ locally, or the "lighthouse-report" CI artifact).
   lighthouse: {
-    performance: 96,
+    performance: 98,
     accessibility: 100,
     bestPractices: 100,
     seo: 100

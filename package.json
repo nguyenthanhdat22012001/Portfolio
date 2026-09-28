@@ -12,35 +12,37 @@
     "typecheck": "velite build --strict && tsc --noEmit",
     "test": "velite build --strict && vitest run",
     "test:e2e": "playwright test",
+    "lhci": "lhci autorun",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "dependencies": {
     "next": "^15.1.0",
+    "next-intl": "^3.26.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next-intl": "^3.26.0",
-    "zustand": "^5.0.0",
+    "velite": "^0.2.0",
     "zod": "^3.24.0",
-    "velite": "^0.2.0"
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@eslint/eslintrc": "^3.2.0",
+    "@lhci/cli": "0.15.1",
+    "@playwright/test": "^1.49.1",
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.0",
-    "@tailwindcss/postcss": "^4.0.0",
-    "postcss": "^8.4.49",
+    "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.17.0",
     "eslint-config-next": "^15.1.0",
     "eslint-plugin-boundaries": "^5.0.1",
-    "@eslint/eslintrc": "^3.2.0",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.49",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
-    "vitest": "^2.1.8",
-    "@vitejs/plugin-react": "^4.3.4",
-    "jsdom": "^25.0.1",
-    "@playwright/test": "^1.49.1"
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.8"
   }
 }

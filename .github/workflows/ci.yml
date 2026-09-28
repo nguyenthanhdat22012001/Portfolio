@@ -26,6 +26,11 @@ jobs:
       - run: pnpm test
       - run: pnpm build
 
-      # Lighthouse CI budget gating lands in Phase 3 (SEO phase) per the
-      # project plan — placeholder left here intentionally.
-      # - run: pnpm dlx @lhci/cli autorun
+      - run: pnpm lhci
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          if-no-files-found: ignore

@@ -1,3 +1,4 @@
+import { oneloyalty } from "@/features/work/motion/oneloyalty";
 import { safebulk } from "@/features/work/motion/safebulk";
 import { swift } from "@/features/work/motion/swift";
 import { count } from "@/shared/animation/effects/count";
@@ -20,7 +21,8 @@ export const motionRegistry = {
   stagger,
   "footer-reveal": footerReveal,
   swift,
-  safebulk
+  safebulk,
+  oneloyalty
 } satisfies Record<MotionName, MotionEffectDef>;
 
 export const desktopHandlers: readonly DesktopHandler[] = [

@@ -7,7 +7,8 @@ export const motionNames = [
   "stagger",
   "footer-reveal",
   "swift",
-  "safebulk"
+  "safebulk",
+  "oneloyalty"
 ] as const;
 
 export type MotionName = (typeof motionNames)[number];

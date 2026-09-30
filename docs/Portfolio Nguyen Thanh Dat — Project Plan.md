@@ -10,26 +10,26 @@ A bilingual (EN/VI) personal portfolio designed to convey a clear message to rec
 
 **Core Message:** "I build products quickly and with solid structure" — demonstrated by the site's own speed and code quality.
 
-| KPI                                                   | Target                                                                |
-| ----------------------------------------------------- | --------------------------------------------------------------------- |
-| Lighthouse Performance (mobile)                       | ≥ 90                                                                  |
-| Lighthouse SEO / Accessibility / Best Practices       | 100 / ≥ 95 / 100                                                      |
-| LCP · CLS · INP (mobile, 4G)                          | < 2.5s · < 0.1 · < 200ms                                              |
-| Initial JS load (excluding 3D assets, gzip)           | < 150 KB                                                              |
-| Google search ranking for "Nguyen Thanh Dat frontend" | Top 3 within 2 months                                                 |
-| Conversion                                            | Contact clicks / CV downloads / GitHub visits — tracked via analytics |
+| KPI | Target |
+| --- | --- |
+| Lighthouse Performance (mobile) | ≥ 90 |
+| Lighthouse SEO / Accessibility / Best Practices | 100 / ≥ 95 / 100 |
+| LCP · CLS · INP (mobile, 4G) | < 2.5s · < 0.1 · < 200ms |
+| Initial JS load (excluding 3D assets, gzip) | < 150 KB |
+| Google search ranking for "Nguyen Thanh Dat frontend" | Top 3 within 2 months |
+| Conversion | Contact clicks / CV downloads / GitHub visits — tracked via analytics |
 
 ## Scope
 
 Version 1.0 includes a storytelling homepage, 3 case studies, and a blog; there is no dedicated backend or CMS.
 
-| Page       | URL                                       | Content                                            |
-| ---------- | ----------------------------------------- | -------------------------------------------------- |
-| Home       | `/[locale]`                               | 3D Hero → About → Selected Work → Skills → Contact |
-| Case study | `/[locale]/work/[slug]`                   | Oneloyalty, Swift, SafeBulk (MDX)                  |
-| Blog       | `/[locale]/blog`, `/[locale]/blog/[slug]` | 2 technical articles at launch                     |
-| CV         | `/cv.pdf`                                 | Downloadable PDF                                   |
-| 404        | `/not-found`                              | Error page with subtle effects                     |
+| Page | URL | Content |
+| --- | --- | --- |
+| Home | `/[locale]` | 3D Hero → About → Selected Work → Skills → Contact |
+| Case study | `/[locale]/work/[slug]` | Oneloyalty, Swift, SafeBulk (MDX) |
+| Blog | `/[locale]/blog`, `/[locale]/blog/[slug]` | 2 technical articles at launch |
+| CV | `/cv.pdf` | Downloadable PDF |
+| 404 | `/not-found` | Error page with subtle effects |
 
 **In scope:** Bilingual EN (default) + VI, dark/light themes, contact form (email via Resend or Formspree), analytics.
 
@@ -39,21 +39,23 @@ Version 1.0 includes a storytelling homepage, 3 case studies, and a blog; there 
 
 Built on Next.js App Router with Static Site Generation (SSG), React Three Fiber for 3D, and GSAP for animations—ensuring strong SEO and turning "Familiar with Next.js" on the CV into real-world experience.
 
-| Layer         | Technology                                                    | Rationale                                                                  |
-| ------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Framework     | Next.js App Router + TypeScript strict                        | SSG/metadata API for SEO; React Server Components to reduce client-side JS |
-| 3D            | three + @react-three/fiber + @react-three/drei                | Component-based Three.js; React-style lifecycle management                 |
-| 3D Effects    | @react-three/postprocessing (minimal usage)                   | Subtle bloom for the node graph                                            |
-| Animation     | gsap + ScrollTrigger + SplitText + @gsap/react (useGSAP)      | Free plugins, powerful timelines, automatic cleanup                        |
-| Smooth scroll | Lenis                                                         | Synchronized with ScrollTrigger via `gsap.ticker`                          |
-| Styling       | Tailwind CSS + CSS variables                                  | Dark/light mode via design tokens                                          |
-| Content       | MDX (next-mdx-remote or Velite/Content Collections)           | Type-safe case studies and blog posts stored in the repo                   |
-| i18n          | next-intl                                                     | `/en` and `/vi` routes; Server Component support                           |
-| Local State   | Zustand                                                       | Sharing scroll/section state between DOM and canvas                        |
-| Forms         | React Hook Form + Zod, Server Actions via Resend              | No separate backend required                                               |
-| Quality       | ESLint, Prettier, Vitest, Playwright, Lighthouse CI           | Smoke tests + CI checks to prevent performance regressions                 |
-| Deployment    | Vercel + GitHub Actions                                       | PR previews, Speed ​​Insights, Analytics                                   |
-| 3D Assets     | Blender → glTF, compressed via gltf-transform (Draco/Meshopt) | Lightweight models, fast loading                                           | **Alternative approach:** Astro + React islands, if absolute speed is prioritized over showcasing Next.js skills. |
+| Layer | Technology | Rationale |
+| --- | --- | --- |
+| Framework | Next.js App Router + TypeScript (strict mode) | SSG/metadata API for SEO; React Server Components to reduce client-side JS |
+| 3D | three + @react-three/fiber + @react-three/drei | Component-based Three.js; React-style lifecycle management |
+| 3D Effects | @react-three/postprocessing (minimal usage) | Subtle bloom for the node graph |
+| Animation | gsap + ScrollTrigger + SplitText + @gsap/react (useGSAP) | Free plugins, powerful timelines, automatic cleanup |
+| Smooth Scroll | Lenis | Synchronized with ScrollTrigger via `gsap.ticker` |
+| Styling | Tailwind CSS + CSS variables | Dark/light mode via design tokens |
+| Content | MDX (next-mdx-remote or Velite/Content Collections) | Type-safe case studies and blog posts stored in the repo |
+| i18n | next-intl | `/en` and `/vi` routes; Server Component support |
+| Local State | Zustand | Sharing scroll/section state between DOM and canvas |
+| Forms | React Hook Form + Zod, Server Action via Resend | No separate backend required |
+| Quality | ESLint, Prettier, Vitest, Playwright, Lighthouse CI | Smoke tests + CI checks to prevent performance regressions |
+| Deployment | Vercel + GitHub Actions | PR previews, Speed ​​Insights, Analytics |
+| 3D Assets | Blender → glTF, compressed via gltf-transform (Draco/Meshopt) | Lightweight models, fast loading | 
+
+**Alternative approach:** Astro + React islands, if absolute speed is prioritized over showcasing Next.js skills.
 
 ## Architecture & Directory Structure
 
@@ -83,26 +85,26 @@ public/
 
 **Key Conventions:**
 
-- Default to Server Components; use `"use client"` only for components involving GSAP or canvas.
-- Import 3D canvases using `dynamic(() => import(...), { ssr: false })` so they mount only when entering the viewport.
+- Default to Server Components; use `"use client"` only for components requiring GSAP or canvas.
+- Import 3D canvas components using `dynamic(() => import(...), { ssr: false })` so they mount only upon entering the viewport.
 - Keep all primary text in the DOM; the canvas serves merely as an `aria-hidden` background layer.
-- Manage scroll state (section progress) via a Zustand store; GSAP writes to the store, while the canvas reads from it within `useFrame`—avoiding React re-renders on every frame.
+- Manage scroll state (section progress) via a Zustand store; GSAP writes to the store, while the canvas reads from it within `useFrame` to avoid React re-renders on every frame.
 - Use a single `Lenis` instance and a single `gsap.ticker` for the entire application.
 
 ## Section Content & Storytelling
 
-The page tells a narrative arc: "chaotic → structured → fast"; only the Hero section utilizes Three.js, while other sections rely on GSAP.
+The page tells a story of evolving "from chaotic → structured → fast"; only the Hero section utilizes Three.js, while other sections rely on GSAP.
 
-| Section          | Content                                            | Effects                                                                                                                                                           | Libraries                                       |
-| ---------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Hero             | Name, title, tagline, CTA                          | 3D node graph: nodes (UI, i18n, admin, storefront...) floating and reacting to mouse movement; scroll down to arrange into neat layers (Feature-Driven → Layered) | R3F, drei (Instances, Line), GSAP ScrollTrigger |
-| About            | 4 years, Fresher → Mid-level, workflow             | Line-by-line text reveal; counting up years/apps                                                                                                                  | SplitText, ScrollTrigger                        |
-| Work: Swift      | Rebuild JS → TS, code splitting, NPM package       | Loading bar pinned on scroll, time drops from **12s → 1–3s**; Web Vitals counter                                                                                  | ScrollTrigger pin + scrub                       |
-| Work: Oneloyalty | Monorepo, Layered Architecture, i18n (8 languages) | 40+ components merging together; "Hello" text morphing across 8 languages ​​                                                                                      | GSAP Flip, SplitText                            |
-| Work: SafeBulk   | 3-step wizard, CSV import, polling                 | 3 stacked cards, pinned and flipped step-by-step; GitHub link + Loom demo                                                                                         | ScrollTrigger pin                               |
-| Skills           | Skill categories (from CV)                         | Staggered tag appearance, magnetic hover effect                                                                                                                   | GSAP quickTo                                    |
-| Contact          | Email, LinkedIn, GitHub, form, CV download         | Magnetic button, footer reveal                                                                                                                                    | GSAP                                            |
-| Global           | —                                                  | Custom cursor, smooth page transitions, short preloader (< 1s)                                                                                                    | GSAP, Lenis                                     |
+| Section | Content | Effect | Library |
+| --- | --- | --- | --- |
+| Hero | Name, title, tagline, CTA | 3D node graph: nodes (ui, i18n, admin, storefront...) drift chaotically and react to mouse movement; scrolling down organizes them into neat layers (Feature-Driven → Layered) | R3F, drei (Instances, Line), GSAP ScrollTrigger |
+| About | 4 years, fresher → mid-level, workflow | Line-by-line text reveal; counting up years/apps | SplitText, ScrollTrigger |
+| Work: Swift | JS → TS, real-time UI progress (Pusher), −20% initial load | Live-progress: 4 optimization steps triggered by scroll (pending → running → done/failed), concluding with **−20%** | ScrollTrigger pin + scrub |
+| Work: Oneloyalty | Monorepo, Layered Architecture, CLS ≤ 0.1, form/state −55% | Components "merged" into packages/ui; cls-demo: layout shift → placeholder, CLS ≤ 0.1 | GSAP Flip, SplitText |
+| Work: SafeBulk | Co-founder, MVP (~1.5 months), wizard, CSV, history log, plan gating | 3 stacked cards, pinned and flipped step-by-step; links to App Store, GitHub, YouTube demo | ScrollTrigger pinning |
+| Skills | Skill categories (from CV) | Staggered tag appearance, magnetic hover effect | GSAP quickTo |
+| Contact | Email, LinkedIn, GitHub, form, CV download | Magnetic button, reveal footer | GSAP |
+| Site-wide | — | Custom cursor, smooth page transitions, short preloader (< 1s) | GSAP, Lenis |
 
 **Content to prepare:**
 
@@ -110,7 +112,7 @@ The page tells a narrative arc: "chaotic → structured → fast"; only the Hero
 - [ ] 3 case studies: context → problem → solution → quantified results → key takeaways
 - [ ] Interface screenshots/GIFs (permission obtained or merchant data blurred)
 - [ ] Headshot, latest CV (PDF)
-- [ ] 2 blog posts: "Reducing Shopify app load time from 12s to 2s" and "DI loader for i18n in a monorepo"
+- [ ] 2 blog posts (selected from the 3 ideas in the Content tab)
 
 ## SEO plan
 
@@ -118,7 +120,7 @@ SEO strategy based on 3 pillars: readable static HTML, correct structured data, 
 
 **Technical (on-page):**
 
-- [ ] `generateMetadata` for all routes: title ≤ 60 characters, description 140–160 characters, canonical URL
+- [ ] `generateMetadata` for all routes: title ≤ 60 characters, description 140–160 characters, canonical tag
 - [ ] Open Graph + Twitter cards; dynamic OG images generated via `next/og` for each case study/blog post
 - [ ] `hreflang` (en/vi) + `x-default` via `alternates.languages`
 - [ ] `app/sitemap.ts` (covering both locales) and `app/robots.ts`
@@ -127,90 +129,88 @@ SEO strategy based on 3 pillars: readable static HTML, correct structured data, 
 - [ ] Short, keyword-rich URLs: `/work/swift-performance` (avoid `/work/1`)
 
 **Structured data (JSON-LD):**
+| Page | Schema | Main School |
+| --- | --- | --- |
+| Home | `Person` + `WebSite` | name, jobTitle, image, sameAs (LinkedIn, GitHub), knowsAbout |
+| Case studies | `CreativeWork` | name, author, dateCreated, about, url |
+| Blog | `BlogPosting` | headline, datePublished, dateModified, author, image |
+| All subpages | `BreadcrumbList` | position, name, item |
 
-| Page         | Schema               | Key fields                                                   |
-| ------------ | -------------------- | ------------------------------------------------------------ |
-| Home         | `Person` + `WebSite` | name, jobTitle, image, sameAs (LinkedIn, GitHub), knowsAbout |
-| Case study   | `CreativeWork`       | name, author, dateCreated, about, url                        |
-| Blog         | `BlogPosting`        | headline, datePublished, dateModified, author, image         |
-| All subpages | `BreadcrumbList`     | position, name, item                                         |
 
 **Off-page & tracking:**
 
 - [ ] Custom domain (e.g., `nguyenthanhdat.dev`) linked to LinkedIn, GitHub profile, and CV
 - [ ] Google Search Console: verify domain, submit sitemap, monitor indexing
-- [ ] Republish blog posts to dev.to / Viblo with a `canonical` tag pointing to the original site
+- [ ] Republish blog posts to dev.to / Viblo with `canonical` tags pointing to the original site
 - [ ] Vercel Analytics or Plausible to track Contact clicks / CV downloads
 
 **Target keywords:** "Nguyen Thanh Dat", "Front-End Engineer Vietnam", "React TypeScript developer", "Shopify app developer", "Shopify embedded app frontend".
 
 ## Performance budget & accessibility
 
-3D content must load after the main content: LCP is the Hero text/image, never the canvas.
+3D elements must load after the main content: LCP should be the Hero text/image, never the canvas.
 
-| Category                                    | Budget                                                                  |
-| ------------------------------------------- | ----------------------------------------------------------------------- |
-| Initial JS (gzip)                           | < 150 KB                                                                |
-| 3D Chunk (three + R3F + scene, lazy-loaded) | < 250 KB                                                                |
-| Total .glb models                           | < 500 KB                                                                |
-| Fonts                                       | Max 2 families, self-hosted via `next/font`, Latin + Vietnamese subsets |
-| Images                                      | AVIF/WebP via `next/image`, with width/height defined to ensure CLS = 0 |
-| Hero scene draw calls                       | < 50 (use `Instances`)                                                  |
-| Target FPS                                  | 60 (desktop), ≥ 30 (mid-range mobile)                                   |
+| Category | Budget |
+| --- | --- |
+| Initial JS (gzipped) | < 150 KB |
+| 3D Chunk (three + R3F + scene, lazy-loaded) | < 250 KB |
+| Total .glb models | < 500 KB |
+| Fonts | Max 2 families, self-hosted via `next/font`, Latin + Vietnamese subsets |
+| Images | AVIF/WebP via `next/image`, with width/height defined for CLS = 0 |
+| Hero scene draw calls | < 50 (using `Instances`) |
+| Target FPS | 60 (desktop), ≥ 30 (mid-range mobile) |
 
 **Performance optimization techniques:**
 
-- `dpr={[1, 1.5]}`, use drei's `PerformanceMonitor` to lower quality when FPS drops
-- `frameloop="demand"` or stop rendering when the canvas is out of the viewport/tab is hidden
-- Low-end mobile or no WebGL support → fallback to static image/SVG
+- `dpr={[1, 1.5]}` and drei's `PerformanceMonitor` to lower quality when FPS drops
+- `frameloop="demand"` or pause rendering when the canvas leaves the viewport/tab becomes inactive
+- Fallback to static image/SVG for low-end mobile devices or lack of WebGL support
 - Dispose of geometry, materials, and textures upon unmounting; use `gsap.context` / `useGSAP` for cleanup
 - Animate only `transform` and `opacity`
 
 **Accessibility:**
 
-- `prefers-reduced-motion`: disable scrub/pin and Lenis; keep the 3D scene static
-- Keyboard navigable, clear focus rings, skip links; custom cursor must not obscure the actual cursor on touch devices
+- `prefers-reduced-motion`: disable scrub/pin and Lenis; keep 3D scene static
+- Keyboard navigable, clear focus rings, skip link; custom cursor does not obscure the actual cursor on touch devices
 - Contrast ratio ≥ 4.5:1 in both dark and light modes
-- Canvas `aria-hidden="true"`; SplitText retains `aria-label` with the original text
+- Canvas `aria-hidden="true"`; SplitText retains `aria-label` with the original sentence
 
 ## Roadmap
 
-8-week timeline (working outside office hours, ~10–12 hours/week); starts Sep 28, 2026; target launch Nov 22, 2026. Principle: Ensure the site functions well without 3D first; add 3D elements later.
+8 weeks of after-hours work (~10–12 hours/week), starting Sep 28, 2026; expected launch Nov 22, 2026. Principle: ensure the site functions well without 3D first, then add 3D later.
 
-| Phase                    | Week                 | Deliverables                                                                                                 | Phase Completion Criteria                        |
-| ------------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
-| 0. Preparation           | 1 (Sep 28 – Oct 4)   | English content, moodboard, Figma wireframes, domain purchase                                                | Text ready for 3 case studies + tagline          |
-| 1. Foundation            | 2 (Oct 5 – Oct 11)   | Next.js repo + strict TS, Tailwind, next-intl, MDX, layout, CI + Vercel preview deployment                   | Deployable blank site, Lighthouse score of 100   |
-| 2. Static Content        | 3 (Oct 12 – Oct 18)  | All sections + case study pages, responsive design, dark/light mode (no animations yet)                      | Fully functional site, no JS animations required |
-| 3. SEO                   | 4 (Oct 19 – Oct 25)  | Metadata, OG images, JSON-LD, sitemap, robots.txt, hreflang, Search Console setup                            | Rich Results Test passed, SEO score of 100       |
-| 4. GSAP                  | 5 (Oct 26 – Nov 1)   | Lenis, text reveal, Swift loading bar, SafeBulk pin, magnetic effects, custom cursor, reduced-motion support | 60 FPS on desktop, CLS < 0.1                     |
-| 5. Three.js              | 6–7 (Nov 2 – Nov 15) | Hero node graph, scroll-to-stack transition, lazy loading, fallbacks, quality tiers                          | Mobile performance score ≥ 90                    |
-| 6. Finalization & Launch | 8 (Nov 16 – Nov 22)  | Vietnamese version, 2 blog posts, real browser/device testing, analytics, LinkedIn launch                    | Met all "Overview" section KPIs                  |
+| Phase | Week | Deliverables | Phase Completion Criteria |
+| --- | --- | --- | --- |
+| 0. Preparation | 1 (Sep 28 – Oct 4) | EN content, moodboard, Figma wireframes, domain purchase | Text for 3 case studies + tagline ready |
+| 1. Foundation | 2 (Oct 5 – Oct 11) | Next.js repo + TS strict, Tailwind, next-intl, MDX, layout, CI + Vercel deploy preview | Deployable blank site, Lighthouse score of 100 |
+| 2. Static Content | 3 (Oct 12 – Oct 18) | All sections + case study pages, responsive design, dark/light modes, no animations yet | Fully functional site without JS animations |
+| 3. SEO | 4 (Oct 19 – Oct 25) | Metadata, OG image, JSON-LD, sitemap, robots, hreflang, Search Console | Rich Results Test passed, SEO score of 100 |
+| 4. GSAP | 5 (Oct 26 – Nov 1) | Lenis, text reveal, Swift loading bar, SafeBulk pin, magnetic effect, custom cursor, reduced-motion support | 60 FPS (desktop), CLS < 0.1 |
+| 5. Three.js | 6–7 (Nov 2 – Nov 15) | Node graph Hero, scroll-linked animation → layering, lazy loading, fallback, quality tiers | Mobile performance score ≥ 90 |
+| 6. Finalization & Launch | 8 (Nov 16 – Nov 22) | Vietnamese version, 2 blog posts, real-device/browser testing, analytics setup, LinkedIn launch | Meet all KPIs listed in the Overview |
 
-**Post-launch:** Write 1 blog post/month, update SafeBulk when new features are released, check Search Console every 2 weeks.
+**Post-launch:** Write one blog post per month, update SafeBulk when new features are released, and check Search Console every two weeks.
 
-**Addition:** 3D avatar intro (character walks up and waves) — add 1 week after Phase 5 (launch postponed to Nov 29, 2026); specification: Phase 5B — Avatar intro.
+**Addition:** 3D avatar intro (character walking up and waving)—scheduled for one week after Phase 5 (launch postponed to November 29, 2026); specification: Phase 5B — Avatar intro.
 
 ## Risks & Definition of Done
 
-The biggest risk is getting bogged down in 3D work and never launching—hence, Phase 5 has a strict 2-week limit.
+The biggest risk is getting bogged down in 3D development and never launching; therefore, Phase 5 has a strict two-week limit.
 
-| Risk                                       | Impact                                   | Mitigation                                                     |
-| ------------------------------------------ | ---------------------------------------- | -------------------------------------------------------------- |
-| 3D scope creep                             | Launch delay                             | Limit to one 3D scene; ship a simplified version after 2 weeks |
-| 3D lowers Lighthouse score                 | Conflicts with "performance" image       | Lazy loading; Lighthouse CI blocks PRs scoring below 90        |
-| Lag on low-end mobile                      | Poor user experience                     | PerformanceMonitor + static image fallback                     |
-| GSAP conflicts with React 19 / Strict Mode | Double animation execution, memory leaks | Use `useGSAP`; avoid manual cleanup management                 |
-| Sharing company/merchant data              | NDA issues                               | Use only public info (App Store); blur screenshots             |
-| Slow content writing                       | Phase 2 bottleneck                       | Write content in Phase 0, prior to coding                      |
+| Risk | Impact | Mitigation |
+| --- | --- | --- |
+| Bloated 3D scope | Launch delay | Limit to one 3D scene; ship a simplified version after two weeks |
+| 3D negatively affects Lighthouse score | Conflicts with "performance" image | Implement lazy loading; use Lighthouse CI to block PRs scoring below 90 |
+| Lag on low-end mobile devices | Poor user experience | Use PerformanceMonitor + static image fallback |
+| GSAP conflicts with React 19 / Strict Mode | Double animation execution, memory leaks | Use `useGSAP`; avoid manual cleanup management |
+| Sharing company/merchant data | NDA issues | Use only public info (App Store); blur screenshots |
+| Slow content creation | Phase 2 bottleneck | Draft content during Phase 0, prior to coding |
 
-**Definition of Done for v1.0:**
+**Definition of Done for 1.0:**
 
 - [ ] All KPIs in the Overview section met on mobile
 - [ ] Functions correctly on Chrome, Safari (iOS + macOS), Firefox, and Edge
-- [ ] Reduced-motion and keyboard navigation fully functional
+- [ ] Reduced-motion and keyboard navigation are functional
 - [ ] Sitemap indexed by Search Console; passes Rich Results Test
-- [ ] Public repo; README includes architecture details and Lighthouse scores
+- [ ] Public repository; README includes architecture details and Lighthouse scores
 - [ ] Portfolio link added to CV, LinkedIn, and GitHub
-
-Detailed specifications for AI implementation: Implementation Specs

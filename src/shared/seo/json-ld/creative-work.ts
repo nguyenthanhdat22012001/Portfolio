@@ -1,3 +1,4 @@
+import { pickLinks, type WorkLinks } from "@/shared/content/links";
 import type { Locale } from "@/shared/i18n/routing";
 import { ogImagePath } from "../og/og-image";
 import { getSiteUrl } from "../site-url";
@@ -12,7 +13,8 @@ export interface CreativeWork {
   description: string;
   author: PersonRef;
   dateCreated: string;
-  about: string[];
+  keywords: string[];
+  sameAs?: string[];
   url: string;
   inLanguage: Locale;
   image: string;
@@ -24,8 +26,9 @@ export function buildCreativeWork({
   availableLocales,
   title,
   description,
-  dateCreated,
-  tags,
+  period,
+  stack,
+  links,
   contentLocale
 }: {
   slug: string;
@@ -33,13 +36,18 @@ export function buildCreativeWork({
   availableLocales: readonly Locale[];
   title: string;
   description: string;
-  dateCreated: string;
-  tags: readonly string[];
+  period: { start: string };
+  stack: readonly string[];
+  links: WorkLinks;
   // The language the content is actually written in (en on a fallback page).
   contentLocale: Locale;
 }): CreativeWork {
   const path = `/work/${slug}`;
   const canonical = canonicalLocale(locale, availableLocales);
+
+  const sameAs = pickLinks(links, ["appStore", "github"]).map(
+    ({ href }) => href
+  );
 
   return {
     "@context": schemaContext,
@@ -47,10 +55,11 @@ export function buildCreativeWork({
     name: title,
     description,
     author: personRef(),
-    dateCreated,
-    about: [...tags],
+    dateCreated: period.start,
+    keywords: [...stack],
     url: absoluteUrl(canonical, path),
     inLanguage: contentLocale,
-    image: `${getSiteUrl()}${ogImagePath(canonical, path)}`
+    image: `${getSiteUrl()}${ogImagePath(canonical, path)}`,
+    ...(sameAs.length > 0 ? { sameAs } : {})
   };
 }

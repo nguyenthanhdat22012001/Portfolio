@@ -25,12 +25,32 @@ describe("OgCard", () => {
   it("gives every multi-child element an explicit flex display (Satori rule)", () => {
     const host = document.createElement("div");
     host.innerHTML = renderToStaticMarkup(
-      <OgCard eyebrow="E" title="T" name="N" host="h" />
+      <OgCard
+        eyebrow="E"
+        title="T"
+        name="N"
+        host="h"
+        metric={{ value: "≤ 0.1", label: "dashboard CLS" }}
+      />
     );
     for (const element of host.querySelectorAll("div")) {
       if (element.children.length > 1) {
         expect(element.getAttribute("style")).toContain("display:flex");
       }
     }
+  });
+
+  it("renders the headline metric when given", () => {
+    const html = renderToStaticMarkup(
+      <OgCard
+        eyebrow="Case study"
+        title="Swift"
+        name="N"
+        host="h"
+        metric={{ value: "−20%", label: "initial load" }}
+      />
+    );
+    expect(html).toContain("−20%");
+    expect(html).toContain("initial load");
   });
 });

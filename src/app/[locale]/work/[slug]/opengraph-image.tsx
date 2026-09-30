@@ -26,6 +26,7 @@ export default async function Image({
   return renderOgImage({
     eyebrow: t("caseStudy"),
     title: entry.doc.title,
-    name: t("name")
+    name: t("name"),
+    metric: entry.doc.metrics[0]
   });
 }

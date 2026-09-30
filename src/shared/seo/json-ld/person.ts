@@ -13,6 +13,11 @@ export interface Person extends PersonRef {
   jobTitle: string;
   url: string;
   sameAs: string[];
+  address: {
+    "@type": "PostalAddress";
+    addressLocality: string;
+    addressCountry: string;
+  };
   knowsAbout: string[];
 }
 
@@ -33,6 +38,11 @@ export function buildPerson(jobTitle: string): Person {
     alternateName: site.alternateName,
     jobTitle,
     sameAs: [site.linkedin, site.github],
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: site.address.locality,
+      addressCountry: site.address.country
+    },
     knowsAbout: [...site.knowsAbout]
   };
 }

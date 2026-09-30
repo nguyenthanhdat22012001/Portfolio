@@ -36,7 +36,20 @@ describe("person", () => {
         "https://www.linkedin.com/in/dat-nguyen-b26744277",
         "https://github.com/nguyenthanhdat22012001"
       ],
-      knowsAbout: expect.arrayContaining(["React", "TypeScript"])
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Ho Chi Minh City",
+        addressCountry: "VN"
+      },
+      knowsAbout: [
+        "React",
+        "TypeScript",
+        "Next.js",
+        "Tailwind CSS",
+        "Shopify",
+        "GSAP",
+        "Three.js"
+      ]
     });
   });
 });
@@ -74,11 +87,12 @@ describe("buildCreativeWork", () => {
     slug: "swift",
     title: "Swift",
     description: "A case study.",
-    dateCreated: "2022-10-01T00:00:00.000Z",
-    tags: ["React", "Performance"]
+    period: { start: "2022-10" },
+    stack: ["React", "TypeScript"],
+    links: { live: "https://apps.shopify.com/swift" }
   };
 
-  it("references the author and uses the canonical URL", () => {
+  it("references the author, uses the canonical URL, and lists the stack as keywords", () => {
     expect(
       buildCreativeWork({
         ...input,
@@ -97,12 +111,31 @@ describe("buildCreativeWork", () => {
         name: "Nguyen Thanh Dat",
         url: origin
       },
-      dateCreated: "2022-10-01T00:00:00.000Z",
-      about: ["React", "Performance"],
+      dateCreated: "2022-10",
+      keywords: ["React", "TypeScript"],
       url: `${origin}/en/work/swift`,
       inLanguage: "en",
       image: `${origin}/en/work/swift/opengraph-image`
     });
+  });
+
+  it("links the App Store listing and source as sameAs", () => {
+    expect(
+      buildCreativeWork({
+        ...input,
+        links: {
+          appStore: "https://apps.shopify.com/safebulk-editor",
+          github: "https://github.com/x/safe-bulk-shopify",
+          demo: "https://youtu.be/x"
+        },
+        locale: "en",
+        availableLocales: ["en"],
+        contentLocale: "en"
+      }).sameAs
+    ).toEqual([
+      "https://apps.shopify.com/safebulk-editor",
+      "https://github.com/x/safe-bulk-shopify"
+    ]);
   });
 
   it("on a fallback page points at the English canonical and language", () => {

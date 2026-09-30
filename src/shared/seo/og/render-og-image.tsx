@@ -13,17 +13,25 @@ const fontPath = path.join(
 export async function renderOgImage({
   eyebrow,
   title,
-  name
+  name,
+  metric
 }: {
   eyebrow: string;
   title: string;
   name: string;
+  metric?: { value: string; label: string };
 }): Promise<ImageResponse> {
   const font = await readFile(fontPath);
   const host = new URL(getSiteUrl()).host;
 
   return new ImageResponse(
-    <OgCard eyebrow={eyebrow} title={title} name={name} host={host} />,
+    <OgCard
+      eyebrow={eyebrow}
+      title={title}
+      name={name}
+      host={host}
+      metric={metric}
+    />,
     {
       ...ogImageSize,
       fonts: [{ name: "Open Sans", data: font, weight: 700, style: "normal" }]

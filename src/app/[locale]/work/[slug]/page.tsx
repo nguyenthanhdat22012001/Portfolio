@@ -66,8 +66,9 @@ export default async function WorkCaseStudyPage({
             availableLocales: getWorkLocales(slug),
             title: doc.title,
             description: doc.description,
-            dateCreated: doc.period.start,
-            tags: doc.stack,
+            period: doc.period,
+            stack: doc.stack,
+            links: doc.links,
             contentLocale: doc.locale
           }),
           buildBreadcrumbs([

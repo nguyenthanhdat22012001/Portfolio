@@ -7,12 +7,13 @@ export const site = {
     "React",
     "TypeScript",
     "Next.js",
-    "Front-end performance",
-    "Web Vitals",
-    "Shopify app development",
-    "Monorepo architecture",
-    "Internationalization (i18n)"
+    "Tailwind CSS",
+    "Shopify",
+    "GSAP",
+    "Three.js"
   ],
+  // schema.org Person.address — city and country only, never a street.
+  address: { locality: "Ho Chi Minh City", country: "VN" },
   email: "nguyenthanhdat22012001@gmail.com",
   linkedin: "https://www.linkedin.com/in/dat-nguyen-b26744277",
   github: "https://github.com/nguyenthanhdat22012001",

@@ -7,11 +7,12 @@ interface OgCardProps {
   title: string;
   name: string;
   host: string;
+  metric?: { value: string; label: string };
 }
 
 // Rendered by Satori, which supports only inline styles and flexbox: every
 // element with more than one child needs an explicit `display: flex`.
-export function OgCard({ eyebrow, title, name, host }: OgCardProps) {
+export function OgCard({ eyebrow, title, name, host, metric }: OgCardProps) {
   return (
     <div
       style={{
@@ -47,6 +48,16 @@ export function OgCard({ eyebrow, title, name, host }: OgCardProps) {
         <div style={{ fontSize: 64, lineHeight: 1.15, maxWidth: 1040 }}>
           {title}
         </div>
+        {metric ? (
+          <div style={{ display: "flex", alignItems: "baseline", gap: 20 }}>
+            <div style={{ fontSize: 72, color: colors.accent }}>
+              {metric.value}
+            </div>
+            <div style={{ fontSize: 32, color: colors["fg-muted"] }}>
+              {metric.label}
+            </div>
+          </div>
+        ) : null}
       </div>
       <div
         style={{

@@ -250,4 +250,28 @@ test.describe("Swift and Oneloyalty visuals without JavaScript", () => {
     await expect(page.locator("[data-result-value]")).toHaveText("−20%");
     await expect(page.locator("[data-layer]")).toHaveCount(2);
   });
+
+  for (const viewport of [
+    { width: 360, height: 800 },
+    { width: 1280, height: 800 }
+  ]) {
+    test(`keep the CLS demo panes unclipped at ${viewport.width}px`, async ({
+      page
+    }) => {
+      await page.setViewportSize(viewport);
+      await page.goto("/en");
+      const panes = page.locator("[data-cls-demo] [data-layer]");
+      await expect(panes).toHaveCount(2);
+      const sizes = await panes.evaluateAll((els) =>
+        els.map((el) => ({
+          layer: (el as HTMLElement).dataset.layer,
+          scroll: el.scrollHeight,
+          client: el.clientHeight
+        }))
+      );
+      for (const { layer, scroll, client } of sizes) {
+        expect(scroll, `${layer} pane`).toBeLessThanOrEqual(client);
+      }
+    });
+  }
 });

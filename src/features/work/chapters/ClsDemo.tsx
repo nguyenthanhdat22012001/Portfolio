@@ -18,7 +18,7 @@ function Pane({
     <div
       aria-hidden="true"
       data-layer={layer}
-      className="rounded-card border-border bg-bg relative flex aspect-[4/3] flex-col gap-3 overflow-hidden border p-4 md:aspect-auto"
+      className="rounded-card border-border bg-bg relative flex flex-col gap-3 overflow-hidden border p-4"
     >
       <span
         className={cx(

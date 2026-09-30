@@ -1,8 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { cx } from "@/shared/lib/cx";
 
-// Both panes are fixed-size boxes; motion/cls-demo.ts only transforms,
-// clips, and fades inside them. The static markup is each pane's final
+// Below md the panes size to their content; at md+ they are bounded by the
+// 16:10 frame. motion/cls-demo.ts only transforms, clips, and fades inside
+// them. The static markup is each pane's final
 // state, which is what mobile, reduced-motion, and no-JS visitors see.
 function Pane({
   layer,

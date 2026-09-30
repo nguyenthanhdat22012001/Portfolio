@@ -80,7 +80,9 @@ export function WorkChapter({
             className="text-accent hover:underline"
           >
             {readLabel}
-            <span className="sr-only">: {title}</span>
+            <span className="sr-only" lang={contentLang}>
+              : {title}
+            </span>
             <span aria-hidden="true">&nbsp;→</span>
           </Link>
           <ExternalLinks links={links} newTabLabel={newTabLabel} />

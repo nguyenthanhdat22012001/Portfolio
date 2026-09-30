@@ -129,7 +129,15 @@ export function startMotion(
       };
     });
 
+  // Exposed only so the leak e2e can count live triggers.
+  const publishTriggerCount = () => {
+    document.documentElement.dataset.motionTriggers = String(
+      ScrollTrigger.getAll().length
+    );
+  };
+
   scan();
+  publishTriggerCount();
   document.documentElement.setAttribute("data-motion-ready", "");
 
   let disposed = false;
@@ -142,6 +150,7 @@ export function startMotion(
       lenis?.scrollTo(window.scrollY, { immediate: true, force: true });
       scan();
       ScrollTrigger.refresh();
+      publishTriggerCount();
     },
     dispose() {
       if (disposed) return;
@@ -149,6 +158,7 @@ export function startMotion(
       pageMedia.revert();
       globalMedia.revert();
       document.documentElement.removeAttribute("data-motion-ready");
+      document.documentElement.removeAttribute("data-motion-triggers");
     }
   };
 }

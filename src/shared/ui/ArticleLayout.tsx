@@ -16,6 +16,7 @@ export function ArticleLayout({
   newTabLabel,
   notice,
   contentLang,
+  uiLang,
   titleTransitionName,
   children
 }: {
@@ -30,6 +31,7 @@ export function ArticleLayout({
   newTabLabel?: string;
   notice?: string;
   contentLang?: string;
+  uiLang?: string;
   titleTransitionName?: string;
   children: ReactNode;
 }) {
@@ -70,12 +72,15 @@ export function ArticleLayout({
               {byline}
             </p>
           ) : null}
-          <p className="text-fg-muted mt-4 font-mono text-sm">{meta}</p>
+          <p lang={uiLang} className="text-fg-muted mt-4 font-mono text-sm">
+            {meta}
+          </p>
           <TagList tags={tags} className="mt-4" />
           {links && newTabLabel ? (
             <ExternalLinks
               links={links}
               newTabLabel={newTabLabel}
+              lang={uiLang}
               className="mt-6 font-mono text-sm font-medium"
             />
           ) : null}

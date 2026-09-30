@@ -8,16 +8,18 @@ export interface ExternalLink {
 export function ExternalLinks({
   links,
   newTabLabel,
-  className
+  className,
+  lang
 }: {
   links: readonly ExternalLink[];
   newTabLabel: string;
   className?: string;
+  lang?: string;
 }) {
   if (links.length === 0) return null;
 
   return (
-    <ul className={cx("flex flex-wrap gap-x-6 gap-y-2", className)}>
+    <ul lang={lang} className={cx("flex flex-wrap gap-x-6 gap-y-2", className)}>
       {links.map(({ href, label }) => (
         <li key={href}>
           <a

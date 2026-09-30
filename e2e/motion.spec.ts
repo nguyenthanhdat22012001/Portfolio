@@ -360,16 +360,17 @@ test.describe("layout stability", () => {
     expect(cls).toBeLessThan(0.1);
   });
 
-  test("round trips to a case study don't leak ScrollTrigger pins", async ({
+  test("round trips to a case study don't leak ScrollTrigger triggers", async ({
     page
   }) => {
     await page.goto("/en");
     await loadMotion(page);
-    const pins = page.locator(".pin-spacer");
-    await expect(pins).not.toHaveCount(0);
-    const baseline = await pins.count();
 
-    for (let trip = 0; trip < 5; trip += 1) {
+    const triggerCount = () =>
+      page.evaluate(() =>
+        Number(document.documentElement.dataset.motionTriggers)
+      );
+    const roundTrip = async () => {
       await page
         .locator('[data-chapter="swift-performance"]')
         .getByRole("link", { name: /Read case study/ })
@@ -377,11 +378,19 @@ test.describe("layout stability", () => {
       await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
       await page.getByRole("link", { name: /←/ }).click();
       await expect(page).toHaveURL(/\/en#work$/);
-      // Coming back to #work lands on the first chapter, which the effects
-      // skip pinning when it is already at the viewport top, so the count may
-      // drop; it must never grow.
-      await page.waitForTimeout(1000);
-      expect(await pins.count()).toBeLessThanOrEqual(baseline);
+      await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+    };
+
+    // The first return is the baseline: Swift is on screen on /en#work, so
+    // its isAtOrAboveViewport guard skips it and the count is lower than on
+    // the initial load. Every later trip must stay at or below it.
+    await roundTrip();
+    await expect.poll(triggerCount).toBeGreaterThan(0);
+    const baseline = await triggerCount();
+
+    for (let trip = 0; trip < 10; trip += 1) {
+      await roundTrip();
+      await expect.poll(triggerCount).toBeLessThanOrEqual(baseline);
     }
   });
 });

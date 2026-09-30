@@ -3,7 +3,8 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-const ROOTS = [".next/server/app", "content", "src/shared/i18n/messages"];
+const BUILD_ROOT = ".next/server/app";
+const ROOTS = [BUILD_ROOT, "content", "src/shared/i18n/messages"];
 const BANNED = [
   // (?<![\d.]) avoids false positives on CSS such as "0.12s"
   /(?<![\d.])1[23](?:[–-]13)?\s?s\b/, // 12s, 13s, 12–13s
@@ -14,8 +15,9 @@ const BANNED = [
   /\b12\.6k\b/,
   /\b520\+/,
   /\b8 (languages|ngôn ngữ)\b/i,
-  /\b2 teams\b/i,
-  /\b5–10 min/i,
+  /\b2 teams?\b/i,
+  /\b5–10 (min|phút)/i,
+  /\b4 tiers\b/i,
   /loom\.com/i
 ];
 
@@ -31,6 +33,10 @@ for (const root of ROOTS) {
   try {
     files = walk(root);
   } catch {
+    if (root === BUILD_ROOT) {
+      console.error(`Cannot read ${root}; run \`pnpm build\` first.`);
+      process.exit(1);
+    }
     continue;
   }
   for (const file of files.filter((f) => /\.(html|mdx|json|rsc)$/.test(f))) {

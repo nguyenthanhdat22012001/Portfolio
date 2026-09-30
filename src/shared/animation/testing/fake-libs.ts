@@ -80,6 +80,7 @@ export function createFakeLibs(
   const ScrollTrigger = {
     update: vi.fn(),
     refresh: vi.fn(),
+    getAll: vi.fn((): unknown[] => []),
     create: vi.fn((..._args: unknown[]) => ({ kill: vi.fn() }))
   };
   const SplitText = {

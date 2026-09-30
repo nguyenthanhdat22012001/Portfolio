@@ -22,6 +22,15 @@ for (const locale of ["en", "vi"]) {
   });
 }
 
+test("/vi fallback case study marks its header links as vi", async ({
+  page
+}) => {
+  await page.goto("/vi/work/safebulk-bulk-editor");
+  await expect(
+    page.locator("article header ul:has(a[target=_blank])")
+  ).toHaveAttribute("lang", "vi");
+});
+
 test.describe("mobile", () => {
   test.use({ viewport: { width: 375, height: 800 } });
 
@@ -253,6 +262,7 @@ test.describe("Swift and Oneloyalty visuals without JavaScript", () => {
 
   for (const viewport of [
     { width: 360, height: 800 },
+    { width: 800, height: 900 },
     { width: 1280, height: 800 }
   ]) {
     test(`keep the CLS demo panes unclipped at ${viewport.width}px`, async ({

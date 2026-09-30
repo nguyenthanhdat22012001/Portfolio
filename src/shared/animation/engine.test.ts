@@ -27,6 +27,20 @@ afterEach(() => {
 });
 
 describe("startMotion", () => {
+  it("publishes the live ScrollTrigger count and clears it on dispose", () => {
+    const fake = createFakeLibs(desktop);
+    fake.ScrollTrigger.getAll.mockReturnValue([{}, {}, {}]);
+    handle = startMotion(fake.libs, {});
+    expect(document.documentElement.dataset.motionTriggers).toBe("3");
+
+    fake.ScrollTrigger.getAll.mockReturnValue([{}]);
+    handle.rescan();
+    expect(document.documentElement.dataset.motionTriggers).toBe("1");
+
+    handle.dispose();
+    expect(document.documentElement.dataset.motionTriggers).toBeUndefined();
+  });
+
   it("runs the registered effect for each [data-motion] element", () => {
     document.body.innerHTML =
       '<p data-motion="fade" id="a"></p><p data-motion="fade" id="b"></p>';

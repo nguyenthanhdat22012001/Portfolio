@@ -98,6 +98,7 @@ export default async function WorkCaseStudyPage({
           newTabLabel={tLinks("opensInNewTab")}
           notice={isFallback ? t("fallbackNotice") : undefined}
           contentLang={isFallback ? routing.defaultLocale : undefined}
+          uiLang={isFallback ? locale : undefined}
           titleTransitionName={`work-title-${slug}`}
         >
           <MdxContent code={doc.content} />

@@ -74,9 +74,11 @@ export async function SwiftVisual() {
 
   return (
     <figure className="rounded-card bg-bg-elevated flex flex-col justify-center gap-8 p-6 md:min-h-[27.5rem] md:p-10">
-      <p className="sr-only">{t("summary")}</p>
-      <figcaption aria-hidden="true">
-        <Eyebrow tone="accent">{t("caption")}</Eyebrow>
+      <figcaption>
+        <p className="sr-only">{t("summary")}</p>
+        <div aria-hidden="true">
+          <Eyebrow tone="accent">{t("caption")}</Eyebrow>
+        </div>
       </figcaption>
       <div aria-hidden="true" className="flex flex-col gap-8">
         <ol className="flex flex-col gap-4">

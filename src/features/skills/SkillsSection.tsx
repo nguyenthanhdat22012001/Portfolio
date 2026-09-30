@@ -1,11 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { Section } from "@/shared/ui/Section";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
-import { TagList } from "@/shared/ui/TagList";
+import { TagList, type TagItem } from "@/shared/ui/TagList";
 
 interface SkillGroup {
   name: string;
-  items: string[];
+  items: TagItem[];
 }
 
 export async function SkillsSection() {

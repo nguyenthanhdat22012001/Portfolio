@@ -109,23 +109,73 @@
     "label": "Kỹ năng",
     "title": "Bộ công cụ",
     "groups": [
-      { "name": "Nền tảng", "items": ["TypeScript", "React", "HTML / CSS"] },
+      {
+        "name": "Ngôn ngữ & nền tảng",
+        "items": [
+          "TypeScript",
+          "JavaScript (ES6+)",
+          "React 18/19",
+          "HTML5",
+          "CSS3",
+          "OOP",
+          "SOLID",
+          "Design Patterns"
+        ]
+      },
       {
         "name": "Kiến trúc",
-        "items": ["Turborepo", "Phân lớp", "Feature-Driven"]
+        "items": ["Turborepo", "Layered", "Feature-Driven", "Component-Driven"]
       },
       {
         "name": "State & dữ liệu",
-        "items": ["React Query", "Zustand", "Redux Toolkit", "GraphQL"]
+        "items": [
+          "React Query",
+          "TanStack Router",
+          "TanStack Virtual",
+          "Zustand",
+          "Redux Toolkit",
+          "REST",
+          "WebSockets (Pusher)"
+        ]
       },
       {
-        "name": "Build & hiệu năng",
-        "items": ["Vite", "Code splitting", "Web Vitals"]
+        "name": "Form & i18n",
+        "items": ["React Hook Form", "Formik", "Yup", "i18next"]
       },
-      { "name": "UI", "items": ["Tailwind", "Polaris", "Figma"] },
       {
-        "name": "DevOps",
-        "items": ["GitLab CI", "Docker", "Publish NPM"]
+        "name": "UI & styling",
+        "items": [
+          "Tailwind CSS",
+          "SCSS Modules",
+          "styled-components",
+          "Polaris / Polaris Viz",
+          "Figma"
+        ]
+      },
+      {
+        "name": "Hiệu năng & build",
+        "items": ["Vite", "Code splitting", "Lazy loading", "Core Web Vitals"]
+      },
+      {
+        "name": "DevOps & quy trình",
+        "items": [
+          "Git",
+          "GitLab CI/CD",
+          "Docker",
+          "Jira",
+          "Confluence",
+          "Scrum"
+        ]
+      },
+      { "name": "Công cụ AI", "items": ["GitHub Copilot", "Claude"] },
+      {
+        "name": "Đang dùng thêm",
+        "items": [
+          { "name": "Next.js (App Router, SSR)", "note": "— chính site này" },
+          "Vitest",
+          "GSAP",
+          "Three.js"
+        ]
       }
     ]
   },

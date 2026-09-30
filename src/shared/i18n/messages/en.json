@@ -109,23 +109,73 @@
     "label": "Skills",
     "title": "Toolbox",
     "groups": [
-      { "name": "Core", "items": ["TypeScript", "React", "HTML / CSS"] },
+      {
+        "name": "Languages & Core",
+        "items": [
+          "TypeScript",
+          "JavaScript (ES6+)",
+          "React 18/19",
+          "HTML5",
+          "CSS3",
+          "OOP",
+          "SOLID",
+          "Design Patterns"
+        ]
+      },
       {
         "name": "Architecture",
-        "items": ["Turborepo", "Layered", "Feature-Driven"]
+        "items": ["Turborepo", "Layered", "Feature-Driven", "Component-Driven"]
       },
       {
-        "name": "State & data",
-        "items": ["React Query", "Zustand", "Redux Toolkit", "GraphQL"]
+        "name": "State & Data",
+        "items": [
+          "React Query",
+          "TanStack Router",
+          "TanStack Virtual",
+          "Zustand",
+          "Redux Toolkit",
+          "REST",
+          "WebSockets (Pusher)"
+        ]
       },
       {
-        "name": "Build & performance",
-        "items": ["Vite", "Code splitting", "Web Vitals"]
+        "name": "Forms & i18n",
+        "items": ["React Hook Form", "Formik", "Yup", "i18next"]
       },
-      { "name": "UI", "items": ["Tailwind", "Polaris", "Figma"] },
       {
-        "name": "DevOps",
-        "items": ["GitLab CI", "Docker", "NPM publishing"]
+        "name": "UI & Styling",
+        "items": [
+          "Tailwind CSS",
+          "SCSS Modules",
+          "styled-components",
+          "Polaris / Polaris Viz",
+          "Figma"
+        ]
+      },
+      {
+        "name": "Performance & Build",
+        "items": ["Vite", "Code splitting", "Lazy loading", "Core Web Vitals"]
+      },
+      {
+        "name": "DevOps & Workflow",
+        "items": [
+          "Git",
+          "GitLab CI/CD",
+          "Docker",
+          "Jira",
+          "Confluence",
+          "Scrum"
+        ]
+      },
+      { "name": "AI Tools", "items": ["GitHub Copilot", "Claude"] },
+      {
+        "name": "Also working with",
+        "items": [
+          { "name": "Next.js (App Router, SSR)", "note": "— this site" },
+          "Vitest",
+          "GSAP",
+          "Three.js"
+        ]
       }
     ]
   },

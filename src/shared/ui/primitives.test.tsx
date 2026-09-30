@@ -83,6 +83,15 @@ describe("TagList", () => {
       expect(host.querySelectorAll("li")).toHaveLength(2);
     }
   );
+
+  it("renders a muted note after a tag", () => {
+    const host = render(
+      <TagList tags={["React", { name: "Next.js", note: "— this site" }]} />
+    );
+    const items = host.querySelectorAll("li");
+    expect(items[1]?.textContent).toBe("Next.js — this site");
+    expect(items[1]?.querySelector("span")?.className).toContain("text-fg-muted");
+  });
 });
 
 describe("ExternalLinks", () => {

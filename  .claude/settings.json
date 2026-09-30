@@ -1,6 +1,6 @@
 {
   "permissions": {
     "defaultMode": "acceptEdits",
-    "blockReadsOutsideWorkingDirectories": true
+    "blockReadsOutsideWorkingDirectories": false
   }
 }

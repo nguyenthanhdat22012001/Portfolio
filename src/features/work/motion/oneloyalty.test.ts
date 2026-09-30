@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   createFakeContext,
   placeBelowFold
@@ -9,28 +9,25 @@ function mount() {
   document.body.innerHTML = `
     <article>
       <div data-oneloyalty-grid><div></div><div></div></div>
-      <p data-oneloyalty-greeting lang="en">Hello</p>
-      <p data-oneloyalty-counter data-counter-template="{current} / {total}">1 / 3</p>
-      <ul data-oneloyalty-greetings>
-        <li lang="en">Hello</li><li lang="vi">Xin chào</li><li lang="fr">Bonjour</li>
-      </ul>
+      <div data-cls-demo>
+        <div data-layer="before">
+          <div data-async-block></div><div data-cards></div>
+        </div>
+        <div data-layer="after">
+          <div data-async-block><div data-async-content></div></div>
+        </div>
+      </div>
     </article>`;
   return document.querySelector("article") as HTMLElement;
 }
 
-const greeting = () =>
-  document.querySelector<HTMLElement>("[data-oneloyalty-greeting]");
-const counter = () => document.querySelector("[data-oneloyalty-counter]");
-
-beforeEach(() => vi.useFakeTimers());
 afterEach(() => {
-  vi.useRealTimers();
   document.body.innerHTML = "";
 });
 
 describe("oneloyalty", () => {
-  it("runs under reduced motion", () => {
-    expect(oneloyalty.reducedMotion).toBe(true);
+  it("does not run under reduced motion", () => {
+    expect(oneloyalty.reducedMotion).toBeFalsy();
   });
 
   it("scatters below-the-fold blocks and merges them on enter", () => {
@@ -60,87 +57,11 @@ describe("oneloyalty", () => {
     expect(gsap.set).not.toHaveBeenCalled();
   });
 
-  it("swaps greetings instantly under reduced motion while on screen", () => {
+  it("starts the CLS demo when it is below the fold", () => {
     const el = mount();
-    const { ctx, ScrollTrigger, SplitText } = createFakeContext({
-      reduceMotion: true
-    });
-    const cleanup = oneloyalty.run(el, ctx);
-
-    const { onToggle } = ScrollTrigger.create.mock.calls[0]?.[0] as {
-      onToggle: (self: { isActive: boolean }) => void;
-    };
-    onToggle({ isActive: true });
-    vi.advanceTimersByTime(2500);
-    expect(greeting()?.textContent).toBe("Xin chào");
-    expect(greeting()?.lang).toBe("vi");
-    expect(counter()?.textContent).toBe("2 / 3");
-    expect(SplitText.create).not.toHaveBeenCalled();
-
-    onToggle({ isActive: false });
-    vi.advanceTimersByTime(10_000);
-    expect(greeting()?.textContent).toBe("Xin chào");
-
-    cleanup?.();
-    expect(greeting()?.textContent).toBe("Hello");
-    expect(greeting()?.lang).toBe("en");
-    expect(counter()?.textContent).toBe("1 / 3");
-  });
-
-  it("morphs characters out and in with motion", () => {
-    const el = mount();
-    const { ctx, ScrollTrigger, SplitText, gsap } = createFakeContext();
+    placeBelowFold(el.querySelector("[data-cls-demo]") as HTMLElement);
+    const { ctx, gsap } = createFakeContext({ isDesktop: true });
     oneloyalty.run(el, ctx);
-    const { onToggle } = ScrollTrigger.create.mock.calls[0]?.[0] as {
-      onToggle: (self: { isActive: boolean }) => void;
-    };
-    onToggle({ isActive: true });
-    vi.advanceTimersByTime(2500);
-
-    expect(SplitText.create).toHaveBeenCalledWith(
-      greeting(),
-      expect.objectContaining({ type: "chars" })
-    );
-    const outVars = gsap.to.mock.calls.at(-1)?.[1] as {
-      onComplete: () => void;
-    };
-    outVars.onComplete();
-    expect(greeting()?.textContent).toBe("Xin chào");
-    expect(gsap.from).toHaveBeenCalled();
-  });
-
-  it("stops an in-flight morph as soon as the chapter leaves the screen", () => {
-    const el = mount();
-    const { ctx, ScrollTrigger, SplitText, gsap } = createFakeContext();
-    oneloyalty.run(el, ctx);
-    const { onToggle } = ScrollTrigger.create.mock.calls[0]?.[0] as {
-      onToggle: (self: { isActive: boolean }) => void;
-    };
-    onToggle({ isActive: true });
-    vi.advanceTimersByTime(2500);
-    expect(SplitText.create).toHaveBeenCalledTimes(1);
-    const created = SplitText.create.mock.results[0]?.value as ReturnType<
-      typeof SplitText.create
-    >;
-
-    onToggle({ isActive: false });
-    expect(gsap.killTweensOf).toHaveBeenCalled();
-    expect(created.revert).toHaveBeenCalled();
-
-    vi.advanceTimersByTime(10_000);
-    expect(SplitText.create).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not start a second morph while one is already in flight", () => {
-    const el = mount();
-    const { ctx, ScrollTrigger, SplitText } = createFakeContext();
-    oneloyalty.run(el, ctx);
-    const { onToggle } = ScrollTrigger.create.mock.calls[0]?.[0] as {
-      onToggle: (self: { isActive: boolean }) => void;
-    };
-    onToggle({ isActive: true });
-    vi.advanceTimersByTime(2500);
-    vi.advanceTimersByTime(2500);
-    expect(SplitText.create).toHaveBeenCalledTimes(1);
+    expect(gsap.timeline).toHaveBeenCalledTimes(1);
   });
 });

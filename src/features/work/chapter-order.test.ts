@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { getWork, getWorkBySlug } from "@/shared/content";
-import en from "@/shared/i18n/messages/en.json";
-import vi from "@/shared/i18n/messages/vi.json";
 import { chapterOrder } from "./chapter-order";
 
 describe("chapterOrder", () => {
@@ -19,23 +17,12 @@ describe("chapterOrder", () => {
     expect(chapterSlugs).toEqual(contentSlugs);
   });
 
-  it.each([
-    ["en", en],
-    ["vi", vi]
-  ] as const)(
-    "gives every chapter a title, a summary, and exactly two stats in %s",
-    (_locale, messages) => {
-      const work = messages.work as Record<string, unknown>;
-      for (const { key } of chapterOrder) {
-        const entry = work[key] as {
-          title?: string;
-          summary?: string;
-          stats?: Array<{ value: string; label: string }>;
-        };
-        expect(entry.title, key).toBeTruthy();
-        expect(entry.summary, key).toBeTruthy();
-        expect(entry.stats, key).toHaveLength(2);
-      }
+  it("gives every chapter at least two metrics to show", () => {
+    for (const { slug } of chapterOrder) {
+      expect(
+        getWorkBySlug(slug, "en")?.doc.metrics.length,
+        slug
+      ).toBeGreaterThanOrEqual(2);
     }
-  );
+  });
 });

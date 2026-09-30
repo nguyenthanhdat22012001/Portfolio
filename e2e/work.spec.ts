@@ -108,20 +108,50 @@ test("an unknown Vietnamese work slug 404s", async ({ page }) => {
   expect(response?.status()).toBe(404);
 });
 
-test("SafeBulk links to its source and demo next to the case study link", async ({
+test("SafeBulk links to the App Store, source and demo next to the case study link", async ({
   page
 }) => {
   await page.goto("/en");
   const chapter = page.locator('article[data-chapter="safebulk-bulk-editor"]');
   await expect(
-    chapter.getByRole("link", { name: "GitHub", exact: true })
-  ).toHaveAttribute(
+    chapter.getByRole("link", { name: /^Shopify App Store/ })
+  ).toHaveAttribute("href", "https://apps.shopify.com/safebulk-editor");
+  await expect(chapter.getByRole("link", { name: /^GitHub/ })).toHaveAttribute(
     "href",
     "https://github.com/nguyenthanhdat22012001/safe-bulk-shopify"
   );
-  await expect(
-    chapter.getByRole("link", { name: "Demo", exact: true })
-  ).toHaveAttribute("href", /loom\.com/);
+  await expect(chapter.getByRole("link", { name: /^Demo/ })).toHaveAttribute(
+    "href",
+    "https://youtu.be/uaKi8VwIrKE"
+  );
+});
+
+test("Swift and Oneloyalty chapters link only to their case study", async ({
+  page
+}) => {
+  await page.goto("/en");
+  for (const slug of ["swift-performance", "oneloyalty-layered-architecture"]) {
+    await expect(
+      page.locator(`article[data-chapter="${slug}"] a[target="_blank"]`)
+    ).toHaveCount(0);
+  }
+});
+
+test("chapter eyebrows show the company or co-founder role and years", async ({
+  page
+}) => {
+  await page.goto("/en");
+  const eyebrow = (slug: string) =>
+    page.locator(`article[data-chapter="${slug}"] p`).first();
+  await expect(eyebrow("swift-performance")).toHaveText(
+    "01 · FireGroup · 2022–2024"
+  );
+  await expect(eyebrow("oneloyalty-layered-architecture")).toHaveText(
+    "02 · FireGroup · 2024–2026"
+  );
+  await expect(eyebrow("safebulk-bulk-editor")).toHaveText(
+    "03 · Co-founder · 2026"
+  );
 });
 
 test("every chapter shows exactly two stats", async ({ page }) => {
@@ -151,15 +181,17 @@ test("the second chapter shows its visual first on desktop but keeps the heading
   expect(firstTag).toBe("H3");
 });
 
-test("the Oneloyalty visual keeps all eight greetings for screen readers", async ({
+test("the Oneloyalty visual explains the CLS demo to screen readers", async ({
   page
 }) => {
   await page.goto("/en");
-  await expect(
-    page.locator(
-      'article[data-chapter="oneloyalty-layered-architecture"] figure li[lang]'
-    )
-  ).toHaveCount(8);
+  const chapter = page.locator(
+    'article[data-chapter="oneloyalty-layered-architecture"]'
+  );
+  await expect(chapter.locator("[data-cls-demo] .sr-only")).toContainText(
+    "CLS ≤ 0.1"
+  );
+  await expect(chapter.locator("[data-layer]")).toHaveCount(2);
 });
 
 test("a case study header shows role, team, and its store link first", async ({
@@ -178,9 +210,10 @@ test("a case study header shows role, team, and its store link first", async ({
   await expect(links.first()).toHaveAccessibleName(
     /^Shopify App Store.*\(opens in new tab\)$/
   );
-  await expect(
-    header.getByRole("link", { name: /^Demo/ })
-  ).toHaveAttribute("href", "https://youtu.be/uaKi8VwIrKE");
+  await expect(header.getByRole("link", { name: /^Demo/ })).toHaveAttribute(
+    "href",
+    "https://youtu.be/uaKi8VwIrKE"
+  );
 });
 
 test("Swift's header links to its live Shopify listing", async ({ page }) => {
@@ -191,4 +224,30 @@ test("Swift's header links to its live Shopify listing", async ({ page }) => {
   await expect(
     page.locator("article header").getByRole("link", { name: /^Live app/ })
   ).toHaveAttribute("href", "https://apps.shopify.com/swift");
+});
+
+test("the Vietnamese home keeps English chapter content marked as English", async ({
+  page
+}) => {
+  await page.goto("/vi");
+  const chapter = page.locator('article[data-chapter="swift-performance"]');
+  await expect(chapter.locator("h3")).toHaveAttribute("lang", "en");
+  await expect(chapter.locator("dl")).toHaveAttribute("lang", "en");
+  await expect(
+    chapter.getByRole("link", { name: /Đọc case study/ })
+  ).not.toHaveAttribute("lang", "en");
+  await expect(
+    page.locator('article[data-chapter="safebulk-bulk-editor"] p').first()
+  ).toHaveText("03 · Đồng sáng lập · 2026");
+});
+
+test.describe("Swift and Oneloyalty visuals without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("show their final state", async ({ page }) => {
+    await page.goto("/en");
+    await expect(page.locator('[data-step][data-state="done"]')).toHaveCount(4);
+    await expect(page.locator("[data-result-value]")).toHaveText("−20%");
+    await expect(page.locator("[data-layer]")).toHaveCount(2);
+  });
 });

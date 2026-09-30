@@ -210,3 +210,13 @@
     animation-delay: 0s !important;
   }
 }
+
+/* cls-demo skeleton shimmer: transform only, so it stays composited. */
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}

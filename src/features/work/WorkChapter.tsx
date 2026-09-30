@@ -3,6 +3,7 @@ import { motion, type MotionName } from "@/shared/animation/motion";
 import { Link } from "@/shared/i18n/navigation";
 import { cx } from "@/shared/lib/cx";
 import { Eyebrow } from "@/shared/ui/Eyebrow";
+import { ExternalLinks, type ExternalLink } from "@/shared/ui/ExternalLinks";
 import { Stat, type StatEntry } from "@/shared/ui/Stat";
 import { TagList } from "@/shared/ui/TagList";
 
@@ -13,8 +14,10 @@ export function WorkChapter({
   summary,
   stats,
   tags,
+  contentLang,
   readLabel,
   links,
+  newTabLabel,
   visual,
   reversed,
   motionName
@@ -25,8 +28,10 @@ export function WorkChapter({
   summary: string;
   stats: readonly StatEntry[];
   tags: readonly string[];
+  contentLang?: string;
   readLabel: string;
-  links: readonly { href: string; label: string }[];
+  links: readonly ExternalLink[];
+  newTabLabel: string;
   visual: ReactNode;
   reversed: boolean;
   motionName?: MotionName;
@@ -51,18 +56,23 @@ export function WorkChapter({
         >
           <h3
             id={titleId}
+            lang={contentLang}
             className="text-2xl leading-tight font-semibold md:text-[1.75rem]"
           >
             {title}
           </h3>
         </ViewTransition>
-        <p className="text-fg-muted leading-[1.7]">{summary}</p>
-        <dl className="flex flex-wrap gap-8">
+        <p lang={contentLang} className="text-fg-muted leading-[1.7]">
+          {summary}
+        </p>
+        <dl lang={contentLang} className="flex flex-wrap gap-8">
           {stats.map((stat) => (
             <Stat key={stat.label} {...stat} />
           ))}
         </dl>
-        <TagList tags={tags} />
+        <div lang={contentLang}>
+          <TagList tags={tags} />
+        </div>
         <div className="flex flex-wrap gap-6 font-mono text-[0.9375rem] font-medium">
           <Link
             href={`/work/${slug}`}
@@ -73,18 +83,7 @@ export function WorkChapter({
             <span className="sr-only">: {title}</span>
             <span aria-hidden="true">&nbsp;→</span>
           </Link>
-          {links.map(({ href, label }) => (
-            <a
-              key={href}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-fg-muted hover:text-fg"
-            >
-              {label}
-              <span aria-hidden="true">&nbsp;↗</span>
-            </a>
-          ))}
+          <ExternalLinks links={links} newTabLabel={newTabLabel} />
         </div>
       </div>
       <div

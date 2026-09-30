@@ -122,10 +122,9 @@ test.describe("navigation", () => {
     // interaction, same as a first visit.
     await loadMotion(page);
     await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
-    await expect(page.locator("[data-oneloyalty-counter]")).toHaveAttribute(
-      "data-counter-template",
-      /\{current\}/
-    );
+    await expect(
+      page.locator('[data-chapter="swift-performance"] [data-step]')
+    ).toHaveCount(4);
   });
 
   test("clicking Read case study while the Swift chapter is pinned navigates to it", async ({
@@ -140,12 +139,14 @@ test.describe("navigation", () => {
 
     const chapter = page.locator('[data-chapter="swift-performance"]');
     await chapter.scrollIntoViewIfNeeded();
-    const timer = page.locator("[data-swift-timer]");
+    const steps = chapter.locator("[data-step]");
     await expect(async () => {
       await page.mouse.wheel(0, 100);
-      const text = await timer.textContent();
-      expect(text).not.toBe("");
-      expect(text).not.toBe("0.0s");
+      const states = await steps.evaluateAll((els) =>
+        els.map((el) => (el as HTMLElement).dataset.state)
+      );
+      expect(states.some((state) => state !== "pending")).toBe(true);
+      expect(states.some((state) => state !== "done")).toBe(true);
     }).toPass({ timeout: 10_000 });
 
     await chapter.getByRole("link", { name: /Read case study/ }).click();
@@ -228,6 +229,34 @@ test.describe("reduced motion", () => {
     await expect(page.locator("[data-cursor]")).toHaveCount(0);
     await page.locator("#skills").scrollIntoViewIfNeeded();
     await expect(page.locator("#skills li").first()).toHaveCSS("opacity", "1");
+  });
+
+  test("keeps live-progress and the CLS demo in their final state", async ({
+    page
+  }) => {
+    await page.goto("/en");
+    await loadMotion(page);
+    const swift = page.locator('[data-chapter="swift-performance"]');
+    await swift.scrollIntoViewIfNeeded();
+    await expect(swift.locator('[data-step][data-state="done"]')).toHaveCount(
+      4
+    );
+    await expect(swift.locator("[data-result-value]")).toHaveText("−20%");
+    await expect(swift.locator("[data-result-value]")).toHaveCSS(
+      "opacity",
+      "1"
+    );
+    const demo = page.locator("[data-cls-demo]");
+    await demo.scrollIntoViewIfNeeded();
+    await expect(demo.locator("[data-cards]").first()).toHaveCSS(
+      "transform",
+      "none"
+    );
+    await expect(demo.locator("[data-async-content]")).toHaveCSS(
+      "opacity",
+      "1"
+    );
+    await expect(page.locator(".pin-spacer")).toHaveCount(0);
   });
 });
 

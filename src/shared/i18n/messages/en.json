@@ -64,48 +64,31 @@
     "title": "Selected work",
     "readCaseStudy": "Read case study",
     "sideProject": "Side project",
+    "coFounder": "Co-founder",
     "links": { "github": "GitHub", "demo": "Demo" },
     "swift": {
-      "title": "Swift — SEO & Speed Suite",
-      "summary": "Rebuilt the client from legacy JS to strict TypeScript and React 18, then cut load time with code splitting, session tokens and vendor chunking.",
-      "stats": [
-        { "value": "1–3s", "label": "load, from 12–13s" },
-        { "value": "2 teams", "label": "adopted the NPM package" }
-      ],
-      "caption": "Initial load",
-      "beforeLabel": "{value} before",
-      "beforeValue": "12–13s",
-      "afterValue": "1–3s",
-      "steps": ["Code splitting", "Session tokens", "Vendor chunking"]
+      "caption": "Theme optimization · live",
+      "summary": "Theme optimization: 4 steps completed. Initial load reduced by about 20%.",
+      "steps": ["Minify CSS", "Minify JS", "Lazy-load images", "Clean up HTML"],
+      "status": {
+        "pending": "Pending",
+        "running": "Running…",
+        "failed": "Failed · retrying",
+        "done": "Done"
+      },
+      "resultValue": "−20%",
+      "resultLabel": "initial load · code splitting + WebP"
     },
     "oneloyalty": {
-      "title": "Oneloyalty — Loyalty & Rewards",
-      "summary": "Helped unify Admin apps, Storefront extensions and shared packages in one Turborepo, moved my features to a layered architecture, and designed a dependency-injection i18n loader.",
-      "stats": [
-        { "value": "40+", "label": "components de-duplicated" },
-        { "value": "5–10 min", "label": "stable CI builds" }
-      ],
-      "componentsCaption": "40+ shared components",
-      "i18nCaption": "i18n · 8 languages",
-      "counter": "{current} / {total}",
-      "greetings": [
-        { "text": "Hello", "lang": "en" },
-        { "text": "Xin chào", "lang": "vi" },
-        { "text": "Bonjour", "lang": "fr" },
-        { "text": "Hallo", "lang": "de" },
-        { "text": "Hola", "lang": "es" },
-        { "text": "Olá", "lang": "pt" },
-        { "text": "Ciao", "lang": "it" },
-        { "text": "こんにちは", "lang": "ja" }
-      ]
+      "componentsCaption": "Shared <pkg>packages/ui</pkg>",
+      "cls": {
+        "summary": "Before: an async section loads and pushes the cards down. After: space is reserved, nothing moves, CLS ≤ 0.1.",
+        "before": "Before · layout shift",
+        "after": "After · space reserved · CLS ≤ 0.1",
+        "shift": "↓ shift"
+      }
     },
     "safebulk": {
-      "title": "SafeBulk — Bulk Product Editor",
-      "summary": "Sole front-end developer. A 3-step bulk-edit wizard with per-row preview, resumable CSV import/export, and long-running jobs tracked by polling — in strict TypeScript with zero any types.",
-      "stats": [
-        { "value": "12.6k", "label": "lines of TypeScript" },
-        { "value": "520+", "label": "i18n keys" }
-      ],
       "caption": "Bulk edit wizard",
       "stepLabel": "Step {number}",
       "steps": [

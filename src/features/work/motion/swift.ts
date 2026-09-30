@@ -1,59 +1,72 @@
 import type { MotionEffectDef } from "@/shared/animation/types";
 import { isAtOrAboveViewport } from "@/shared/animation/viewport";
-import { formatSwiftTimer } from "./swift-timer";
+import { RESULT_START, resultAt, stateAt } from "./live-progress";
 
-const MOBILE_SECONDS = 1.2;
+// Mobile plays the whole run once: 0.6 s per step, then the result.
+const MOBILE_SECONDS = 3;
 
-// Desktop: pin the chapter and scrub the old 12 s load against the rebuilt
-// 1–3 s one. Mobile: the same timeline plays once, no pin.
+// Desktop: pin the chapter and let scroll progress drive the live theme
+// optimization. Mobile: the same progress plays once, no pin. The server
+// HTML is the final state (4 × done, −20%); cleanup restores it. Only
+// data-state, the result text, and its opacity change — never layout.
 export const swift: MotionEffectDef = {
   run(el, { gsap, isDesktop }) {
-    const before = el.querySelector<HTMLElement>('[data-swift-bar="before"]');
-    const after = el.querySelector<HTMLElement>('[data-swift-bar="after"]');
-    const afterValue = el.querySelector<HTMLElement>("[data-swift-after]");
-    const timer = el.querySelector<HTMLElement>("[data-swift-timer]");
-    const steps = el.querySelectorAll<HTMLElement>("[data-swift-step]");
-    if (!before || !after || !afterValue || !timer) return;
-    if (isAtOrAboveViewport(el)) return;
+    const steps = [...el.querySelectorAll<HTMLElement>("[data-step]")];
+    const result = el.querySelector<HTMLElement>("[data-result-value]");
+    if (steps.length === 0 || !result || isAtOrAboveViewport(el)) return;
 
-    const clock = { progress: 0 };
-    const renderTimer = () => {
-      timer.textContent = formatSwiftTimer(clock.progress);
+    const finalResult = result.textContent ?? "";
+    const failOnce = steps.map((step) => step.hasAttribute("data-fail-once"));
+    const shown = steps.map(() => "");
+    let shownValue = -1;
+    let shownVisible: boolean | null = null;
+
+    const render = (p: number) => {
+      steps.forEach((step, i) => {
+        const state = stateAt(p, i, failOnce[i] ?? false);
+        if (state !== shown[i]) {
+          shown[i] = state;
+          step.dataset.state = state;
+        }
+      });
+      const value = resultAt(p);
+      if (value !== shownValue) {
+        shownValue = value;
+        result.textContent = `−${value}%`;
+      }
+      const visible = p >= RESULT_START;
+      if (visible !== shownVisible) {
+        shownVisible = visible;
+        result.style.opacity = visible ? "1" : "0";
+      }
     };
-    renderTimer();
 
-    const timeline = gsap.timeline({
-      defaults: { ease: "none" },
-      scrollTrigger: isDesktop
+    const progress = { value: 0 };
+    render(0);
+    gsap.to(progress, {
+      value: 1,
+      ease: "none",
+      onUpdate: () => render(progress.value),
+      ...(isDesktop
         ? {
-            trigger: el,
-            start: "center center",
-            end: "+=150%",
-            pin: true,
-            scrub: 0.5
+            scrollTrigger: {
+              trigger: el,
+              start: "center center",
+              end: "+=150%",
+              pin: true,
+              scrub: 0.5
+            }
           }
-        : { trigger: el, start: "top 75%", once: true }
+        : {
+            duration: MOBILE_SECONDS,
+            scrollTrigger: { trigger: el, start: "top 70%", once: true }
+          })
     });
-    timeline
-      .fromTo(before, { scaleX: 0 }, { scaleX: 1, duration: 1 })
-      .fromTo(
-        clock,
-        { progress: 0 },
-        { progress: 1, duration: 1, onUpdate: renderTimer },
-        "<"
-      )
-      .fromTo(
-        after,
-        { scaleX: 0 },
-        { scaleX: 1, duration: 0.2, ease: "power4.out" }
-      )
-      .from(afterValue, { opacity: 0, y: 12, duration: 0.2 }, "<")
-      .from(steps, { opacity: 0.3, duration: 0.3, stagger: 0.1 });
-
-    if (!isDesktop) timeline.timeScale(timeline.duration() / MOBILE_SECONDS);
 
     return () => {
-      timer.textContent = "";
+      for (const step of steps) step.dataset.state = "done";
+      result.textContent = finalResult;
+      result.style.opacity = "";
     };
   }
 };

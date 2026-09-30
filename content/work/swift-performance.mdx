@@ -20,70 +20,38 @@ dateModified: 2026-09-30
 
 ## Context
 
-[Swift](https://apps.shopify.com/swift) is a Shopify embedded app — an SEO and store-speed suite
-that runs inside the Shopify Admin. I joined in October 2022 as a fresher and worked on it until
-June 2024, alongside a senior front-end engineer who joined partway through.
-
-The irony was hard to miss: a product that sells speed took **12–13 seconds** to show its first
-screen.
+Swift is a Shopify embedded app that makes merchants' stores faster and easier to find. It applies speed optimizations to a merchant's storefront theme — JS/CSS minification, image lazy-loading, HTML cleanup — and offers standalone SEO tools. I joined in 2022 as a fresher on a team of nine, two of us on the front end, and built the admin screens merchants use to run those tools.
 
 ## Problem
 
-The client was legacy JavaScript with no type safety, and every route shipped in one bundle.
-Opening the app also meant waiting on a chain of requests: first an auth token from our server,
-then the shop's details and plan, and only then the first render. Each step took seconds.
-
-At the time I didn't have enough evidence to say where the real bottleneck lived. The auth flow
-looked like a leftover from the era when Shopify apps could still run standalone, but that was a
-suspicion, not a finding.
+- **The codebase was plain JavaScript.** Type errors only showed up at runtime, and features were hard to find and extend.
+- **Optimizations are slow and they touch a live store.** Minifying and rewriting a theme runs as a long backend job. Without feedback, a merchant is left watching a spinner, unsure whether their storefront changed, is still changing, or failed.
+- **A speed app that loaded slowly.** The app's own first screen took too long to appear — not a good look for a product that sells speed.
 
 ## Solution
 
-**1. Fix what the front end controls first.** Rather than wait for a root-cause verdict, I
-introduced route-based code splitting with `React.lazy` and `Suspense`, so the browser only
-downloaded the code for the screen being opened. That took initial load from ~12–13s to
-**~8–9s**. I logged my auth-flow suspicion so it could be picked up later.
+**1. JavaScript to TypeScript.** I co-implemented a senior-led migration of the entire codebase to TypeScript and into a Feature-Driven Architecture. Type errors moved from production to compile time, and each feature got its own folder that was easy to locate and extend.
 
-**2. Rebuild on strict TypeScript and React 18.** Together with the senior engineer, I moved the
-core client from JavaScript to strict TypeScript and React 18, overhauling state management
-(Redux Toolkit) and the data layer. The types made the later changes safe to attempt.
+**2. A progress UI in real time.** I built the screen merchants watch while an optimization runs. Over **Pusher**, the backend streams each step — minifying CSS, minifying JS, lazy-loading images, cleaning up HTML — and the UI shows live step-by-step status with a clear success or failure for each one. Merchants can keep working in the app meanwhile. Because the backend stays the source of truth, a missed intermediate event after a reconnect is harmless: the next event brings the UI back to the right state.
 
-**3. Replace the slow auth handshake.** The senior engineer led the migration to App Bridge 2.0
-session tokens, and I collaborated on it along with vendor chunking. A session token is a
-short-lived JWT signed by Shopify; the backend only verifies the signature and claims instead of
-looking anything up, so authentication dropped from seconds to milliseconds.
+**3. SEO tools.** I built the interfaces for the standalone SEO tools: alt-text automation, meta tag editing, structured snippets and sitemap management.
 
-### Deep dive: an NPM package two teams could adopt independently
-
-Swift and a sister app both needed a store speed-audit UI. I designed and published it as an
-internal NPM package, built around **inversion of control**:
-
-- The component takes plain props (`store_id`, `shopify_domain`, `language`) plus callbacks such
-  as `onClickFixSpeed`. The host app decides what "fix" means; the package never reaches into
-  host internals.
-- React and the shared UI library are `peerDependencies`, not bundled, so host apps never end up
-  with two copies of React and never pay twice in bundle size.
-
-Two teams adopted it and later contributed to it.
+**4. A faster first screen.** The biggest delay turned out to sit outside the front end, but I started with what I owned: route-based **code splitting** (`React.lazy` + `Suspense`) so the first screen no longer waited for the whole app, and converting images to optimized **WebP**. Together they cut initial page load by about **20%**.
 
 ## Results
 
-- Initial load: **~12–13s → ~8–9s** from code splitting alone, then **~1–3s** after the
-  session-token migration and vendor chunking.
-- A strictly typed codebase that later changes could be made against with confidence.
-- One shared audit package instead of two diverging implementations.
+| Metric | Result |
+| --- | --- |
+| Initial page load | **~20% faster** (code splitting + WebP) |
+| Codebase | **JavaScript → TypeScript**, Feature-Driven Architecture |
+| Optimization feedback | Live, step-by-step status with success/failure per step |
+| SEO tools shipped | **4**: alt text, meta tags, structured snippets, sitemaps |
 
-I also built the UI for the theme-optimization features (JS/CSS minification, image lazy-loading,
-HTML cleanup) and the SEO tooling (alt-text automation, meta tags, structured snippets,
-sitemaps), with merchants verifying the before/after in PageSpeed Insights.
+## Takeaways
 
-## Key takeaways
+- **Improve what you control while you investigate.** The root cause of the slow start was not in my code, but code splitting still made the app faster for merchants in the meantime.
+- **Long-running work needs visible progress.** A step list with honest failure states builds more trust than a spinner that finishes silently.
+- **Types are worth the migration.** Moving to TypeScript paid off by catching mistakes at compile time instead of in front of merchants.
+- **Be clear about whose decision it was.** The migration was senior-led; my part was implementing it alongside them and owning the screens described here.
 
-- **Ship the win you can prove while you investigate the one you can't.** Code splitting bought
-  ~4 seconds before anyone had confirmed the auth bottleneck.
-- **Load time is a chain, not a bundle.** The biggest gain came from removing a round trip, not
-  from shrinking JavaScript.
-- **What I'd do differently on the package:** its versioning was manual and it had no changelog,
-  so two teams coordinated breaking changes by conversation. Today I'd use Changesets from day
-  one. I'd also authenticate follow-up calls with a short-lived token rather than trusting
-  `store_id` alone.
+{/* TODO(Dat): screenshot of the optimization progress screen (blur the store name). */}

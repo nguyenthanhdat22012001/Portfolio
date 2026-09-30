@@ -20,75 +20,50 @@ dateModified: 2026-09-30
 
 ## Context
 
-[Oneloyalty](https://apps.shopify.com/oneloyalty) is a loyalty and rewards suite for Shopify
-merchants: an embedded admin app plus storefront extensions, available in 8 languages. I worked
-on it as a Middle Front-End Engineer from June 2024 to August 2026.
+Oneloyalty is a loyalty and rewards suite for Shopify stores: points, VIP tiers, rewards, campaigns and gamification. It has two front ends — an admin app inside Shopify Admin and storefront extensions shoppers see — which started out in two separate repositories. I was one of two front-end engineers on a team of nine and owned the reward-related features, from the MVP through a large revamp.
 
 ## Problem
 
-The product lived in two repositories: the admin app and the storefront extension. The admin app
-needed the extension's UI, so components were duplicated. Our first fix was to publish the shared
-UI to the GitLab Package Registry — which meant access tokens for everyone and a slow
-build → `npm link` → test → publish loop for every small UI change.
-
-A second problem surfaced once we started moving code. The codebase was organized by feature, but
-features imported each other's hooks and types freely: A used B, B used A and C. Pulling any one
-feature out triggered a cascade of breakages.
-
-And all of this happened during a near-total feature revamp with a tight deadline.
+- **Duplicated UI across two repos.** The admin app reused the extensions' components through a package published to GitLab Package Registry, with `npm link` during development: access tokens for everyone and a slow build → link → test → publish loop for every UI change.
+- **Features importing each other.** Code was organized by feature, but features reached into each other's hooks and types. A reward type, `TDataRewards`, lived inside the Rewards feature yet was imported by Campaign and VIP Tier. Part of that coupling was mine: during the MVP I treated two response shapes of the same reward concept as two concepts and duplicated their types.
+- **A dashboard that jumped.** Sections loaded asynchronously and pushed the rest of the page around. For a Shopify app that matters beyond polish: the **Built for Shopify** badge, which lifts App Store ranking and recommendations, requires CLS ≤ 0.1.
+- **More library than the job needed.** Forms and client state ran on Formik and Redux Toolkit, with slice/action boilerplate for state that React Query already covered on the server side.
+- **i18n set up more than once.** i18next could be initialized from more than one place, which led to duplicate-initialization bugs.
+- **A pipeline that blocked releases.** Front-end deploys failed on GitLab CI, holding up releases.
 
 ## Solution
 
-**1. One monorepo.** A senior engineer chose Turborepo and set up the workspace; the admin apps,
-storefront extensions, and shared packages (`packages/ui`, `packages/i18n`) moved into it. Shared
-packages are consumed via the workspace protocol — edit a component once and every app sees it,
-no publishing.
+**One repository, a plan everyone could live with.** I implemented a senior-led migration of both repos into a **Turborepo** monorepo, extracting duplicated components into a shared `packages/ui`. A UI change now reaches every app at once, with nothing to publish. While moving code, the senior proposed also switching features from feature-driven to a **layered architecture** to end the cross-imports. I pushed back — re-architecting during a revamp could cost the deadline. We argued it through and agreed on a plan that addressed both worries: migrate feature by feature, starting with the one most others depended on (Rewards); each developer migrates the features they own; consolidate shared UI in parallel, never blocking revamp work. For `TDataRewards`, I moved the type into a neutral shared layer so Rewards, Campaign and VIP Tier depend on it instead of on each other. When hotfixes landed on a component mid-migration, I patched both copies the same day. The migration shipped on schedule.
 
-**2. Feature-Driven → Layered Architecture.** We froze new features for a short window and split
-the migration by ownership. Features that others depended on most (such as the rewards inventory)
-went first, then core earn/redeem flows, then the rest. I owned the migration of Rewards,
-Settings, Campaign, and Gamification, plus the shared UI and i18n layers.
+**CLS ≤ 0.1 by reserving space.** I found which async sections shifted the layout and gave each one its space up front — a fixed `height` where the final size is known, `min-height` where content length varies — so skeletons match what arrives. The dashboard reached **CLS ≤ 0.1** and kept the Built for Shopify badge.
 
-The hardest part was the shared UI components. There were many, so they moved gradually — and
-when a production hotfix landed on a component that was mid-migration, it had to be applied in
-both places the same day so the fix wouldn't be lost.
+**Lighter forms and state.** I replaced Formik + Redux Toolkit with **React Hook Form + Zustand**. React Hook Form's uncontrolled inputs avoid re-rendering the whole form on each keystroke, Zustand needs no slices or actions, and existing Yup schemas carried over through a resolver. The change removed **~14 kB gzipped (~55%)** of form and state library code.
 
-### Deep dive: breaking the dependency knot
+**One i18n instance.** I built a shared `packages/i18n` that exposes a **single i18next instance** for every app, which ended the duplicate-initialization bugs and gave the team one way to use translations.
 
-A typical example was `TDataRewards`, the type describing reward data. It was defined inside the
-Rewards feature, yet Campaign and VIP Tier imported it directly. A reward is a system-wide entity,
-not a Rewards-feature detail — defining it there made unrelated features depend on Rewards'
-internals, the kind of coupling that becomes a true cycle as the system grows.
+**Fixing a class of bug, not one bug.** QC caught campaign start/end times displayed in server time rather than the store's timezone. I fixed it the same day, then checked every other date on screen unasked — and found point and billing history logs had shown the wrong timezone in production for months. I replaced the one-off fix with a **shared hook** for store-timezone conversion used everywhere.
 
-The fix was to lift it into a neutral shared layer. Rewards, Campaign, and VIP Tier now import
-from that layer instead of from each other.
+**Owning the deploy pipeline.** I took over the front-end deployment pipeline on GitLab CI/CD: fixed Node version mismatches between local and CI images, and removed an unnecessary install of the Extensions project that a `prepare` hook triggered inside the Admin job. Front-end releases were unblocked.
 
-### Deep dive: i18n with injected loaders
-
-I designed the loader architecture for `packages/i18n`. The package owns the core configuration —
-the 8 supported languages, English fallback, a singleton `initI18n` — but it does not hard-code
-where translations come from. Each app (admin, storefront) injects its own loader.
-
-Translations are fetched at runtime rather than stored as JSON in the repo, so customer support
-and translators can update copy without a deploy. `Suspense` holds rendering until translations
-arrive, so users never see raw keys flash on screen.
+**AI with guardrails.** I brought **GitHub Copilot** into the team workflow with project rules and instructions, so AI-generated code followed our conventions, which sped up delivery, debugging and refactoring.
 
 ## Results
 
-- Duplication removed across **40+ shared UI components**.
-- One place to change shared UI; fixing one feature stopped breaking another.
-- CI/CD for the whole monorepo kept stable at **5–10 minutes**. Along the way I traced two
-  pipeline failures to their causes: a Node version mismatch in the CI image, and a `prepare` hook
-  that silently ran a nested `npm install` for an unrelated project.
-- The revamp shipped on its deadline, with the architecture migration completed on time.
+| Metric | Result |
+| --- | --- |
+| Dashboard CLS | **≤ 0.1** — Built for Shopify badge retained |
+| Form + state libraries | **−14 kB gzip (~55%)**, no Redux boilerplate |
+| Repositories | **2 → 1** Turborepo, shared `packages/ui` and `packages/i18n` |
+| Architecture migration | Shipped **on schedule**, during the revamp |
+| i18n | **1** shared i18next instance, no duplicate-init bugs |
+| Front-end releases | Pipeline fixed and owned; releases unblocked |
 
-## Key takeaways
+## Takeaways
 
-- **Naming an architecture isn't enough — enforce it.** Deadlines erode conventions. Boundary
-  rules such as `eslint-plugin-boundaries` should exist from the first day, not after coupling
-  has set in. (This portfolio's own repo enforces its layers that way.)
-- **Some of the duplication was mine.** During the MVP I treated two differently shaped API
-  responses as two kinds of reward and wrote separate types for each. Consolidating them later
-  taught me to model the domain before modelling the payload.
-- **What I'd add next:** telemetry for missing translation keys, plus a static English bundle as
-  a fallback when the translation API is unavailable.
+- **Disagreeing well means finding the plan, not the winner.** My worry about time was right — the migration did cost extra work. So was the worry about coupling. The step-by-step plan let both be true and still hit the deadline.
+- **Performance can be a product requirement.** CLS was not a nice-to-have here; it decided whether the app kept a badge that drives installs.
+- **Naming an architecture is not enforcing it.** Next time I would add boundary lint rules (such as `eslint-plugin-boundaries`) on day one.
+- **Technical debt compounds.** A small MVP shortcut grew into an architecture problem later. I now pay debt back early.
+- **When you find a bug, look for its siblings.** The worst version of the timezone bug was the one nobody reported.
+
+{/* TODO(Dat): before/after screenshots of the dashboard with reserved layout space. */}

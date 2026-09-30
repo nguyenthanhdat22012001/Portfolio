@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { getWorkBySlug } from "@/shared/content";
 
 const doc = (slug: string) => {
@@ -23,5 +25,32 @@ describe("case-study frontmatter matches CV v2", () => {
       github: "https://github.com/nguyenthanhdat22012001/safe-bulk-shopify",
       demo: "https://youtu.be/uaKi8VwIrKE"
     });
+  });
+});
+
+const files = [
+  "swift-performance",
+  "oneloyalty-layered-architecture",
+  "safebulk-bulk-editor"
+].map((slug) => [
+  slug,
+  readFileSync(path.join(process.cwd(), "content/work", `${slug}.mdx`), "utf8")
+] as const);
+
+describe("case-study bodies carry no CV v1 claims", () => {
+  it.each(files)("%s", (_slug, source) => {
+    for (const stale of [
+      "12–13s", "1–3s", "8–9s", "40+", "5–10 min", "12.6k", "520+",
+      "8 languages", "8-language", "4 tiers", "two product teams",
+      "loom.com", "Loom"
+    ]) {
+      expect(source).not.toContain(stale);
+    }
+  });
+
+  it("every body opens with a Context section", () => {
+    for (const [, source] of files) {
+      expect(source).toMatch(/\n## Context\n/);
+    }
   });
 });

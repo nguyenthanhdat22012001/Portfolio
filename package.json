@@ -7,6 +7,7 @@
     "dev": "next dev",
     "prebuild": "velite build --strict",
     "build": "next build --webpack",
+    "check:claims": "node scripts/check-stale-claims.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "velite build --strict && tsc --noEmit",

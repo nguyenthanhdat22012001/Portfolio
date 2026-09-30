@@ -310,3 +310,78 @@ test("shrinking a desktop window to mobile removes pins", async ({ page }) => {
     page.locator('[data-chapter="swift-performance"] h3')
   ).toBeVisible();
 });
+
+test.describe("layout stability", () => {
+  test.use({ viewport: { width: 1440, height: 900 } });
+
+  test("Home keeps CLS under 0.1 while scrolling to the bottom", async ({
+    page
+  }) => {
+    // Session-window CLS, as Core Web Vitals defines it: shifts less than
+    // 1 s apart and within 5 s form a window; CLS is the worst window.
+    await page.addInitScript(() => {
+      const state = { cls: 0, current: 0, first: 0, last: 0 };
+      (window as unknown as { __cls: typeof state }).__cls = state;
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries() as unknown as Array<{
+          value: number;
+          startTime: number;
+          hadRecentInput: boolean;
+        }>) {
+          if (entry.hadRecentInput) continue;
+          const continues =
+            state.current > 0 &&
+            entry.startTime - state.last < 1000 &&
+            entry.startTime - state.first < 5000;
+          state.current = continues ? state.current + entry.value : entry.value;
+          if (!continues) state.first = entry.startTime;
+          state.last = entry.startTime;
+          state.cls = Math.max(state.cls, state.current);
+        }
+      }).observe({ type: "layout-shift", buffered: true });
+    });
+
+    await page.goto("/en");
+    await loadMotion(page);
+    await expect(async () => {
+      await page.mouse.wheel(0, 600);
+      const atBottom = await page.evaluate(
+        () =>
+          window.scrollY + window.innerHeight >=
+          document.documentElement.scrollHeight - 2
+      );
+      expect(atBottom).toBe(true);
+    }).toPass({ timeout: 30_000 });
+
+    const cls = await page.evaluate(
+      () => (window as unknown as { __cls: { cls: number } }).__cls.cls
+    );
+    console.log(`home CLS after scrolling: ${cls.toFixed(4)}`);
+    expect(cls).toBeLessThan(0.1);
+  });
+
+  test("round trips to a case study don't leak ScrollTrigger pins", async ({
+    page
+  }) => {
+    await page.goto("/en");
+    await loadMotion(page);
+    const pins = page.locator(".pin-spacer");
+    await expect(pins).not.toHaveCount(0);
+    const baseline = await pins.count();
+
+    for (let trip = 0; trip < 5; trip += 1) {
+      await page
+        .locator('[data-chapter="swift-performance"]')
+        .getByRole("link", { name: /Read case study/ })
+        .click();
+      await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+      await page.getByRole("link", { name: /←/ }).click();
+      await expect(page).toHaveURL(/\/en#work$/);
+      // Coming back to #work lands on the first chapter, which the effects
+      // skip pinning when it is already at the viewport top, so the count may
+      // drop; it must never grow.
+      await page.waitForTimeout(1000);
+      expect(await pins.count()).toBeLessThanOrEqual(baseline);
+    }
+  });
+});

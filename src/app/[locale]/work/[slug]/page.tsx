@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { pickLinks } from "@/shared/content/links";
 import { getWorkBySlug, getWorkLocales, getWorkParams } from "@/shared/content";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { MdxContent } from "@/shared/mdx/MdxContent";
@@ -52,6 +53,7 @@ export default async function WorkCaseStudyPage({
   const format = await getFormatter();
   const { doc, isFallback } = entry;
   const tSeo = await getTranslations("seo");
+  const tLinks = await getTranslations("links");
   const path = `/work/${slug}`;
 
   return (
@@ -64,8 +66,8 @@ export default async function WorkCaseStudyPage({
             availableLocales: getWorkLocales(slug),
             title: doc.title,
             description: doc.description,
-            dateCreated: doc.dateCreated,
-            tags: doc.tags,
+            dateCreated: doc.period.start,
+            tags: doc.stack,
             contentLocale: doc.locale
           }),
           buildBreadcrumbs([
@@ -81,12 +83,18 @@ export default async function WorkCaseStudyPage({
           title={doc.title}
           summary={doc.summary}
           meta={t("started", {
-            date: format.dateTime(new Date(doc.dateCreated), {
+            date: format.dateTime(new Date(doc.period.start), {
               year: "numeric",
               month: "long"
             })
           })}
-          tags={doc.tags}
+          tags={doc.stack}
+          byline={[doc.role, doc.team].filter(Boolean).join(" · ")}
+          links={pickLinks(doc.links).map(({ key, href }) => ({
+            href,
+            label: tLinks(key)
+          }))}
+          newTabLabel={tLinks("opensInNewTab")}
           notice={isFallback ? t("fallbackNotice") : undefined}
           contentLang={isFallback ? routing.defaultLocale : undefined}
           titleTransitionName={`work-title-${slug}`}

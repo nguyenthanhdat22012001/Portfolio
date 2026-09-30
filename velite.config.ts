@@ -1,19 +1,10 @@
 import { defineCollection, defineConfig, s } from "velite";
+import { workFrontmatter } from "./src/shared/content/work-schema";
 
 const work = defineCollection({
   name: "Work",
   pattern: "work/**/*.mdx",
-  schema: s.object({
-    slug: s.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-    title: s.string().max(60),
-    summary: s.string(),
-    // Meta/OG only; the page keeps rendering `summary`.
-    description: s.string().min(140).max(160),
-    locale: s.enum(["en", "vi"]),
-    tags: s.array(s.string()),
-    dateCreated: s.isodate(),
-    content: s.mdx()
-  })
+  schema: workFrontmatter.extend({ content: s.mdx() })
 });
 
 const blog = defineCollection({

@@ -7,7 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     work: getAllWork().map((doc) => ({
       slug: doc.slug,
       locale: doc.locale,
-      lastModified: doc.dateCreated
+      lastModified: doc.dateModified ?? doc.period.start
     })),
     posts: getAllPosts().map((doc) => ({
       slug: doc.slug,

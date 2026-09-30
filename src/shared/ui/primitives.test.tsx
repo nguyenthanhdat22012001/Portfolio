@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { ExternalLinks } from "./ExternalLinks";
 import { PlaceholderSlot } from "./PlaceholderSlot";
 import { SectionHeading } from "./SectionHeading";
 import { StackedLines } from "./StackedLines";
@@ -82,4 +83,28 @@ describe("TagList", () => {
       expect(host.querySelectorAll("li")).toHaveLength(2);
     }
   );
+});
+
+describe("ExternalLinks", () => {
+  it("opens each link in a new tab and says so to screen readers", () => {
+    const host = render(
+      <ExternalLinks
+        links={[{ href: "https://github.com/x", label: "GitHub" }]}
+        newTabLabel="(opens in new tab)"
+      />
+    );
+    const link = host.querySelector("a");
+    expect(link?.getAttribute("target")).toBe("_blank");
+    expect(link?.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(link?.textContent).toBe("GitHub\u00a0↗ (opens in new tab)");
+    expect(host.querySelector("a .sr-only")?.textContent).toBe(
+      " (opens in new tab)"
+    );
+  });
+
+  it("renders nothing without links", () => {
+    expect(
+      renderToStaticMarkup(<ExternalLinks links={[]} newTabLabel="x" />)
+    ).toBe("");
+  });
 });

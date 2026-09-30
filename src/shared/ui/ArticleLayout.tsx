@@ -1,6 +1,7 @@
 import { ViewTransition, type ComponentProps, type ReactNode } from "react";
 import { Link } from "@/shared/i18n/navigation";
 import { Container } from "./Container";
+import { ExternalLinks, type ExternalLink } from "./ExternalLinks";
 import { TagList } from "./TagList";
 
 export function ArticleLayout({
@@ -10,6 +11,9 @@ export function ArticleLayout({
   summary,
   meta,
   tags,
+  byline,
+  links,
+  newTabLabel,
   notice,
   contentLang,
   titleTransitionName,
@@ -21,6 +25,9 @@ export function ArticleLayout({
   summary: string;
   meta: string;
   tags: readonly string[];
+  byline?: string;
+  links?: readonly ExternalLink[];
+  newTabLabel?: string;
   notice?: string;
   contentLang?: string;
   titleTransitionName?: string;
@@ -58,8 +65,20 @@ export function ArticleLayout({
             <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
           )}
           <p className="text-fg-muted mt-4 text-lg">{summary}</p>
+          {byline ? (
+            <p data-testid="article-byline" className="mt-4 text-sm">
+              {byline}
+            </p>
+          ) : null}
           <p className="text-fg-muted mt-4 font-mono text-sm">{meta}</p>
           <TagList tags={tags} className="mt-4" />
+          {links && newTabLabel ? (
+            <ExternalLinks
+              links={links}
+              newTabLabel={newTabLabel}
+              className="mt-6 font-mono text-sm font-medium"
+            />
+          ) : null}
         </header>
         <div className="mt-10">{children}</div>
       </article>

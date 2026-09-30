@@ -114,6 +114,13 @@
       ]
     }
   },
+  "links": {
+    "appStore": "Shopify App Store",
+    "live": "Live app",
+    "github": "GitHub",
+    "demo": "Demo",
+    "opensInNewTab": "(opens in new tab)"
+  },
   "skills": {
     "label": "Skills",
     "title": "Toolbox",

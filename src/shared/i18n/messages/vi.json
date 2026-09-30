@@ -114,6 +114,13 @@
       ]
     }
   },
+  "links": {
+    "appStore": "Shopify App Store",
+    "live": "Xem ứng dụng",
+    "github": "GitHub",
+    "demo": "Demo",
+    "opensInNewTab": "(mở trong tab mới)"
+  },
   "skills": {
     "label": "Kỹ năng",
     "title": "Bộ công cụ",

@@ -161,3 +161,34 @@ test("the Oneloyalty visual keeps all eight greetings for screen readers", async
     )
   ).toHaveCount(8);
 });
+
+test("a case study header shows role, team, and its store link first", async ({
+  page
+}) => {
+  await page.goto("/en/work/safebulk-bulk-editor");
+  const header = page.locator("article header");
+  await expect(header.getByTestId("article-byline")).toHaveText(
+    "Co-founder · Sole Front-End Developer · 1 FE, 1 BE"
+  );
+  const links = header.getByRole("link");
+  await expect(links.first()).toHaveAttribute(
+    "href",
+    "https://apps.shopify.com/safebulk-editor"
+  );
+  await expect(links.first()).toHaveAccessibleName(
+    /^Shopify App Store.*\(opens in new tab\)$/
+  );
+  await expect(
+    header.getByRole("link", { name: /^Demo/ })
+  ).toHaveAttribute("href", "https://youtu.be/uaKi8VwIrKE");
+});
+
+test("Swift's header links to its live Shopify listing", async ({ page }) => {
+  await page.goto("/en/work/swift-performance");
+  await expect(page.getByTestId("article-byline")).toHaveText(
+    "Front-End Engineer (joined as a fresher) · Team of 9 (2 FE)"
+  );
+  await expect(
+    page.locator("article header").getByRole("link", { name: /^Live app/ })
+  ).toHaveAttribute("href", "https://apps.shopify.com/swift");
+});

@@ -25,9 +25,12 @@ export async function HeroSection() {
           >
             <StackedLines lines={titleLines} />
           </h1>
-          <p className="text-fg-muted max-w-[32.5rem] text-lg leading-relaxed md:text-xl">
-            {t("tagline")}
-          </p>
+          <div className="flex max-w-[32.5rem] flex-col gap-3">
+            <p className="text-fg-muted text-lg leading-relaxed md:text-xl">
+              {t("tagline")}
+            </p>
+            <p className="text-fg-muted font-mono text-sm">{t("subline")}</p>
+          </div>
           <div className="mt-2 flex flex-wrap gap-3">
             <ButtonLink href="#work" {...magnetic()}>
               {t("ctaWork")}

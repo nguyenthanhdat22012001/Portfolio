@@ -37,7 +37,8 @@
   "hero": {
     "role": "Front-End Engineer · Ho Chi Minh City",
     "titleLines": ["Nguyen", "Thanh Dat"],
-    "tagline": "I build fast, well-structured React & TypeScript apps — 4 years shipping Shopify embedded apps for global merchants.",
+    "tagline": "I build fast, well-structured React apps — and measure the difference.",
+    "subline": "Front-End Engineer · ~4 years building production eCommerce apps for Shopify merchants.",
     "ctaWork": "View work",
     "ctaCv": "Download CV",
     "scrollHint": "Scroll"
@@ -45,17 +46,17 @@
   "about": {
     "label": "About",
     "title": "From fresher to mid-level engineer",
-    "lead": "Front-End Engineer with ~4 years building Shopify embedded apps. I rebuilt a production client from legacy JavaScript to strict TypeScript, helped restructure a multi-app monorepo into a layered architecture, and designed an 8-language i18n loader.",
-    "body": "For every feature I write the spec before the code, agree on API contracts early, and use AI tools like Claude and Copilot to move faster on refactors — then verify the result myself.",
+    "lead": "Front-End Engineer with ~4 years building production eCommerce apps for Shopify merchants with React, TypeScript and Tailwind CSS — and, more recently, Next.js. I care about code that stays easy to change (layered architecture, shared packages in a monorepo, a JavaScript-to-TypeScript migration) and about products that feel fast and steady, like bringing a dashboard's CLS to ≤ 0.1.",
+    "body": "I work closely with designers, backend engineers and product owners in Scrum teams. On my own product, SafeBulk, I wrote the business-logic specs myself and shipped the MVP in about 1.5 months.",
     "stats": [
       { "value": "4", "label": "years of front-end" },
       { "value": "3", "label": "Shopify apps shipped" },
-      { "value": "8", "label": "languages in one i18n system" }
+      { "value": "1.5", "label": "months from idea to MVP" }
     ],
     "timeline": [
-      { "year": "2022", "text": "Joined FireGroup — Swift" },
-      { "year": "2024", "text": "Oneloyalty monorepo" },
-      { "year": "2026", "text": "SafeBulk (side project)" }
+      { "year": "2022", "text": "Joined FireGroup · Swift" },
+      { "year": "2024", "text": "Middle Engineer · Oneloyalty" },
+      { "year": "2026", "text": "Co-founded SafeBulk" }
     ]
   },
   "work": {

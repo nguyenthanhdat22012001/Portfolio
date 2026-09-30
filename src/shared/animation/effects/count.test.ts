@@ -61,4 +61,22 @@ describe("count", () => {
     count.run(el, ctx);
     expect(el.textContent).toBe("0.0k");
   });
+
+  it("counts 1.5 with one decimal and restores it", () => {
+    const el = mount("1.5");
+    placeBelowFold(el);
+    const { ctx, gsap } = createFakeContext();
+    const cleanup = count.run(el, ctx);
+    expect(el.textContent).toBe("0.0");
+    const [state, vars] = gsap.to.mock.calls[0] as [
+      { value: number },
+      { value: number; onUpdate: () => void }
+    ];
+    expect(vars.value).toBe(1.5);
+    state.value = 0.75;
+    vars.onUpdate();
+    expect(el.textContent).toBe("0.8");
+    cleanup?.();
+    expect(el.textContent).toBe("1.5");
+  });
 });

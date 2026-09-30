@@ -221,3 +221,45 @@ test("focus rings inside the accent email pill stay visible", async ({
     expect(outline).not.toBe(pill);
   }
 });
+
+const heroCopy = {
+  en: {
+    tagline:
+      "I build fast, well-structured React apps — and measure the difference.",
+    subline:
+      "Front-End Engineer · ~4 years building production eCommerce apps for Shopify merchants."
+  },
+  vi: {
+    tagline:
+      "Mình xây ứng dụng React nhanh, có cấu trúc — và đo được sự khác biệt.",
+    subline:
+      "Front-End Engineer · ~4 năm xây ứng dụng eCommerce production cho merchant Shopify."
+  }
+} as const;
+
+for (const locale of ["en", "vi"] as const) {
+  test(`/${locale} hero shows the CV v2 tagline and subline`, async ({
+    page
+  }) => {
+    await page.goto(`/${locale}`);
+    const hero = page.locator("#top");
+    await expect(hero.getByText(heroCopy[locale].tagline)).toBeVisible();
+    await expect(hero.getByText(heroCopy[locale].subline)).toBeVisible();
+  });
+}
+
+test.describe("without JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("About shows its final stats, including 1.5", async ({ page }) => {
+    await page.goto("/en");
+    await expect(page.locator("section#about dl dd")).toHaveText([
+      "4",
+      "3",
+      "1.5"
+    ]);
+    await expect(page.locator("section#about ol li").last()).toContainText(
+      "Co-founded SafeBulk"
+    );
+  });
+});

@@ -37,7 +37,8 @@
   "hero": {
     "role": "Kỹ sư Front-End · TP. Hồ Chí Minh",
     "titleLines": ["Nguyễn", "Thành Đạt"],
-    "tagline": "Mình xây ứng dụng React & TypeScript nhanh, có cấu trúc — 4 năm làm Shopify embedded app cho merchant trên toàn thế giới.",
+    "tagline": "Mình xây ứng dụng React nhanh, có cấu trúc — và đo được sự khác biệt.",
+    "subline": "Front-End Engineer · ~4 năm xây ứng dụng eCommerce production cho merchant Shopify.",
     "ctaWork": "Xem dự án",
     "ctaCv": "Tải CV",
     "scrollHint": "Cuộn"
@@ -45,17 +46,17 @@
   "about": {
     "label": "Giới thiệu",
     "title": "Từ fresher đến kỹ sư mid-level",
-    "lead": "Kỹ sư Front-End với ~4 năm xây dựng Shopify embedded app. Mình đã viết lại một client production từ JavaScript cũ sang TypeScript strict, cùng tái cấu trúc một monorepo nhiều app theo kiến trúc phân lớp, và thiết kế bộ nạp i18n cho 8 ngôn ngữ.",
-    "body": "Với mỗi tính năng, mình viết spec trước khi code, thống nhất API contract sớm, và dùng các công cụ AI như Claude và Copilot để refactor nhanh hơn — rồi tự kiểm chứng kết quả.",
+    "lead": "Front-End Engineer với ~4 năm xây ứng dụng eCommerce production cho merchant Shopify bằng React, TypeScript và Tailwind CSS — gần đây thêm Next.js. Mình quan tâm tới code dễ thay đổi (layered architecture, shared package trong monorepo, migration JavaScript sang TypeScript) và sản phẩm nhanh, ổn định — như đưa CLS của một dashboard về ≤ 0.1.",
+    "body": "Mình làm việc sát với designer, backend engineer và PO trong team Scrum. Với sản phẩm của riêng mình, SafeBulk, mình tự viết spec business logic và ra MVP trong khoảng 1.5 tháng.",
     "stats": [
       { "value": "4", "label": "năm làm front-end" },
       { "value": "3", "label": "Shopify app đã ra mắt" },
-      { "value": "8", "label": "ngôn ngữ trong một hệ i18n" }
+      { "value": "1.5", "label": "tháng từ ý tưởng tới MVP" }
     ],
     "timeline": [
-      { "year": "2022", "text": "Gia nhập FireGroup — Swift" },
-      { "year": "2024", "text": "Monorepo Oneloyalty" },
-      { "year": "2026", "text": "SafeBulk (dự án cá nhân)" }
+      { "year": "2022", "text": "Gia nhập FireGroup · Swift" },
+      { "year": "2024", "text": "Middle Engineer · Oneloyalty" },
+      { "year": "2026", "text": "Đồng sáng lập SafeBulk" }
     ]
   },
   "work": {

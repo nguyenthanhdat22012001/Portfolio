@@ -63,9 +63,7 @@
     "label": "Dự án tiêu biểu",
     "title": "Dự án tiêu biểu",
     "readCaseStudy": "Đọc case study",
-    "sideProject": "Dự án cá nhân",
     "coFounder": "Đồng sáng lập",
-    "links": { "github": "GitHub", "demo": "Demo" },
     "swift": {
       "caption": "Tối ưu theme · trực tiếp",
       "summary": "Tối ưu theme: hoàn tất 4 bước. Thời gian tải lần đầu giảm khoảng 20%.",

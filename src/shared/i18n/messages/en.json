@@ -63,9 +63,7 @@
     "label": "Selected work",
     "title": "Selected work",
     "readCaseStudy": "Read case study",
-    "sideProject": "Side project",
     "coFounder": "Co-founder",
-    "links": { "github": "GitHub", "demo": "Demo" },
     "swift": {
       "caption": "Theme optimization · live",
       "summary": "Theme optimization: 4 steps completed. Initial load reduced by about 20%.",

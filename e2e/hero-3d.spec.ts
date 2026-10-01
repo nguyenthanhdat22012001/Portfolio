@@ -88,6 +88,7 @@ test.describe("mobile (Lighthouse-like)", () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 3 });
 
   test("loads no 3D code until the first interaction, then mounts Low", async ({ page }) => {
+    const problems = collectConsoleProblems(page);
     const scripts = trackScripts(page);
     await scripts.goto("/en");
     await page.waitForLoadState("networkidle");
@@ -98,6 +99,8 @@ test.describe("mobile (Lighthouse-like)", () => {
     await page.evaluate(() => window.scrollBy(0, 40));
     await expect(graph(page)).toHaveAttribute("data-gate", "live", { timeout: 15_000 });
     await expect(graph(page)).toHaveAttribute("data-tier", "low");
+    await page.waitForTimeout(500);
+    expect(problems).toEqual([]);
   });
 
   test("on mobile without interaction, LCP is hero DOM text inside #top, never the canvas or graph", async ({ page }) => {

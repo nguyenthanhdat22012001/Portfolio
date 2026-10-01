@@ -89,7 +89,7 @@ describe("decorative fills", () => {
     });
   }
 
-  it("never uses bg-muted or earth as a text color", () => {
+  it("never uses bg-muted, earth or silver as a text color", () => {
     const root = path.resolve(process.cwd(), "src");
     const files = readdirSync(root, { recursive: true, encoding: "utf8" })
       .filter((file) => file.endsWith(".tsx"))
@@ -97,7 +97,7 @@ describe("decorative fills", () => {
 
     for (const file of files) {
       expect(readFileSync(file, "utf8"), file).not.toMatch(
-        /\btext-(bg-muted|earth)\b/
+        /\btext-(bg-muted|earth|silver)\b/
       );
     }
   });

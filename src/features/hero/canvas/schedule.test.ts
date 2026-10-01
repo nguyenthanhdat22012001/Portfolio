@@ -5,9 +5,9 @@ import { afterLoadIdle } from "./schedule";
 // stubbing globals wouldn't reliably reach the code under test.
 function fakeWindow({ readyState = "complete", idle = false } = {}) {
   const listeners = new Map<string, () => void>();
-  const requestIdleCallback = vi.fn(
-    (_cb: () => void, _opts: { timeout: number }) => 7
-  );
+  const requestIdleCallback = vi.fn<
+    (cb: () => void, opts: { timeout: number }) => number
+  >(() => 7);
   const win = {
     document: { readyState },
     requestIdleCallback: idle ? requestIdleCallback : undefined,

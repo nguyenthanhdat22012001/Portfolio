@@ -8,8 +8,10 @@ import {
   mixInto,
   morphK,
   nodeScale,
+  visibleLabels,
   writeEdges
 } from "./graph-frame";
+import { NODES } from "../graph/graph-data";
 
 describe("morphK", () => {
   it("clamps and eases", () => {
@@ -67,5 +69,21 @@ describe("fitCameraZ", () => {
 
   it("uses 6 × LAYER_SPACING plus a node radius as the graph width", () => {
     expect(GRAPH_WIDTH).toBeCloseTo(6 * LAYER_SPACING + 0.27);
+  });
+});
+
+describe("visibleLabels", () => {
+  it("shows nothing while tangled and nothing is hovered", () => {
+    expect(visibleLabels(NODES, 0.5, null)).toEqual([]);
+  });
+
+  it("shows the four size-3 nodes once morph > 0.7", () => {
+    expect(visibleLabels(NODES, 0.8, null)).toEqual(["admin", "extensions", "ui", "i18n"]);
+  });
+
+  it("always shows the hovered node, replacing the least relevant", () => {
+    expect(visibleLabels(NODES, 0.2, "redeem")).toEqual(["redeem"]);
+    expect(visibleLabels(NODES, 0.8, "redeem")).toEqual(["redeem", "admin", "extensions", "ui"]);
+    expect(visibleLabels(NODES, 0.8, "ui")).toEqual(["ui", "admin", "extensions", "i18n"]);
   });
 });

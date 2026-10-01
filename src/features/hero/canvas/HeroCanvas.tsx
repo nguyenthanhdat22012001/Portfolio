@@ -108,7 +108,7 @@ export default function HeroCanvas({ slot, onLive, onFallback, onTier }: HeroCan
       <ambientLight intensity={1.6} />
       <directionalLight position={[3, 4, 5]} intensity={2.4} />
       <PerformanceMonitor onDecline={onDecline} />
-      <HeroScene tier={tier.level} />
+      <HeroScene tier={tier.level} slot={slot} />
       <GlStats />
       {PerfOverlay && <PerfOverlay />}
     </Canvas>

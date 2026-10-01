@@ -378,3 +378,24 @@ test.describe("robustness", () => {
     expect(problems).toEqual([]);
   });
 });
+
+test.describe("desktop hover", () => {
+  // Review Focus 5
+  test("hovering a node sets the node cursor; leaving the slot clears it", async ({ page }) => {
+    await page.goto("/en");
+    await waitLive(page);
+    const slot = page.locator("#hero-canvas-slot");
+    const box = (await slot.boundingBox())!;
+    let found = false;
+    for (let row = 1; row < 12 && !found; row += 1) {
+      for (let col = 1; col < 12 && !found; col += 1) {
+        await page.mouse.move(box.x + (box.width * col) / 12, box.y + (box.height * row) / 12);
+        await page.waitForTimeout(40);
+        found = (await slot.getAttribute("data-cursor")) === "node";
+      }
+    }
+    expect(found).toBe(true);
+    await page.mouse.move(5, box.y + box.height + 40);
+    await expect(slot).not.toHaveAttribute("data-cursor");
+  });
+});

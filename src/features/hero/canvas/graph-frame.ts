@@ -70,3 +70,18 @@ export function fitCameraZ(aspect: number, fovDeg = 45): number {
   const halfFov = (fovDeg * Math.PI) / 360;
   return clamp(GRAPH_WIDTH / 2 / (Math.tan(halfFov) * aspect * 0.85), 7, 14);
 }
+
+export const LABEL_MORPH = 0.7;
+export const MAX_LABELS = 4;
+export const HOVER_INTERVAL = 1 / 30;
+
+/** Labels: the size-3 nodes once layered (> 0.7), plus the hovered node first. */
+export function visibleLabels(
+  nodes: readonly GraphNode[],
+  morph: number,
+  hovered: string | null
+): string[] {
+  const big = morph > LABEL_MORPH ? nodes.filter((n) => n.size === 3).map((n) => n.id) : [];
+  if (!hovered) return big.slice(0, MAX_LABELS);
+  return [hovered, ...big.filter((id) => id !== hovered)].slice(0, MAX_LABELS);
+}

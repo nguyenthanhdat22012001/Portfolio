@@ -22,7 +22,7 @@ function start() {
 }
 
 function ring() {
-  return document.querySelector<HTMLElement>("[data-cursor]");
+  return document.querySelector<HTMLElement>(".motion-cursor");
 }
 
 afterEach(() => {
@@ -69,5 +69,18 @@ describe("startCursor", () => {
     stop?.();
     stop = undefined;
     expect(ring()).toBeNull();
+  });
+
+  it("grows over a graph node in the hero canvas", () => {
+    start();
+    document.body.insertAdjacentHTML("beforeend", '<div id="slot"><canvas></canvas></div>');
+    const slot = document.getElementById("slot")!;
+    const canvasEl = slot.querySelector("canvas")!;
+    slot.dataset.cursor = "node";
+    canvasEl.dispatchEvent(pointer("pointermove", { clientX: 5, clientY: 5 }));
+    expect(ring()?.hasAttribute("data-node")).toBe(true);
+    delete slot.dataset.cursor;
+    canvasEl.dispatchEvent(pointer("pointermove", { clientX: 6, clientY: 6 }));
+    expect(ring()?.hasAttribute("data-node")).toBe(false);
   });
 });

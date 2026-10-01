@@ -125,6 +125,21 @@
   scale: 1.8;
 }
 
+.motion-cursor[data-node] {
+  scale: 2.4;
+}
+
+/* drei <Html> labels in the hero graph (DOM text, inside the aria-hidden slot). */
+.hero-graph-label {
+  padding: 2px 6px;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
 /* Hero graph (features/hero). CSS alone picks the static graph and caption
    line, so the result is right before hydration and without JS. The gate
    sets data-gate; the hero motion effect sets data-morph. */

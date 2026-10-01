@@ -16,6 +16,11 @@ export const startCursor: DesktopHandler = ({ gsap }) => {
   const onMove = (event: PointerEvent) => {
     if (event.pointerType !== "mouse") return;
     ring.setAttribute("data-visible", "");
+    // pointerover doesn't refire while moving between nodes on one canvas,
+    // so the hero graph's node hover is checked on every move.
+    const node =
+      event.target instanceof Element && event.target.closest('[data-cursor="node"]');
+    ring.toggleAttribute("data-node", Boolean(node));
     x(event.clientX);
     y(event.clientY);
   };

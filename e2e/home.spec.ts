@@ -117,7 +117,7 @@ test.describe("mobile hero", () => {
 
   test("shows the avatar slot above the headline", async ({ page }) => {
     await page.goto("/en");
-    const slot = page.locator("[data-hero-canvas-slot]");
+    const slot = page.locator("#hero-canvas-slot");
     await expect(slot).toBeVisible();
     await expect(slot).toHaveAttribute("aria-hidden", "true");
     const slotBox = await slot.boundingBox();
@@ -152,12 +152,14 @@ test("Skills shows the nine CV v2 groups without GraphQL", async ({ page }) => {
   await expect(skills.locator("h3").first()).toHaveText("Languages & Core");
   await expect(skills.locator("h3").last()).toHaveText("Also working with");
   await expect(skills).not.toContainText("GraphQL");
-  await expect(skills.locator("li", { hasText: "Next.js (App Router, SSR)" })).toContainText(
-    "— this site"
-  );
+  await expect(
+    skills.locator("li", { hasText: "Next.js (App Router, SSR)" })
+  ).toContainText("— this site");
 });
 
-test("Skills group names are translated, tag names are not", async ({ page }) => {
+test("Skills group names are translated, tag names are not", async ({
+  page
+}) => {
   await page.goto("/vi");
   const skills = page.locator("section#skills");
   await expect(skills.locator("h3").first()).toHaveText("Ngôn ngữ & nền tảng");

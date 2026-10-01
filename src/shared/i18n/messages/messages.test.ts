@@ -20,6 +20,19 @@ function shape(value: unknown): unknown {
 }
 
 describe("message catalogs", () => {
+  it("defines the hero graph caption in both locales", () => {
+    for (const catalog of [en, vi]) {
+      expect(Object.keys(catalog.hero.graph).sort()).toEqual([
+        "chaos",
+        "description",
+        "layered",
+        "legendApp",
+        "legendFeature",
+        "legendShared"
+      ]);
+    }
+  });
+
   it("en and vi have identical key trees and placeholders", () => {
     expect(shape(vi)).toEqual(shape(en));
   });

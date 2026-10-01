@@ -41,7 +41,15 @@
     "subline": "Front-End Engineer · ~4 years building production eCommerce apps for Shopify merchants.",
     "ctaWork": "View work",
     "ctaCv": "Download CV",
-    "scrollHint": "Scroll"
+    "scrollHint": "Scroll",
+    "graph": {
+      "legendApp": "app",
+      "legendFeature": "feature",
+      "legendShared": "shared",
+      "chaos": "Feature-driven: features import each other.",
+      "layered": "Layered: app → feature → shared.",
+      "description": "Illustrative diagram of a monorepo's packages reorganizing from a feature-driven structure into layers."
+    }
   },
   "about": {
     "label": "About",

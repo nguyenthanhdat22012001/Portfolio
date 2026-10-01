@@ -4,8 +4,9 @@ import { site } from "@/shared/lib/site";
 import { ButtonLink } from "@/shared/ui/ButtonLink";
 import { Container } from "@/shared/ui/Container";
 import { Eyebrow } from "@/shared/ui/Eyebrow";
-import { PlaceholderSlot } from "@/shared/ui/PlaceholderSlot";
 import { StackedLines } from "@/shared/ui/StackedLines";
+import { HeroGraphCaption } from "./graph/HeroGraphCaption";
+import { HeroGraphStatic } from "./graph/HeroGraphStatic";
 
 export async function HeroSection() {
   const t = await getTranslations("hero");
@@ -45,12 +46,33 @@ export async function HeroSection() {
             </ButtonLink>
           </div>
         </div>
-        {/* Phase 5 mounts the canvas here (and a static avatar on mobile);
-            the fixed aspect ratio keeps CLS at 0. */}
-        <PlaceholderSlot
-          data-hero-canvas-slot=""
-          className="order-first aspect-[4/3] w-full md:order-none md:aspect-[7/8]"
-        />
+        {/* Static SVGs render on the server (0 CLS, no-JS fallback); the
+            canvas gate is added on top of them in the slot. */}
+        <div
+          data-hero-graph=""
+          data-gate="pending"
+          data-morph="chaos"
+          className="order-first flex w-full flex-col gap-3 md:order-none"
+        >
+          <div
+            id="hero-canvas-slot"
+            aria-hidden="true"
+            className="relative aspect-[4/3] w-full md:aspect-[7/8]"
+          >
+            <HeroGraphStatic state="chaos" />
+            <HeroGraphStatic state="layered" />
+          </div>
+          <HeroGraphCaption
+            labels={{
+              app: t("graph.legendApp"),
+              feature: t("graph.legendFeature"),
+              shared: t("graph.legendShared"),
+              chaos: t("graph.chaos"),
+              layered: t("graph.layered"),
+              description: t("graph.description")
+            }}
+          />
+        </div>
         <p
           aria-hidden="true"
           data-scroll-hint=""

@@ -125,6 +125,87 @@
   scale: 1.8;
 }
 
+/* Hero graph (features/hero). CSS alone picks the static graph and caption
+   line, so the result is right before hydration and without JS. The gate
+   sets data-gate; the hero motion effect sets data-morph. */
+.hero-graph-svg {
+  position: absolute;
+  inset: 0;
+  transition:
+    opacity 0.6s,
+    visibility 0s;
+}
+
+[data-graph-state="layered"],
+[data-caption-line="layered"],
+[data-hero-graph][data-morph="layered"] [data-caption-line="chaos"],
+[data-hero-graph][data-gate="live"] [data-graph-state="chaos"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+[data-hero-graph][data-gate="live"] [data-graph-state="chaos"] {
+  transition:
+    opacity 0.6s,
+    visibility 0s 0.6s;
+}
+
+[data-caption-line] {
+  grid-area: 1 / 1;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
+}
+
+[data-hero-graph][data-morph="layered"] [data-caption-line="layered"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* The "after" state: no JS, reduced motion, or the canvas won't (or no
+   longer does) run. */
+[data-hero-graph][data-gate="fallback"] [data-graph-state="chaos"],
+[data-hero-graph][data-gate="fallback"] [data-caption-line="chaos"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+[data-hero-graph][data-gate="fallback"] [data-graph-state="layered"],
+[data-hero-graph][data-gate="fallback"] [data-caption-line="layered"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (scripting: none), (prefers-reduced-motion: reduce) {
+  [data-hero-graph] [data-graph-state="chaos"],
+  [data-hero-graph] [data-caption-line="chaos"] {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  [data-hero-graph] [data-graph-state="layered"],
+  [data-hero-graph] [data-caption-line="layered"] {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Created by JS after the gate decides to mount (never in SSR HTML), so the
+   no-opacity-0 rule for content doesn't apply; it fades in after frame one. */
+.hero-graph-canvas {
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+[data-hero-graph][data-gate="live"] .hero-graph-canvas {
+  opacity: 1;
+}
+
+[data-hero-graph][data-gate="fallback"] .hero-graph-canvas {
+  opacity: 0;
+  transition-duration: 0.3s;
+}
+
 /* View transitions (Next 16 guide): directional slides for typed
    navigations, a morph for the shared chapter title, an anchored header. */
 ::view-transition {

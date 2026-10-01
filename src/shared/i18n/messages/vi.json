@@ -41,7 +41,15 @@
     "subline": "Front-End Engineer · ~4 năm xây ứng dụng eCommerce production cho merchant Shopify.",
     "ctaWork": "Xem dự án",
     "ctaCv": "Tải CV",
-    "scrollHint": "Cuộn"
+    "scrollHint": "Cuộn",
+    "graph": {
+      "legendApp": "app",
+      "legendFeature": "feature",
+      "legendShared": "shared",
+      "chaos": "Feature-driven: các feature import lẫn nhau.",
+      "layered": "Layered: app → feature → shared.",
+      "description": "Sơ đồ minh họa các package của một monorepo được sắp xếp lại từ cấu trúc feature-driven thành các tầng."
+    }
   },
   "about": {
     "label": "Giới thiệu",

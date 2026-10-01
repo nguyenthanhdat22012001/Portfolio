@@ -235,3 +235,13 @@ Lighthouse CI: no threshold changes.
 
 Cut line unchanged from the spec: on day 10 with Must items open, drop
 labels, hover, push and parallax.
+
+## Decisions made during implementation
+
+- **Scroll range.** The `hero` ScrollTrigger (`shared/animation/effects/hero.ts`) uses `start: 0` and a function `end` so the morph reaches at least 0.9 while the graph is still on screen. Spec 8.1's `end: 'bottom top'` finished the morph after the slot had scrolled away. The caption still switches at 0.5.
+- **Lighting.** `<Canvas flat>` (no tone mapping) with ambient 1.6 / directional 2.4. Spec 6.1's intensities assume three's legacy light units and rendered the layer colours as near-identical browns.
+- **Off rule.** drei's `flipflops` counts inclines too, which switched healthy canvases off after about 10 s. Off is now our own rule: a decline while already Low with fps < 25, or the 3rd decline at Low. Tiers never step up.
+- **Labels.** Offset off their node (top layer below, staggered; other layers alternate above/below) instead of spec 7.4's bare `center`, so they never overlap or cover nodes or sit under the sticky header.
+- **Console.** three 0.186 warns "Clock: This module has been deprecated" when R3F 9.8 creates its clock; `HeroCanvas` installs three's `setConsoleFunction` to drop only that message (spec 10: no console warnings in production). On context loss `gl.forceContextLoss` is stubbed to avoid a spurious "WEBGL_lose_context not supported" warning on unmount.
+- **MotionRoot rescan.** `MotionRoot` rescans two animation frames after a pathname change so effects see the restored hash-scroll position (fixes a race that made ScrollTrigger counts flip).
+- **drei imports.** `Html` is imported per-component (`@react-three/drei/web/Html`) to stay under the 3D budget.

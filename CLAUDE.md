@@ -29,6 +29,16 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   (`shared/lib/stores/scroll-store.ts`; the hero canvas reads `heroMorph`).
   GSAP writes to it (the `hero` effect); `useFrame` reads it with
   `getState()`. Never drive per-frame updates through React state/re-renders.
+- The hero graph's visible state is CSS-driven: the server renders both
+  static SVGs and both caption lines; `data-gate` (set by
+  `HeroCanvasGate`), `data-morph` (set by the `hero` effect),
+  `@media (scripting: none)` and `prefers-reduced-motion` decide which shows.
+  Don't toggle them from React state.
+- Hero canvas specifics: `<Canvas flat>` (no tone mapping; light intensities are
+  tuned for that), drei `Html` is imported per-component
+  (`@react-three/drei/web/Html`) to stay under the 3D budget, and the quality
+  tier only ever steps down (our own Off rule in `HeroCanvas`, not drei's
+  `flipflops`).
 - Exactly one `Lenis` instance and one `gsap.ticker` for the whole app,
   created once at the app root. Do not instantiate either inside a feature
   component.

@@ -156,9 +156,10 @@ decision, so it stays out of the initial bundle).
 - drei: named imports (`Html`, `PerformanceMonitor`). If the 3D chunk exceeds
   250 KB gzip, switch to drei's per-component entry points before cutting
   features.
-- `r3f-perf` is a devDependency loaded via
-  `process.env.NODE_ENV === "development" && dynamic(...)` so production
-  builds strip it.
+- No `r3f-perf` (spec §1/§6.1): its bundled font module ships a source map
+  pointing at a binary `.woff`, which crashes Turbopack in `next dev`
+  ("invalid utf-8 sequence"). Draw calls are read from `data-gl-calls`
+  (published by `GlStats` and asserted in `e2e/hero-3d.spec.ts`) instead.
 - Theme: `useGraphColors` reads `--accent`, `--silver`, `--earth` into
   memoised `THREE.Color`s; a MutationObserver on `data-theme` mutates
   materials and instance colors in place. No remount.
@@ -181,7 +182,7 @@ decision, so it stays out of the initial bundle).
   allowed client components; note `heroMorph` in the scroll-store rule;
   document the CSS-driven fallback states.
 - Dependencies: `three`, `@types/three`, `@react-three/fiber@^9`,
-  `@react-three/drei`; `r3f-perf` as a devDependency. Nothing else.
+  `@react-three/drei`. Nothing else (`r3f-perf` was dropped; see D5).
 
 ### D7 — Interaction (behind the cut line)
 

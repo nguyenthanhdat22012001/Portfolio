@@ -182,13 +182,13 @@ export function Graph({ tier, slot }: { tier: RenderTier; slot: HTMLElement }) {
   return (
     <group ref={groupRef}>
       <GraphNodes
-        key={graph.nodes.length}
+        key={`nodes-${graph.nodes.length}`}
         ref={nodesRef}
         nodes={graph.nodes}
         palette={palette}
       />
       <GraphEdges
-        key={graph.nodes.length}
+        key={`edges-${graph.nodes.length}`}
         ref={edgesRef}
         graph={graph}
         palette={palette}

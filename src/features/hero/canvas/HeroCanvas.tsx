@@ -5,7 +5,6 @@ import {
   type PerformanceMonitorApi
 } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { setConsoleFunction } from "three";
 import {
@@ -27,11 +26,6 @@ setConsoleFunction((type, message, ...params) => {
     return;
   console[type](message, ...params);
 });
-
-const PerfOverlay =
-  process.env.NODE_ENV === "development"
-    ? dynamic(() => import("./PerfOverlay"), { ssr: false })
-    : null;
 
 export interface HeroCanvasProps {
   slot: HTMLDivElement;
@@ -128,7 +122,6 @@ export default function HeroCanvas({
       />
       <HeroScene tier={tier.level} slot={slot} />
       <GlStats />
-      {PerfOverlay && <PerfOverlay />}
     </Canvas>
   );
 }

@@ -131,6 +131,7 @@
 
 /* drei <Html> labels in the hero graph (DOM text, inside the aria-hidden slot). */
 .hero-graph-label {
+  display: inline-block; /* `translate` doesn't apply to inline boxes */
   padding: 2px 6px;
   border-radius: 0.25rem;
   background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
@@ -138,6 +139,12 @@
   font-family: var(--font-mono);
   font-size: 11px;
   white-space: nowrap;
+  /* Off the node (radius <= ~22px hovered), never over it. */
+  translate: 0 -32px;
+}
+
+.hero-graph-label[data-side="below"] {
+  translate: 0 32px;
 }
 
 /* Hero graph (features/hero). CSS alone picks the static graph and caption

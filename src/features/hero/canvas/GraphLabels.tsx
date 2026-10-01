@@ -32,6 +32,8 @@ export function GraphLabels({
   return ids.map((id) => {
     const node = nodes.find((n) => n.id === id);
     if (!node) return null;
+    // Neighbours in a layer alternate above/below so same-row labels don't collide.
+    const side = nodes.filter((n) => n.layer === node.layer).indexOf(node) % 2 === 0 ? "above" : "below";
     return (
       <group
         key={id}
@@ -43,7 +45,7 @@ export function GraphLabels({
         }}
       >
         <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-          <span className="hero-graph-label">{node.label}</span>
+          <span className="hero-graph-label" data-side={side}>{node.label}</span>
         </Html>
       </group>
     );

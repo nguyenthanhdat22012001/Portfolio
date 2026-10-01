@@ -398,4 +398,30 @@ test.describe("desktop hover", () => {
     await page.mouse.move(5, box.y + box.height + 40);
     await expect(slot).not.toHaveAttribute("data-cursor");
   });
+
+  test("layered labels do not overlap each other", async ({ page }) => {
+    await page.goto("/en");
+    await waitLive(page);
+    await page.mouse.move(200, 200);
+    await expect(page.locator("html")).toHaveAttribute("data-motion-ready", "", { timeout: 10_000 });
+    const heroHeight = await page.locator("#top").evaluate((el) => el.getBoundingClientRect().height);
+    await page.evaluate((y) => window.scrollTo(0, y), heroHeight * 0.3);
+    const labels = page.locator("#hero-canvas-slot .hero-graph-label");
+    await expect(labels).toHaveCount(4);
+    await page.waitForTimeout(1200);
+    const boxes = await labels.evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { l: r.left, r: r.right, t: r.top, b: r.bottom };
+      })
+    );
+    for (let i = 0; i < boxes.length; i += 1) {
+      for (let j = i + 1; j < boxes.length; j += 1) {
+        const a = boxes[i]!;
+        const b = boxes[j]!;
+        const overlap = a.l < b.r && b.l < a.r && a.t < b.b && b.t < a.b;
+        expect(overlap, `labels ${i} and ${j}`).toBe(false);
+      }
+    }
+  });
 });

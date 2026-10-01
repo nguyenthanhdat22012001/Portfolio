@@ -33,7 +33,7 @@ Tailwind theme, and add `"silver"` to `ColorToken` in
 | Theme | Value | Contrast vs `--bg` |
 | --- | --- | --- |
 | dark | `#A8ACB2` | ≈ 8 : 1 |
-| light | `#8C9096` | ≈ 3 : 1 (WCAG 1.4.11 non-text minimum) |
+| light | `#868A90` | ≈ 3.15 : 1 (WCAG 1.4.11 non-text minimum) |
 
 Like `--earth`, it is **decorative only** — never a text color. The comment
 above the `@theme` block in `globals.css` and `tokens.test.ts` (excluded from

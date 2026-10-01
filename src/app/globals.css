@@ -12,6 +12,7 @@
   --accent: #8a6a10;
   --accent-fg: #ffffff;
   --earth: #6e4a2f;
+  --silver: #868a90;
   --border: #dddad2;
   --radius: 0.75rem;
   --space-section: clamp(4rem, 10vw, 7.5rem);
@@ -27,6 +28,7 @@
   --accent: #c9a227;
   --accent-fg: #1a1a1c;
   --earth: #8b5e3c;
+  --silver: #a8acb2;
   --border: #34343a;
   color-scheme: dark;
 }
@@ -42,12 +44,13 @@
     --accent: #c9a227;
     --accent-fg: #1a1a1c;
     --earth: #8b5e3c;
+    --silver: #a8acb2;
     --border: #34343a;
     color-scheme: dark;
   }
 }
 
-/* --bg-muted and --earth are decorative fills only, never text colors. */
+/* --bg-muted, --earth and --silver are decorative fills only, never text colors. */
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-elevated: var(--bg-elevated);
@@ -57,6 +60,7 @@
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   --color-earth: var(--earth);
+  --color-silver: var(--silver);
   --color-border: var(--border);
   --radius-card: var(--radius);
   --spacing-section: var(--space-section);

@@ -79,6 +79,16 @@ describe("decorative fills", () => {
     });
   }
 
+  for (const theme of themes) {
+    it(`${theme}: silver is visible on bg and bg-elevated (at least 3:1)`, () => {
+      for (const bg of ["bg", "bg-elevated"] as const) {
+        expect(
+          contrast(colorTokens[theme].silver, colorTokens[theme][bg])
+        ).toBeGreaterThanOrEqual(3);
+      }
+    });
+  }
+
   it("never uses bg-muted or earth as a text color", () => {
     const root = path.resolve(process.cwd(), "src");
     const files = readdirSync(root, { recursive: true, encoding: "utf8" })

@@ -13,6 +13,7 @@ export type ColorToken =
   | "accent"
   | "accent-fg"
   | "earth"
+  | "silver"
   | "border";
 
 export const colorTokens: Record<Theme, Record<ColorToken, string>> = {
@@ -25,6 +26,7 @@ export const colorTokens: Record<Theme, Record<ColorToken, string>> = {
     accent: "#C9A227",
     "accent-fg": "#1A1A1C",
     earth: "#8B5E3C",
+    silver: "#A8ACB2",
     border: "#34343A"
   },
   light: {
@@ -36,6 +38,7 @@ export const colorTokens: Record<Theme, Record<ColorToken, string>> = {
     accent: "#8A6A10",
     "accent-fg": "#FFFFFF",
     earth: "#6E4A2F",
+    silver: "#868A90",
     border: "#DDDAD2"
   }
 };

@@ -37,8 +37,8 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 - Hero canvas specifics: `<Canvas flat>` (no tone mapping; light intensities are
   tuned for that), drei `Html` is imported per-component
   (`@react-three/drei/web/Html`) to stay under the 3D budget, and the quality
-  tier only ever steps down (our own Off rule in `HeroCanvas`, not drei's
-  `flipflops`).
+  tier only ever steps down (our own Off rule in
+  `features/hero/quality/perf-policy.ts`, not drei's `flipflops`).
 - Exactly one `Lenis` instance and one `gsap.ticker` for the whole app,
   created once at the app root. Do not instantiate either inside a feature
   component.
@@ -55,7 +55,10 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   first interaction. Everywhere else use `import type`.
 - Effects never hide or move content that is already on screen or scrolled
   past when they start (`isAtOrAboveViewport`), and nothing starts at
-  `opacity: 0` in HTML or CSS.
+  `opacity: 0` in HTML or CSS. The only exceptions: the inactive half of the
+  hero graph's two-state SVG/caption toggle (`[data-graph-state]` /
+  `[data-caption-line]`), hidden with `opacity: 0; visibility: hidden`, and
+  `.hero-graph-canvas`, which JS creates only after the gate mounts it.
 - Page transitions use React `<ViewTransition>` (`shared/ui/PageTransition.tsx`
   in each `page.tsx`, never a layout) with `transitionTypes` on links.
 
@@ -63,7 +66,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 
 - Initial JS (gzip) < 150 KB.
 - Lazy-loaded 3D chunk ≤ 250 KB gzip, enforced by `e2e/hero-3d.spec.ts`, which
-  also checks initial JS ≤ 150 KB gzip.
+  also checks initial JS ≤ 150 KB gzip. It measures 249.8 KB after Phase 5
+  (≈ 0.2 KB headroom), so the Phase 5B avatar's loader and model code must go
+  in its own lazy chunk (a separate `dynamic()` import), not the canvas chunk.
 - `.glb` models < 500 KB (except the Phase 5B avatar, budgeted separately at
   ≤ 1.5 MB).
 - Flag budget-relevant changes during implementation rather than waiting for

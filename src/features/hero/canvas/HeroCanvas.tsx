@@ -94,6 +94,9 @@ export default function HeroCanvas({ slot, onLive, onFallback, onTier }: HeroCan
           "webglcontextlost",
           (event) => {
             event.preventDefault();
+            // The context is already gone; three's dispose-time forceContextLoss would
+            // warn that WEBGL_lose_context is unsupported on a lost context.
+            gl.forceContextLoss = () => {};
             onFallback();
           },
           { once: true }

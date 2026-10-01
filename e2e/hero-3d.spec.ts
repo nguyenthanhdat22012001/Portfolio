@@ -210,3 +210,88 @@ test.describe("mobile scene", () => {
     expect(centre).toBeGreaterThanOrEqual(header + 80);
   });
 });
+
+test.describe("robustness", () => {
+  test("WebGL context loss ends in the static layered graph", async ({ page }) => {
+    const problems = collectConsoleProblems(page);
+    await page.goto("/en");
+    await waitLive(page);
+    await page.evaluate(() => {
+      const el = document.querySelector<HTMLCanvasElement>("#hero-canvas-slot canvas");
+      const gl = el?.getContext("webgl2") ?? el?.getContext("webgl");
+      gl?.getExtension("WEBGL_lose_context")?.loseContext();
+    });
+    await expect(graph(page)).toHaveAttribute("data-gate", "fallback");
+    await expect(svg(page, "layered")).toBeVisible();
+    await expect(canvas(page)).toHaveCount(0);
+    expect(problems).toEqual([]);
+  });
+
+  test("the LCP element is the hero h1", async ({ page }) => {
+    await page.goto("/en");
+    await waitLive(page);
+    const lcp = await page.evaluate(
+      () =>
+        new Promise<string>((resolve) => {
+          new PerformanceObserver((list) => {
+            const entries = list.getEntries() as Array<PerformanceEntry & { element?: Element | null }>;
+            const element = entries.at(-1)?.element;
+            resolve(element?.closest("h1") ? "h1" : (element?.tagName ?? "none"));
+          }).observe({ type: "largest-contentful-paint", buffered: true });
+        })
+    );
+    expect(lcp).toBe("h1");
+  });
+
+  test("10 round trips to a case study keep one canvas and stable GPU counts", async ({ page }) => {
+    test.setTimeout(120_000);
+    const stats = async () => ({
+      geometries: await graph(page).getAttribute("data-gl-geometries"),
+      textures: await graph(page).getAttribute("data-gl-textures")
+    });
+    const backToTopLive = async () => {
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await waitLive(page);
+      await expect.poll(async () => (await stats()).geometries).not.toBeNull();
+    };
+
+    await page.goto("/en");
+    await backToTopLive();
+    const baseline = await stats();
+
+    for (let trip = 0; trip < 10; trip += 1) {
+      await page.locator('[data-chapter="swift-performance"]').getByRole("link", { name: /Read case study/ }).click();
+      await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+      await expect(page.locator("#hero-canvas-slot canvas")).toHaveCount(0);
+      await page.getByRole("link", { name: /←/ }).click();
+      await expect(page).toHaveURL(/\/en#work$/);
+      await backToTopLive();
+      await expect(canvas(page)).toHaveCount(1);
+      expect(await stats()).toEqual(baseline);
+    }
+  });
+
+  // Review Focus 2
+  test("switching locale while live leaves exactly one live canvas", async ({ page }) => {
+    await page.goto("/en");
+    await waitLive(page);
+    await page.locator('a[hreflang="vi"]').first().click();
+    await expect(page).toHaveURL(/\/vi/);
+    await waitLive(page);
+    await expect(page.locator("canvas")).toHaveCount(1);
+  });
+
+  // Review Focus 3
+  test("leaving Home before the idle trigger cancels cleanly", async ({ page }) => {
+    const problems = collectConsoleProblems(page);
+    // Client-side navigation right after DOMContentLoaded, before load + idle,
+    // so the gate's cleanup (not a full page unload) has to cancel the trigger.
+    await page.goto("/en", { waitUntil: "domcontentloaded" });
+    // (The header Blog link only renders when posts exist, so use a case-study link.)
+    await page.locator('[data-chapter="swift-performance"]').getByRole("link", { name: /Read case study/ }).click();
+    await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+    await page.waitForTimeout(3000);
+    await expect(page.locator("canvas")).toHaveCount(0);
+    expect(problems).toEqual([]);
+  });
+});

@@ -5,7 +5,9 @@ import {
   type Vec3
 } from "@/shared/lib/math";
 import type { GraphEdge, GraphNode } from "../graph/graph-data";
-import { LAYER_SPACING } from "../graph/layouts";
+import { FIT_FRACTION, GRAPH_WIDTH } from "../graph/layouts";
+
+export { GRAPH_WIDTH, nodeScale } from "../graph/layouts";
 
 export type Positions = ReadonlyMap<string, Vec3>;
 
@@ -24,8 +26,6 @@ export const POSITION_DAMPING = 6;
 export const ROTATION_DAMPING = 4;
 export const SPIN_SPEED = 0.05;
 export const HOVER_SCALE = 1.4;
-const NODE_RADIUS = 0.27;
-export const GRAPH_WIDTH = 6 * LAYER_SPACING + NODE_RADIUS;
 
 export function morphK(morph: number): number {
   return easeInOutCubic(clamp(morph, 0, 1));
@@ -66,14 +66,10 @@ export function writeEdges(
   return count;
 }
 
-export function nodeScale(size: GraphNode["size"]): number {
-  return 0.75 + size * 0.25;
-}
-
 /** Camera z that makes the layered graph fill 85% of the slot width. */
 export function fitCameraZ(aspect: number, fovDeg = 45): number {
   const halfFov = (fovDeg * Math.PI) / 360;
-  return clamp(GRAPH_WIDTH / 2 / (Math.tan(halfFov) * aspect * 0.85), 7, 14);
+  return clamp(GRAPH_WIDTH / 2 / (Math.tan(halfFov) * aspect * FIT_FRACTION), 7, 14);
 }
 
 export const LABEL_MORPH = 0.7;

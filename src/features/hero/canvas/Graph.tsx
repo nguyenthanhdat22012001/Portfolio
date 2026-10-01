@@ -4,7 +4,7 @@ import { Matrix4, Ray, Vector3, type Group, type InstancedMesh } from "three";
 import { damp, damp3, type Vec3 } from "@/shared/lib/math";
 import { useScrollStore } from "@/shared/lib/stores/scroll-store";
 import { selectGraph, type GraphNode } from "../graph/graph-data";
-import { chaosLayout, layeredLayout } from "../graph/layouts";
+import { graphLayouts } from "../graph/layouts";
 import { tierFeatures, type RenderTier } from "../quality/detect-tier";
 import { GraphEdges } from "./GraphEdges";
 import { GraphLabels } from "./GraphLabels";
@@ -52,13 +52,7 @@ function pickNode(
 export function Graph({ tier, slot }: { tier: RenderTier; slot: HTMLElement }) {
   const { nodeIds, interactive, labels } = tierFeatures(tier);
   const graph = useMemo(() => selectGraph(nodeIds), [nodeIds]);
-  const layouts = useMemo(
-    () => ({
-      chaos: chaosLayout(graph.nodes),
-      layered: layeredLayout(graph.nodes)
-    }),
-    [graph]
-  );
+  const layouts = useMemo(() => graphLayouts(graph.nodes), [graph]);
   const palette = useGraphColors();
   const inside = usePointerInside(slot, interactive);
   const labelsRef = useRef<FrameUpdatable>(null);

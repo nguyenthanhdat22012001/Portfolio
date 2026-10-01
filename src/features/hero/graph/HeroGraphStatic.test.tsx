@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { CROSS_EDGES, EDGES, NODES } from "./graph-data";
 import { HeroGraphStatic } from "./HeroGraphStatic";
+import { STATIC_VIEW } from "./layouts";
 
 function render(state: "chaos" | "layered") {
   const markup = renderToStaticMarkup(<HeroGraphStatic state={state} />);
@@ -20,6 +21,19 @@ describe("HeroGraphStatic", () => {
       expect(svg.querySelectorAll("circle")).toHaveLength(NODES.length);
     });
   }
+
+  it("uses the shared static view so the chaos SVG matches the canvas's first frame", () => {
+    for (const state of ["chaos", "layered"] as const) {
+      expect(render(state).svg.getAttribute("viewBox")).toBe(
+        `0 0 ${STATIC_VIEW.w} ${STATIC_VIEW.h}`
+      );
+    }
+    // Node radii follow the canvas's node sizes and perspective.
+    const radii = [...render("chaos").svg.querySelectorAll("circle")].map((c) =>
+      Number(c.getAttribute("r"))
+    );
+    expect(new Set(radii).size).toBeGreaterThan(3);
+  });
 
   it("draws cross edges dashed only in the chaos state", () => {
     const chaos = render("chaos").svg;

@@ -1,8 +1,14 @@
 import type { GraphEdge, Layer } from "./graph-data";
 import { CROSS_EDGES, EDGES, NODES } from "./graph-data";
-import { chaosLayout, layeredLayout, project2D } from "./layouts";
+import {
+  NODE_RADIUS,
+  STATIC_VIEW as VIEW,
+  chaosLayout,
+  layeredLayout,
+  nodeScale,
+  project2D
+} from "./layouts";
 
-const VIEW = { w: 400, h: 320, pad: 28 } as const;
 const LAYERS: readonly Layer[] = ["app", "feature", "shared"];
 const NODE_CLASS: Record<Layer, string> = {
   app: "fill-accent",
@@ -10,7 +16,8 @@ const NODE_CLASS: Record<Layer, string> = {
   shared: "fill-earth"
 };
 
-// Server-rendered placeholder ("chaos", matches the canvas's first frame) and
+// Server-rendered placeholder ("chaos", matches the canvas's first frame: same
+// world scale, centre and node sizes, see STATIC_VIEW) and
 // fallback ("layered"). Both are always rendered; globals.css shows one. No
 // text inside: the DOM caption carries the meaning.
 export function HeroGraphStatic({ state }: { state: "chaos" | "layered" }) {
@@ -56,7 +63,12 @@ export function HeroGraphStatic({ state }: { state: "chaos" | "layered" }) {
           {NODES.filter((n) => n.layer === layer).map((node) => {
             const p = points[node.id];
             return p ? (
-              <circle key={node.id} cx={p[0]} cy={p[1]} r={4 + node.size * 2} />
+              <circle
+                key={node.id}
+                cx={p[0]}
+                cy={p[1]}
+                r={Math.round(p[2] * NODE_RADIUS * nodeScale(node.size) * 10) / 10}
+              />
             ) : null;
           })}
         </g>

@@ -2,6 +2,7 @@ import { useImperativeHandle, useRef, type Ref } from "react";
 import { Object3D, type InstancedMesh } from "three";
 import { damp } from "@/shared/lib/math";
 import type { GraphNode } from "../graph/graph-data";
+import { NODE_RADIUS } from "../graph/layouts";
 import { HOVER_SCALE, nodeScale, type FrameUpdatable } from "./graph-frame";
 import type { GraphPalette } from "./useGraphColors";
 
@@ -72,7 +73,7 @@ export function GraphNodes({
       args={[undefined, undefined, nodes.length]}
       frustumCulled={false}
     >
-      <icosahedronGeometry args={[0.18, 1]} />
+      <icosahedronGeometry args={[NODE_RADIUS, 1]} />
       <meshStandardMaterial roughness={0.45} metalness={0.1} />
     </instancedMesh>
   );

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Vec3 } from "@/shared/lib/math";
-import { LAYER_SPACING } from "../graph/layouts";
+import {
+  LAYER_SPACING,
+  STATIC_VIEW,
+  chaosLayout,
+  layeredLayout,
+  project2D
+} from "../graph/layouts";
 import {
   GRAPH_WIDTH,
   crossEdgeOpacity,
@@ -82,6 +88,38 @@ describe("fitCameraZ", () => {
   it("uses 6 × LAYER_SPACING plus a node radius as the graph width", () => {
     expect(GRAPH_WIDTH).toBeCloseTo(6 * LAYER_SPACING + 0.27);
   });
+});
+
+// The SVG placeholder must line up with the canvas's first frame (spec §4.1).
+// Both slots are no wider than the viewBox, so `meet` scales the viewBox to
+// the slot width; compare positions as fractions of the slot width.
+describe("static SVG vs first canvas frame", () => {
+  const halfTan = Math.tan((45 * Math.PI) / 360);
+  for (const [name, aspect] of [
+    ["mobile 4/3", 4 / 3],
+    ["desktop 7/8", 7 / 8]
+  ] as const) {
+    it(`${name}: nodes land within 1.5% of the slot width`, () => {
+      expect(STATIC_VIEW.w / STATIC_VIEW.h).toBeGreaterThanOrEqual(aspect - 1e-9);
+      const z = fitCameraZ(aspect);
+      const visibleWidth = 2 * z * halfTan * aspect;
+      for (const layout of [chaosLayout(NODES), layeredLayout(NODES)]) {
+        const svg = project2D(layout, STATIC_VIEW);
+        for (const [id, p] of Object.entries(layout)) {
+          const f = z / (z - p[2]);
+          const canvas = [(p[0] * f) / visibleWidth, (-p[1] * f) / visibleWidth];
+          const [x, y] = svg[id]!;
+          const placeholder = [
+            (x - STATIC_VIEW.w / 2) / STATIC_VIEW.w,
+            (y - STATIC_VIEW.h / 2) / STATIC_VIEW.w
+          ];
+          expect(
+            Math.hypot(canvas[0]! - placeholder[0]!, canvas[1]! - placeholder[1]!)
+          ).toBeLessThan(0.015);
+        }
+      }
+    });
+  }
 });
 
 describe("visibleLabels", () => {

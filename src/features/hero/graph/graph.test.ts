@@ -11,7 +11,9 @@ import {
   CHAOS_RADIUS,
   LAYER_Y,
   MIN_DIST,
+  STATIC_VIEW,
   chaosLayout,
+  graphLayouts,
   layeredLayout,
   project2D
 } from "./layouts";
@@ -116,16 +118,61 @@ describe("layeredLayout", () => {
   });
 });
 
+describe("graphLayouts", () => {
+  it("the full graph uses chaosLayout and layeredLayout as is", () => {
+    const { chaos, layered } = graphLayouts(NODES);
+    expect(chaos).toEqual(chaosLayout(NODES));
+    expect(layered).toEqual(layeredLayout(NODES));
+  });
+
+  it("Low tier keeps the full graph's chaos positions for the same ids", () => {
+    const full = chaosLayout(NODES);
+    const { chaos } = graphLayouts(selectGraph(LOW_TIER_NODE_IDS).nodes);
+    expect(Object.keys(chaos).sort()).toEqual([...LOW_TIER_NODE_IDS].sort());
+    for (const id of LOW_TIER_NODE_IDS) expect(chaos[id]).toEqual(full[id]);
+  });
+
+  it("Low tier rows stay centred when layered", () => {
+    const { nodes } = selectGraph(LOW_TIER_NODE_IDS);
+    expect(graphLayouts(nodes).layered).toEqual(layeredLayout(nodes));
+  });
+});
+
 describe("project2D", () => {
-  it("fits points inside the padded viewBox with y flipped", () => {
-    const view = { w: 400, h: 320, pad: 28 };
-    const points = project2D(layeredLayout(NODES), view);
-    for (const [x, y] of Object.values(points)) {
-      expect(x).toBeGreaterThanOrEqual(view.pad - 0.05);
-      expect(x).toBeLessThanOrEqual(view.w - view.pad + 0.05);
-      expect(y).toBeGreaterThanOrEqual(view.pad - 0.05);
-      expect(y).toBeLessThanOrEqual(view.h - view.pad + 0.05);
+  const view = { w: 400, h: 300, worldWidth: 8, cameraZ: 9 };
+
+  it("uses a fixed world → viewBox scale centred on the origin, y flipped", () => {
+    const points = project2D(
+      { o: [0, 0, 0], right: [4, 0, 0], up: [0, 2, 0], big: [40, 0, 0] },
+      view
+    );
+    expect(points.o).toEqual([200, 150, 50]);
+    expect(points.right!.slice(0, 2)).toEqual([400, 150]);
+    expect(points.up!.slice(0, 2)).toEqual([200, 50]);
+    // No fitting to the bounding box: far points leave the viewBox.
+    expect(points.big![0]).toBe(2200);
+  });
+
+  it("applies the camera's perspective to points off the z = 0 plane", () => {
+    const points = project2D({ near: [1, 1, 3], far: [1, 1, -9] }, view);
+    expect(points.near![0]).toBeCloseTo(200 + 50 * 1.5, 1);
+    expect(points.near![1]).toBeCloseTo(150 - 50 * 1.5, 1);
+    expect(points.near![2]).toBeCloseTo(75, 1);
+    expect(points.far![0]).toBeCloseTo(200 + 50 * 0.5, 1);
+    expect(points.far![2]).toBeCloseTo(25, 1);
+  });
+
+  it("the static view keeps both layouts inside its viewBox", () => {
+    for (const pos of [layeredLayout(NODES), chaosLayout(NODES)]) {
+      const points = project2D(pos, STATIC_VIEW);
+      for (const [x, y] of Object.values(points)) {
+        expect(x).toBeGreaterThan(0);
+        expect(x).toBeLessThan(STATIC_VIEW.w);
+        expect(y).toBeGreaterThan(0);
+        expect(y).toBeLessThan(STATIC_VIEW.h);
+      }
     }
-    expect(points.admin![1]).toBeLessThan(points.ui![1]);
+    const layered = project2D(layeredLayout(NODES), STATIC_VIEW);
+    expect(layered.admin![1]).toBeLessThan(layered.ui![1]);
   });
 });

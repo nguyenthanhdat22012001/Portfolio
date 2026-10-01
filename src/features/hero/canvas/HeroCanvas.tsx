@@ -1,18 +1,30 @@
 "use client";
 
-import { PerformanceMonitor, type PerformanceMonitorApi } from "@react-three/drei";
+import {
+  PerformanceMonitor,
+  type PerformanceMonitorApi
+} from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { setConsoleFunction } from "three";
-import { LOW_FPS_FLOOR, detectTier, readTierEnv, type RenderTier } from "../quality/detect-tier";
+import {
+  LOW_FPS_FLOOR,
+  detectTier,
+  readTierEnv,
+  type RenderTier
+} from "../quality/detect-tier";
 import { useQualityTier } from "../quality/useQualityTier";
 import { HeroScene } from "./HeroScene";
 
 // R3F 9.8 still constructs THREE.Clock, which three 0.18x warns about on every
 // canvas mount. Drop only that message; everything else reaches the console.
 setConsoleFunction((type, message, ...params) => {
-  if (type === "warn" && message.includes("Clock: This module has been deprecated")) return;
+  if (
+    type === "warn" &&
+    message.includes("Clock: This module has been deprecated")
+  )
+    return;
   console[type](message, ...params);
 });
 
@@ -58,7 +70,12 @@ function GlStats() {
   return null;
 }
 
-export default function HeroCanvas({ slot, onLive, onFallback, onTier }: HeroCanvasProps) {
+export default function HeroCanvas({
+  slot,
+  onLive,
+  onFallback,
+  onTier
+}: HeroCanvasProps) {
   const [initial] = useState(() => detectTier(readTierEnv(slot)));
   const tier = useQualityTier(initial);
   const visible = useInView(slot);
@@ -74,14 +91,19 @@ export default function HeroCanvas({ slot, onLive, onFallback, onTier }: HeroCan
       return;
     }
     lowDeclines.current += 1;
-    if (api.fps < LOW_FPS_FLOOR || lowDeclines.current >= MAX_LOW_DECLINES) onFallback();
+    if (api.fps < LOW_FPS_FLOOR || lowDeclines.current >= MAX_LOW_DECLINES)
+      onFallback();
   };
 
   return (
     <Canvas
       className="hero-graph-canvas"
       dpr={tier.dpr}
-      gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
+      gl={{
+        antialias: false,
+        alpha: true,
+        powerPreference: "high-performance"
+      }}
       camera={{ fov: 45, near: 0.1, far: 50, position: [0, 0, 9] }}
       flat
       frameloop={visible ? "always" : "never"}

@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { decideGate, probeWebGL, type GateEnv } from "./decide-gate";
 
-const base: GateEnv = { reduceMotion: false, hasWebGL: true, saveData: false, isDesktop: true };
+const base: GateEnv = {
+  reduceMotion: false,
+  hasWebGL: true,
+  saveData: false,
+  isDesktop: true
+};
 
 describe("decideGate", () => {
   it.each([
@@ -15,7 +20,9 @@ describe("decideGate", () => {
   });
 
   it("reduced motion wins over a capable desktop", () => {
-    expect(decideGate({ ...base, reduceMotion: true, isDesktop: true })).toBe("fallback");
+    expect(decideGate({ ...base, reduceMotion: true, isDesktop: true })).toBe(
+      "fallback"
+    );
   });
 });
 
@@ -43,7 +50,11 @@ describe("probeWebGL", () => {
 
   it("is false when getContext throws", () => {
     const doc = {
-      createElement: () => ({ getContext: () => { throw new Error("blocked"); } })
+      createElement: () => ({
+        getContext: () => {
+          throw new Error("blocked");
+        }
+      })
     } as unknown as Document;
     expect(probeWebGL(doc)).toBe(false);
   });

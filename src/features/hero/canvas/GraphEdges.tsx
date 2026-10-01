@@ -1,4 +1,10 @@
-import { useImperativeHandle, useMemo, useRef, type ReactNode, type Ref } from "react";
+import {
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  type ReactNode,
+  type Ref
+} from "react";
 import {
   DynamicDrawUsage,
   type LineBasicMaterial,
@@ -6,7 +12,11 @@ import {
   type LineSegments
 } from "three";
 import type { GraphEdge, GraphSet } from "../graph/graph-data";
-import { crossEdgeOpacity, writeEdges, type FrameUpdatable } from "./graph-frame";
+import {
+  crossEdgeOpacity,
+  writeEdges,
+  type FrameUpdatable
+} from "./graph-frame";
 import type { GraphPalette } from "./useGraphColors";
 
 function markDirty(line: LineSegments) {
@@ -28,7 +38,11 @@ function Lines({
   return (
     <lineSegments ref={lineRef} frustumCulled={false} visible={visible}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[buffer, 3]} usage={DynamicDrawUsage} />
+        <bufferAttribute
+          attach="attributes-position"
+          args={[buffer, 3]}
+          usage={DynamicDrawUsage}
+        />
       </bufferGeometry>
       {children}
     </lineSegments>
@@ -91,18 +105,26 @@ export function GraphEdges({
         if (frame.hovered !== last.current.hovered) {
           last.current.hovered = frame.hovered;
           last.current.touching = frame.hovered
-            ? graph.edges.filter((e) => e.from === frame.hovered || e.to === frame.hovered)
+            ? graph.edges.filter(
+                (e) => e.from === frame.hovered || e.to === frame.hovered
+              )
             : [];
         }
         highlight.visible = last.current.touching.length > 0;
         if (highlight.visible) {
-          const count = writeEdges(buffers.highlight, last.current.touching, positions);
+          const count = writeEdges(
+            buffers.highlight,
+            last.current.touching,
+            positions
+          );
           highlight.geometry.setDrawRange(0, count * 2);
           markDirty(highlight);
         }
 
         if (last.current.colorsVersion !== palette.version) {
-          (structural.material as LineBasicMaterial).color.copy(palette.feature);
+          (structural.material as LineBasicMaterial).color.copy(
+            palette.feature
+          );
           (cross.material as LineDashedMaterial).color.copy(palette.shared);
           (highlight.material as LineBasicMaterial).color.copy(palette.app);
           last.current.colorsVersion = palette.version;
@@ -118,7 +140,12 @@ export function GraphEdges({
         <lineBasicMaterial transparent opacity={0.25} />
       </Lines>
       <Lines buffer={buffers.cross} lineRef={crossRef}>
-        <lineDashedMaterial transparent dashSize={0.08} gapSize={0.06} opacity={0.6} />
+        <lineDashedMaterial
+          transparent
+          dashSize={0.08}
+          gapSize={0.06}
+          opacity={0.6}
+        />
       </Lines>
       <Lines buffer={buffers.highlight} lineRef={highlightRef} visible={false}>
         <lineBasicMaterial transparent opacity={0.8} />

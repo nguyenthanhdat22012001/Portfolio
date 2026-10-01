@@ -1,4 +1,9 @@
-import { clamp, easeInOutCubic, smoothstep, type Vec3 } from "@/shared/lib/math";
+import {
+  clamp,
+  easeInOutCubic,
+  smoothstep,
+  type Vec3
+} from "@/shared/lib/math";
 import type { GraphEdge, GraphNode } from "../graph/graph-data";
 import { LAYER_SPACING } from "../graph/layouts";
 
@@ -81,7 +86,43 @@ export function visibleLabels(
   morph: number,
   hovered: string | null
 ): string[] {
-  const big = morph > LABEL_MORPH ? nodes.filter((n) => n.size === 3).map((n) => n.id) : [];
+  const big =
+    morph > LABEL_MORPH
+      ? nodes.filter((n) => n.size === 3).map((n) => n.id)
+      : [];
   if (!hovered) return big.slice(0, MAX_LABELS);
   return [hovered, ...big.filter((id) => id !== hovered)].slice(0, MAX_LABELS);
+}
+
+export const PUSH_RADIUS = 1.2;
+export const PUSH_STRENGTH = 0.35;
+export const PARALLAX = 0.5;
+
+/** Push only while tangled: full until 0.2, fading to 0 by 0.3. */
+export function pushWeight(morph: number): number {
+  return 1 - smoothstep(0.2, 0.3, morph);
+}
+
+/** Offset pushing node away from the closest point on the pointer ray. */
+export function pushOffset(
+  out: Vec3,
+  node: Readonly<Vec3>,
+  closest: Readonly<Vec3>,
+  weight: number
+): Vec3 {
+  const dx = node[0] - closest[0];
+  const dy = node[1] - closest[1];
+  const dz = node[2] - closest[2];
+  const d = Math.hypot(dx, dy, dz);
+  if (weight <= 0 || d === 0 || d >= PUSH_RADIUS) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    return out;
+  }
+  const scale = ((PUSH_RADIUS - d) * PUSH_STRENGTH * weight) / d;
+  out[0] = dx * scale;
+  out[1] = dy * scale;
+  out[2] = dz * scale;
+  return out;
 }

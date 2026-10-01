@@ -2,7 +2,10 @@ const IDLE_TIMEOUT_MS = 2000;
 const NO_IDLE_DELAY_MS = 1500;
 
 // Runs callback once the page has loaded and the main thread is idle.
-export function afterLoadIdle(callback: () => void, win: Window = window): () => void {
+export function afterLoadIdle(
+  callback: () => void,
+  win: Window = window
+): () => void {
   let done = false;
   let idleId: number | undefined;
   let timeoutId: number | undefined;

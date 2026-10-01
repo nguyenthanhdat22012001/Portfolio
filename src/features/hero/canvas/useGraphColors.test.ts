@@ -4,7 +4,8 @@ import { GraphPalette } from "./useGraphColors";
 const root = document.documentElement;
 
 afterEach(() => {
-  for (const name of ["--accent", "--silver", "--earth"]) root.style.removeProperty(name);
+  for (const name of ["--accent", "--silver", "--earth"])
+    root.style.removeProperty(name);
 });
 
 describe("GraphPalette", () => {

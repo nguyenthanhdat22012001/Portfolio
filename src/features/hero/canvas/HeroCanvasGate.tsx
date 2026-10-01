@@ -1,7 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Component,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode
+} from "react";
 import { onFirstInteraction } from "@/shared/animation/load-trigger";
 import type { RenderTier } from "../quality/detect-tier";
 import { decideGate, readGateEnv } from "./decide-gate";
@@ -116,7 +123,12 @@ export function HeroCanvasGate() {
   if (!slot) return null;
   return (
     <CanvasBoundary onError={toFallback}>
-      <HeroCanvas slot={slot} onLive={onLive} onFallback={toFallback} onTier={onTier} />
+      <HeroCanvas
+        slot={slot}
+        onLive={onLive}
+        onFallback={toFallback}
+        onTier={onTier}
+      />
     </CanvasBoundary>
   );
 }

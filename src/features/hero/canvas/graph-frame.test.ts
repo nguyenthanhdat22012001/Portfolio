@@ -9,7 +9,9 @@ import {
   morphK,
   nodeScale,
   visibleLabels,
-  writeEdges
+  writeEdges,
+  pushOffset,
+  pushWeight
 } from "./graph-frame";
 import { NODES } from "../graph/graph-data";
 
@@ -43,9 +45,19 @@ describe("mixInto", () => {
 
 describe("writeEdges", () => {
   it("writes endpoint pairs and skips edges with unknown nodes", () => {
-    const positions = new Map<string, Vec3>([["a", [1, 2, 3]], ["b", [4, 5, 6]]]);
+    const positions = new Map<string, Vec3>([
+      ["a", [1, 2, 3]],
+      ["b", [4, 5, 6]]
+    ]);
     const out = new Float32Array(12);
-    const count = writeEdges(out, [{ from: "a", to: "b" }, { from: "a", to: "zzz" }], positions);
+    const count = writeEdges(
+      out,
+      [
+        { from: "a", to: "b" },
+        { from: "a", to: "zzz" }
+      ],
+      positions
+    );
     expect(count).toBe(1);
     expect([...out.slice(0, 6)]).toEqual([1, 2, 3, 4, 5, 6]);
   });
@@ -78,12 +90,53 @@ describe("visibleLabels", () => {
   });
 
   it("shows the four size-3 nodes once morph > 0.7", () => {
-    expect(visibleLabels(NODES, 0.8, null)).toEqual(["admin", "extensions", "ui", "i18n"]);
+    expect(visibleLabels(NODES, 0.8, null)).toEqual([
+      "admin",
+      "extensions",
+      "ui",
+      "i18n"
+    ]);
   });
 
   it("always shows the hovered node, replacing the least relevant", () => {
     expect(visibleLabels(NODES, 0.2, "redeem")).toEqual(["redeem"]);
-    expect(visibleLabels(NODES, 0.8, "redeem")).toEqual(["redeem", "admin", "extensions", "ui"]);
-    expect(visibleLabels(NODES, 0.8, "ui")).toEqual(["ui", "admin", "extensions", "i18n"]);
+    expect(visibleLabels(NODES, 0.8, "redeem")).toEqual([
+      "redeem",
+      "admin",
+      "extensions",
+      "ui"
+    ]);
+    expect(visibleLabels(NODES, 0.8, "ui")).toEqual([
+      "ui",
+      "admin",
+      "extensions",
+      "i18n"
+    ]);
+  });
+});
+
+describe("pushWeight", () => {
+  it("is full until 0.2 and gone from 0.3", () => {
+    expect(pushWeight(0)).toBe(1);
+    expect(pushWeight(0.2)).toBe(1);
+    expect(pushWeight(0.25)).toBeCloseTo(0.5);
+    expect(pushWeight(0.3)).toBe(0);
+  });
+});
+
+describe("pushOffset", () => {
+  it("pushes away from the ray by (1.2 - d) x 0.35", () => {
+    const out: Vec3 = [0, 0, 0];
+    pushOffset(out, [0.5, 0, 0], [0, 0, 0], 1);
+    expect(out[0]).toBeCloseTo((1.2 - 0.5) * 0.35);
+    expect(out[1]).toBe(0);
+    expect(out[2]).toBe(0);
+  });
+
+  it("does nothing outside the radius, at zero weight, or exactly on the ray", () => {
+    const out: Vec3 = [9, 9, 9];
+    expect(pushOffset(out, [2, 0, 0], [0, 0, 0], 1)).toEqual([0, 0, 0]);
+    expect(pushOffset(out, [0.5, 0, 0], [0, 0, 0], 0)).toEqual([0, 0, 0]);
+    expect(pushOffset(out, [0, 0, 0], [0, 0, 0], 1)).toEqual([0, 0, 0]);
   });
 });

@@ -55,7 +55,9 @@ export function GraphLabels({
         }}
       >
         <Html center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-          <span className="hero-graph-label" data-side={side}>{node.label}</span>
+          <span className="hero-graph-label" data-side={side}>
+            {node.label}
+          </span>
         </Html>
       </group>
     );

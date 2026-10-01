@@ -1,7 +1,10 @@
 import { useEffect, useRef, type RefObject } from "react";
 
 // True while a mouse (not touch/pen) is over el; read in useFrame.
-export function usePointerInside(el: HTMLElement, enabled: boolean): RefObject<boolean> {
+export function usePointerInside(
+  el: HTMLElement,
+  enabled: boolean
+): RefObject<boolean> {
   const inside = useRef(false);
   useEffect(() => {
     if (!enabled) return;

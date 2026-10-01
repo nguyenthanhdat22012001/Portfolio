@@ -39,8 +39,15 @@ export function GraphNodes({
         nodes.forEach((node, i) => {
           const p = positions.get(node.id);
           if (!p) return;
-          const target = nodeScale(node.size) * (frame.hovered === node.id ? HOVER_SCALE : 1);
-          const scale = damp(scales[i] ?? target, target, HOVER_DAMPING, frame.delta);
+          const target =
+            nodeScale(node.size) *
+            (frame.hovered === node.id ? HOVER_SCALE : 1);
+          const scale = damp(
+            scales[i] ?? target,
+            target,
+            HOVER_DAMPING,
+            frame.delta
+          );
           scales[i] = scale;
           dummy.position.set(p[0], p[1], p[2]);
           dummy.scale.setScalar(scale);
@@ -60,7 +67,11 @@ export function GraphNodes({
   );
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, nodes.length]} frustumCulled={false}>
+    <instancedMesh
+      ref={meshRef}
+      args={[undefined, undefined, nodes.length]}
+      frustumCulled={false}
+    >
       <icosahedronGeometry args={[0.18, 1]} />
       <meshStandardMaterial roughness={0.45} metalness={0.1} />
     </instancedMesh>

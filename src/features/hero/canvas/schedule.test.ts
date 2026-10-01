@@ -5,7 +5,9 @@ import { afterLoadIdle } from "./schedule";
 // stubbing globals wouldn't reliably reach the code under test.
 function fakeWindow({ readyState = "complete", idle = false } = {}) {
   const listeners = new Map<string, () => void>();
-  const requestIdleCallback = vi.fn((_cb: () => void, _opts: { timeout: number }) => 7);
+  const requestIdleCallback = vi.fn(
+    (_cb: () => void, _opts: { timeout: number }) => 7
+  );
   const win = {
     document: { readyState },
     requestIdleCallback: idle ? requestIdleCallback : undefined,
@@ -15,7 +17,11 @@ function fakeWindow({ readyState = "complete", idle = false } = {}) {
     addEventListener: (type: string, cb: () => void) => listeners.set(type, cb),
     removeEventListener: (type: string) => listeners.delete(type)
   } as unknown as Window;
-  return { win, requestIdleCallback, fire: (type: string) => listeners.get(type)?.() };
+  return {
+    win,
+    requestIdleCallback,
+    fire: (type: string) => listeners.get(type)?.()
+  };
 }
 
 beforeEach(() => {
@@ -41,7 +47,9 @@ describe("afterLoadIdle", () => {
     const { win, requestIdleCallback } = fakeWindow({ idle: true });
     const callback = vi.fn();
     afterLoadIdle(callback, win);
-    expect(requestIdleCallback).toHaveBeenCalledWith(expect.any(Function), { timeout: 2000 });
+    expect(requestIdleCallback).toHaveBeenCalledWith(expect.any(Function), {
+      timeout: 2000
+    });
     requestIdleCallback.mock.calls[0]![0]();
     expect(callback).toHaveBeenCalledOnce();
   });

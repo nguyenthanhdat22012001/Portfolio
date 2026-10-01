@@ -3,15 +3,25 @@ import { useScrollStore } from "@/shared/lib/stores/scroll-store";
 import { createFakeContext } from "../testing/fake-libs";
 import { hero } from "./hero";
 
-function mountHero() {
-  document.body.innerHTML =
-    '<section id="top"><p data-scroll-hint>Scroll</p></section>';
+function mountHero(gate = "pending") {
+  document.body.innerHTML = `<section id="top"><div data-hero-graph data-gate="${gate}" data-morph="chaos"></div><p data-scroll-hint>Scroll</p></section>`;
   return document.getElementById("top") as HTMLElement;
+}
+
+const graph = () => document.querySelector<HTMLElement>("[data-hero-graph]")!;
+
+function runAndGetUpdate(el: HTMLElement, reduceMotion = false) {
+  const { ctx, ScrollTrigger } = createFakeContext({ reduceMotion });
+  const cleanup = hero.run(el, ctx);
+  const { onUpdate } = ScrollTrigger.create.mock.calls[0]?.[0] as {
+    onUpdate: (self: { progress: number }) => void;
+  };
+  return { onUpdate, cleanup, ScrollTrigger };
 }
 
 afterEach(() => {
   document.body.innerHTML = "";
-  useScrollStore.getState().setProgress(0);
+  useScrollStore.getState().setHeroMorph(0);
 });
 
 describe("hero", () => {
@@ -19,32 +29,45 @@ describe("hero", () => {
     expect(hero.reducedMotion).toBe(true);
   });
 
-  it("writes hero scroll progress to the scroll store", () => {
+  it("writes hero scroll progress to heroMorph", () => {
     const el = mountHero();
-    const { ctx, ScrollTrigger } = createFakeContext();
-    hero.run(el, ctx);
-
+    const { onUpdate, ScrollTrigger } = runAndGetUpdate(el);
     expect(ScrollTrigger.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        trigger: el,
-        start: "top top",
-        end: "bottom top"
-      })
+      expect.objectContaining({ trigger: el, start: "top top", end: "bottom top" })
     );
-    const { onUpdate } = ScrollTrigger.create.mock.calls[0]?.[0] as {
-      onUpdate: (self: { progress: number }) => void;
-    };
     onUpdate({ progress: 0.4 });
-    expect(useScrollStore.getState().progress).toBe(0.4);
+    expect(useScrollStore.getState().heroMorph).toBe(0.4);
   });
 
-  it("resets progress on cleanup", () => {
-    const el = mountHero();
-    const { ctx } = createFakeContext();
-    const cleanup = hero.run(el, ctx);
-    useScrollStore.getState().setProgress(0.7);
+  it("switches the caption to layered at 0.5 and back", () => {
+    const { onUpdate } = runAndGetUpdate(mountHero());
+    onUpdate({ progress: 0.49 });
+    expect(graph().dataset.morph).toBe("chaos");
+    onUpdate({ progress: 0.5 });
+    expect(graph().dataset.morph).toBe("layered");
+    onUpdate({ progress: 0.2 });
+    expect(graph().dataset.morph).toBe("chaos");
+  });
+
+  it("leaves the caption alone under reduced motion", () => {
+    const { onUpdate } = runAndGetUpdate(mountHero(), true);
+    onUpdate({ progress: 0.9 });
+    expect(graph().dataset.morph).toBe("chaos");
+    expect(useScrollStore.getState().heroMorph).toBe(0.9);
+  });
+
+  it("leaves the caption alone when the graph fell back", () => {
+    const { onUpdate } = runAndGetUpdate(mountHero("fallback"));
+    onUpdate({ progress: 0.9 });
+    expect(graph().dataset.morph).toBe("chaos");
+  });
+
+  it("resets heroMorph and the caption on cleanup", () => {
+    const { onUpdate, cleanup } = runAndGetUpdate(mountHero());
+    onUpdate({ progress: 0.7 });
     cleanup?.();
-    expect(useScrollStore.getState().progress).toBe(0);
+    expect(useScrollStore.getState().heroMorph).toBe(0);
+    expect(graph().dataset.morph).toBe("chaos");
   });
 
   it("bobs the scroll hint", () => {

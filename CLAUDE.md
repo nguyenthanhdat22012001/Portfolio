@@ -25,8 +25,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   `aria-hidden="true"`. Every piece of text rendered inside the canvas has a
   real DOM counterpart — never canvas-only text.
 - Scroll/section progress state lives in exactly one Zustand store
-  (`shared/lib/stores/scroll-store.ts`). GSAP writes to it; `useFrame` reads
-  from it. Never drive per-frame updates through React state/re-renders.
+  (`shared/lib/stores/scroll-store.ts`; the hero canvas reads `heroMorph`).
+  GSAP writes to it (the `hero` effect); `useFrame` reads it with
+  `getState()`. Never drive per-frame updates through React state/re-renders.
 - Exactly one `Lenis` instance and one `gsap.ticker` for the whole app,
   created once at the app root. Do not instantiate either inside a feature
   component.

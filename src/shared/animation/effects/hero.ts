@@ -1,17 +1,28 @@
 import { useScrollStore } from "@/shared/lib/stores/scroll-store";
 import type { MotionEffectDef } from "../types";
 
-// Writes hero scroll progress for Phase 5's canvas (read in useFrame, never
-// through React state). The h1 and tagline are never animated: they are LCP.
+// Writes hero scroll progress (heroMorph) for the hero canvas — read in
+// useFrame, never through React state — and switches the graph caption
+// line at 0.5. The h1 and tagline are never animated: they are LCP.
 export const hero: MotionEffectDef = {
   reducedMotion: true,
   run(el, { gsap, ScrollTrigger, reduceMotion }) {
-    const { setProgress } = useScrollStore.getState();
+    const { setHeroMorph } = useScrollStore.getState();
+    const graph = el.querySelector<HTMLElement>("[data-hero-graph]");
+    const setCaption = (state: "chaos" | "layered") => {
+      if (graph && graph.dataset.morph !== state) graph.dataset.morph = state;
+    };
+
     ScrollTrigger.create({
       trigger: el,
       start: "top top",
       end: "bottom top",
-      onUpdate: (self) => setProgress(self.progress)
+      onUpdate: (self) => {
+        setHeroMorph(self.progress);
+        if (!reduceMotion && graph?.dataset.gate !== "fallback") {
+          setCaption(self.progress >= 0.5 ? "layered" : "chaos");
+        }
+      }
     });
 
     const hint = el.querySelector<HTMLElement>("[data-scroll-hint]");
@@ -25,6 +36,9 @@ export const hero: MotionEffectDef = {
       });
     }
 
-    return () => setProgress(0);
+    return () => {
+      setHeroMorph(0);
+      setCaption("chaos");
+    };
   }
 };

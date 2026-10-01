@@ -1,11 +1,12 @@
 import { create } from "zustand";
 
 interface ScrollState {
-  progress: number;
-  setProgress: (progress: number) => void;
+  /** Hero scroll progress 0–1; written by the hero effect, read in useFrame. */
+  heroMorph: number;
+  setHeroMorph: (heroMorph: number) => void;
 }
 
 export const useScrollStore = create<ScrollState>((set) => ({
-  progress: 0,
-  setProgress: (progress) => set({ progress })
+  heroMorph: 0,
+  setHeroMorph: (heroMorph) => set({ heroMorph })
 }));

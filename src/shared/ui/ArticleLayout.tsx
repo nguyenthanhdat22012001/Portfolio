@@ -1,5 +1,6 @@
 import { ViewTransition, type ComponentProps, type ReactNode } from "react";
 import { Link } from "@/shared/i18n/navigation";
+import { Glyph, GlyphText } from "./Glyph";
 import { Container } from "./Container";
 import { ExternalLinks, type ExternalLink } from "./ExternalLinks";
 import { TagList } from "./TagList";
@@ -42,7 +43,7 @@ export function ArticleLayout({
         transitionTypes={["nav-back"]}
         className="text-accent font-mono text-sm hover:underline"
       >
-        ← {backLabel}
+        <Glyph name="arrow-left" /> {backLabel}
       </Link>
       {notice ? (
         <p
@@ -66,7 +67,9 @@ export function ArticleLayout({
           ) : (
             <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
           )}
-          <p className="text-fg-muted mt-4 text-lg">{summary}</p>
+          <p className="text-fg-muted mt-4 text-lg">
+            <GlyphText text={summary} />
+          </p>
           {byline ? (
             <p data-testid="article-byline" className="mt-4 text-sm">
               {byline}

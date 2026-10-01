@@ -1,5 +1,6 @@
 import { motion } from "@/shared/animation/motion";
 import { cx } from "@/shared/lib/cx";
+import { GlyphText } from "./Glyph";
 
 export interface StatEntry {
   value: string;
@@ -28,7 +29,7 @@ export function Stat({
         )}
         {...(countUp ? motion("count") : {})}
       >
-        {value}
+        <GlyphText text={value} />
       </dd>
     </div>
   );

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { cx } from "@/shared/lib/cx";
+import { GlyphText } from "@/shared/ui/Glyph";
 
 // Below md the panes size to their content; at md+ they are bounded by the
 // 16:10 frame. motion/cls-demo.ts only transforms, clips, and fades inside
@@ -27,7 +28,7 @@ function Pane({
           isAfter ? "text-accent" : "text-fg-muted"
         )}
       >
-        {label}
+        <GlyphText text={label} />
       </span>
       <div className="bg-bg-muted h-3 w-1/2 shrink-0 rounded-xs" />
       <div
@@ -82,7 +83,9 @@ export async function ClsDemo() {
       data-cls-demo=""
       className="grid gap-4 md:aspect-[16/10] md:grid-cols-2"
     >
-      <p className="sr-only">{t("summary")}</p>
+      <p className="sr-only">
+        <GlyphText text={t("summary")} />
+      </p>
       <Pane layer="before" label={t("before")} shiftLabel={t("shift")} />
       <Pane layer="after" label={t("after")} />
     </div>

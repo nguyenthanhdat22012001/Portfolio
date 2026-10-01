@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { motion } from "@/shared/animation/motion";
+import { GlyphText } from "@/shared/ui/Glyph";
 import { PlaceholderSlot } from "@/shared/ui/PlaceholderSlot";
 import { Section } from "@/shared/ui/Section";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
@@ -28,7 +29,7 @@ export async function AboutSection() {
             className="max-w-[42.5rem] text-lg leading-[1.7]"
             {...motion("reveal")}
           >
-            {t("lead")}
+            <GlyphText text={t("lead")} />
           </p>
           <p
             className="text-fg-muted max-w-[42.5rem] leading-[1.7]"

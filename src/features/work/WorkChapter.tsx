@@ -2,6 +2,7 @@ import { ViewTransition, type ReactNode } from "react";
 import { motion, type MotionName } from "@/shared/animation/motion";
 import { Link } from "@/shared/i18n/navigation";
 import { cx } from "@/shared/lib/cx";
+import { Glyph, GlyphText } from "@/shared/ui/Glyph";
 import { Eyebrow } from "@/shared/ui/Eyebrow";
 import { ExternalLinks, type ExternalLink } from "@/shared/ui/ExternalLinks";
 import { Stat, type StatEntry } from "@/shared/ui/Stat";
@@ -63,7 +64,7 @@ export function WorkChapter({
           </h3>
         </ViewTransition>
         <p lang={contentLang} className="text-fg-muted leading-[1.7]">
-          {summary}
+          <GlyphText text={summary} />
         </p>
         <dl lang={contentLang} className="flex flex-wrap gap-8">
           {stats.map((stat) => (
@@ -83,7 +84,8 @@ export function WorkChapter({
             <span className="sr-only" lang={contentLang}>
               : {title}
             </span>
-            <span aria-hidden="true">&nbsp;→</span>
+            <span aria-hidden="true">&nbsp;</span>
+            <Glyph name="arrow-right" />
           </Link>
           <ExternalLinks links={links} newTabLabel={newTabLabel} />
         </div>

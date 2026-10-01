@@ -1,6 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 import * as runtime from "react/jsx-runtime";
 import { Link } from "@/shared/i18n/navigation";
+import { withGlyphs } from "@/shared/ui/Glyph";
 import { linkKind, slugify, textContent } from "./mdx-utils";
 
 const linkClass = "text-accent underline underline-offset-4";
@@ -46,8 +47,10 @@ const components = {
       {children}
     </h3>
   ),
-  p: (props: ComponentProps<"p">) => (
-    <p className="mt-4 leading-relaxed" {...props} />
+  p: ({ children, ...props }: ComponentProps<"p">) => (
+    <p className="mt-4 leading-relaxed" {...props}>
+      {withGlyphs(children)}
+    </p>
   ),
   ul: (props: ComponentProps<"ul">) => (
     <ul className="mt-4 list-disc space-y-2 pl-6" {...props} />
@@ -55,8 +58,13 @@ const components = {
   ol: (props: ComponentProps<"ol">) => (
     <ol className="mt-4 list-decimal space-y-2 pl-6" {...props} />
   ),
-  strong: (props: ComponentProps<"strong">) => (
-    <strong className="text-fg font-semibold" {...props} />
+  li: ({ children, ...props }: ComponentProps<"li">) => (
+    <li {...props}>{withGlyphs(children)}</li>
+  ),
+  strong: ({ children, ...props }: ComponentProps<"strong">) => (
+    <strong className="text-fg font-semibold" {...props}>
+      {withGlyphs(children)}
+    </strong>
   ),
   blockquote: (props: ComponentProps<"blockquote">) => (
     <blockquote
@@ -81,14 +89,18 @@ const components = {
       <table className="w-full border-collapse text-sm" {...props} />
     </div>
   ),
-  th: (props: ComponentProps<"th">) => (
+  th: ({ children, ...props }: ComponentProps<"th">) => (
     <th
       className="border-border bg-bg-elevated border px-3 py-2 text-left font-mono"
       {...props}
-    />
+    >
+      {withGlyphs(children)}
+    </th>
   ),
-  td: (props: ComponentProps<"td">) => (
-    <td className="border-border border px-3 py-2 align-top" {...props} />
+  td: ({ children, ...props }: ComponentProps<"td">) => (
+    <td className="border-border border px-3 py-2 align-top" {...props}>
+      {withGlyphs(children)}
+    </td>
   ),
   hr: () => <hr className="border-border my-10" />
 };

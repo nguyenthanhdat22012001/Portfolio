@@ -1,4 +1,5 @@
 import { cx } from "@/shared/lib/cx";
+import { GlyphText } from "@/shared/ui/Glyph";
 
 interface CaptionLabels {
   app: string;
@@ -33,7 +34,9 @@ export function HeroGraphCaption({ labels }: { labels: CaptionLabels }) {
       </ul>
       <p aria-live="off" className="grid">
         <span data-caption-line="chaos">{labels.chaos}</span>
-        <span data-caption-line="layered">{labels.layered}</span>
+        <span data-caption-line="layered">
+          <GlyphText text={labels.layered} />
+        </span>
       </p>
       <p className="sr-only">{labels.description}</p>
     </div>

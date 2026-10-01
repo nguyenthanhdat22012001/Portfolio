@@ -1,4 +1,5 @@
 import { cx } from "@/shared/lib/cx";
+import { Glyph } from "./Glyph";
 
 export interface ExternalLink {
   href: string;
@@ -29,7 +30,8 @@ export function ExternalLinks({
             className="text-fg-muted hover:text-fg"
           >
             {label}
-            <span aria-hidden="true">&nbsp;↗</span>
+            <span aria-hidden="true">&nbsp;</span>
+            <Glyph name="arrow-up-right" />
             <span className="sr-only"> {newTabLabel}</span>
           </a>
         </li>

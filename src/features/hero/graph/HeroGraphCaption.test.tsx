@@ -32,9 +32,15 @@ describe("HeroGraphCaption", () => {
     expect(host.querySelector('[data-caption-line="chaos"]')?.textContent).toBe(
       labels.chaos
     );
+    const layered = host.querySelector('[data-caption-line="layered"]');
+    // Arrows are SVGs (no glyph to fetch a symbols font for), labelled so
+    // assistive tech still reads them.
+    expect(layered?.textContent).toBe("Layered: app  feature  shared.");
     expect(
-      host.querySelector('[data-caption-line="layered"]')?.textContent
-    ).toBe(labels.layered);
+      [...(layered?.querySelectorAll("svg[role='img']") ?? [])].map((svg) =>
+        svg.getAttribute("aria-label")
+      )
+    ).toEqual(["→", "→"]);
     expect(host.querySelector("[aria-live]")?.getAttribute("aria-live")).toBe(
       "off"
     );

@@ -49,6 +49,16 @@ describe("Stat", () => {
     expect(plain).not.toContain("data-motion");
     expect(counted).toContain('data-motion="count"');
   });
+
+  it("draws arrows in the value as labelled svgs", () => {
+    const host = render(
+      <dl>
+        <Stat value="JS → TS" label="codebase migration" />
+      </dl>
+    );
+    expect(host.querySelector("dd")?.textContent).toBe("JS  TS");
+    expect(host.querySelector("dd svg")?.getAttribute("aria-label")).toBe("→");
+  });
 });
 
 describe("StackedLines", () => {
@@ -90,7 +100,9 @@ describe("TagList", () => {
     );
     const items = host.querySelectorAll("li");
     expect(items[1]?.textContent).toBe("Next.js — this site");
-    expect(items[1]?.querySelector("span")?.className).toContain("text-fg-muted");
+    expect(items[1]?.querySelector("span")?.className).toContain(
+      "text-fg-muted"
+    );
   });
 });
 
@@ -105,7 +117,10 @@ describe("ExternalLinks", () => {
     const link = host.querySelector("a");
     expect(link?.getAttribute("target")).toBe("_blank");
     expect(link?.getAttribute("rel")).toBe("noopener noreferrer");
-    expect(link?.textContent).toBe("GitHub\u00a0↗ (opens in new tab)");
+    expect(link?.textContent).toBe("GitHub\u00a0 (opens in new tab)");
+    expect(link?.querySelector("svg")?.getAttribute("aria-hidden")).toBe(
+      "true"
+    );
     expect(host.querySelector("a .sr-only")?.textContent).toBe(
       " (opens in new tab)"
     );

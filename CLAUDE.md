@@ -81,6 +81,11 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 - Lazy motion chunk (GSAP + ScrollTrigger + SplitText + Lenis + effects)
   ≤ 70 KB gzip, enforced by `e2e/motion.spec.ts` in CI.
 - CLS ≤ 0.1 (Lighthouse CI).
+- Every font a page loads must be preloaded (`e2e/fonts.spec.ts`; only
+  latin-ext on `/vi` is exempt). Symbols outside the latin/vietnamese subsets
+  (→ ↗ ← ≤) pull in late font files, so render them with `Glyph` /
+  `GlyphText` / `withGlyphs` from `shared/ui/Glyph.tsx`, never as raw
+  characters in rendered text. A new symbol gets a path there.
 
 ## i18n
 

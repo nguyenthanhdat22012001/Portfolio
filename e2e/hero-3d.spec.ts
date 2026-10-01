@@ -491,7 +491,7 @@ test.describe("robustness", () => {
       await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
       await expect(page.locator("#hero-canvas-slot canvas")).toHaveCount(0);
       await expect.poll(liveContexts).toBe(0);
-      await page.getByRole("link", { name: /←/ }).click();
+      await page.getByRole("link", { name: "Back to work" }).click();
       await expect(page).toHaveURL(/\/en#work$/);
       await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
       await backToTopLive();

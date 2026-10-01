@@ -197,9 +197,10 @@ test("the Oneloyalty visual explains the CLS demo to screen readers", async ({
   const chapter = page.locator(
     'article[data-chapter="oneloyalty-layered-architecture"]'
   );
-  await expect(chapter.locator("[data-cls-demo] .sr-only")).toContainText(
-    "CLS ≤ 0.1"
-  );
+  // ≤ is an SVG (no math font to fetch), labelled for assistive tech.
+  const summary = chapter.locator("[data-cls-demo] .sr-only");
+  await expect(summary).toContainText("CLS");
+  await expect(summary.getByRole("img", { name: "≤" })).toHaveCount(1);
   await expect(chapter.locator("[data-layer]")).toHaveCount(2);
 });
 

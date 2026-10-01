@@ -91,7 +91,7 @@ test.describe("navigation", () => {
       "Swift"
     );
 
-    await page.getByRole("link", { name: /←/ }).click();
+    await page.getByRole("link", { name: "Back to work" }).click();
     await expect(page).toHaveURL(/\/en#work$/);
     await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
     await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
@@ -203,7 +203,7 @@ test.describe("Lenis momentum vs. navigation scroll reset", () => {
     await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
 
     await page.mouse.wheel(0, 300);
-    await page.getByRole("link", { name: /←/ }).click();
+    await page.getByRole("link", { name: "Back to work" }).click();
 
     await expect(page).toHaveURL(/\/en#work$/);
     await expect(page.locator("#work h2")).toBeInViewport({
@@ -383,7 +383,7 @@ test.describe("layout stability", () => {
         .getByRole("link", { name: /Read case study/ })
         .click();
       await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
-      await page.getByRole("link", { name: /←/ }).click();
+      await page.getByRole("link", { name: "Back to work" }).click();
       await expect(page).toHaveURL(/\/en#work$/);
       await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
       // Let the #work hash scroll land before anything is read.

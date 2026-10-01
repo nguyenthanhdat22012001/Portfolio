@@ -243,31 +243,84 @@ test.describe("robustness", () => {
     expect(lcp).toBe("h1");
   });
 
-  test("10 round trips to a case study keep one canvas and stable GPU counts", async ({ page }) => {
-    test.setTimeout(120_000);
+  test("10 round trips to a case study keep one canvas, one live GL context, stable GPU counts and no extra triggers", async ({ page }) => {
+    test.setTimeout(180_000);
+    // A live WebGL context is one that exists and has not been lost. The gate's
+    // support probe loses its context immediately, and R3F force-loses the
+    // renderer's context on unmount, so a leaked renderer (even on a detached
+    // canvas) stays "live" and shows up here. gl.info only covers the current
+    // renderer, so it cannot see leaks across mounts; this can.
+    await page.addInitScript(() => {
+      const contexts = new Set<WebGLRenderingContext | WebGL2RenderingContext>();
+      const original = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (this: HTMLCanvasElement, type: string, ...rest: unknown[]) {
+        const ctx = (original as (...args: unknown[]) => unknown).call(this, type, ...rest);
+        if (ctx && (type === "webgl" || type === "webgl2" || type === "experimental-webgl")) {
+          contexts.add(ctx as WebGLRenderingContext);
+        }
+        return ctx;
+      } as typeof original;
+      (window as unknown as { __liveGl: () => number }).__liveGl = () =>
+        [...contexts].filter((c) => !c.isContextLost()).length;
+    });
+    const liveContexts = () => page.evaluate(() => (window as unknown as { __liveGl: () => number }).__liveGl());
+    const triggers = () => page.evaluate(() => Number(document.documentElement.dataset.motionTriggers));
     const stats = async () => ({
       geometries: await graph(page).getAttribute("data-gl-geometries"),
       textures: await graph(page).getAttribute("data-gl-textures")
     });
+    const settle = async (atTop: boolean) => {
+      let last = -1;
+      await expect
+        .poll(async () => {
+          const y = await page.evaluate(() => Math.round(window.scrollY));
+          const settled = (atTop ? y === 0 : y > 0) && y === last;
+          last = y;
+          return settled;
+        }, { intervals: [250] })
+        .toBe(true);
+    };
     const backToTopLive = async () => {
+      // Let the #work hash scroll land before leaving it.
+      await settle(false);
       await page.evaluate(() => window.scrollTo(0, 0));
+      await settle(true);
       await waitLive(page);
       await expect.poll(async () => (await stats()).geometries).not.toBeNull();
     };
 
     await page.goto("/en");
-    await backToTopLive();
+    await waitLive(page);
+    // Motion must be loaded so the trigger count means something.
+    let step = 0;
+    await expect(async () => {
+      step += 1;
+      await page.mouse.move(100 + step * 10, 200);
+      await expect(page.locator("html")).toHaveAttribute("data-motion-ready", "", { timeout: 500 });
+    }).toPass({ timeout: 10_000 });
     const baseline = await stats();
+    expect(await liveContexts()).toBe(1);
 
+    // Fresh-load count is the ceiling: after a return, the rescan runs while the
+    // #work hash scroll may or may not have landed, so effects for already-visible
+    // content are skipped (16) or not (24) depending on timing. A leak would add
+    // a whole set per trip and blow through the ceiling within a few trips.
+    await expect.poll(triggers).toBeGreaterThan(0);
+    const triggerCeiling = await triggers();
     for (let trip = 0; trip < 10; trip += 1) {
       await page.locator('[data-chapter="swift-performance"]').getByRole("link", { name: /Read case study/ }).click();
       await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
       await expect(page.locator("#hero-canvas-slot canvas")).toHaveCount(0);
+      await expect.poll(liveContexts).toBe(0);
       await page.getByRole("link", { name: /←/ }).click();
       await expect(page).toHaveURL(/\/en#work$/);
+      await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
       await backToTopLive();
       await expect(canvas(page)).toHaveCount(1);
+      await expect.poll(liveContexts).toBe(1);
       expect(await stats()).toEqual(baseline);
+      await expect.poll(triggers).toBeGreaterThan(0);
+      await expect.poll(triggers).toBeLessThanOrEqual(triggerCeiling);
     }
   });
 
@@ -284,12 +337,42 @@ test.describe("robustness", () => {
   // Review Focus 3
   test("leaving Home before the idle trigger cancels cleanly", async ({ page }) => {
     const problems = collectConsoleProblems(page);
-    // Client-side navigation right after DOMContentLoaded, before load + idle,
-    // so the gate's cleanup (not a full page unload) has to cancel the trigger.
-    await page.goto("/en", { waitUntil: "domcontentloaded" });
-    // (The header Blog link only renders when posts exist, so use a case-study link.)
-    await page.locator('[data-chapter="swift-performance"]').getByRole("link", { name: /Read case study/ }).click();
+    // Idle never fires on its own, so the click is guaranteed to come before the
+    // trigger; the gate's cleanup must then cancel the pending idle callback.
+    await page.addInitScript(() => {
+      const w = window as unknown as { __idleRequested: number[]; __idleCancelled: number[] };
+      w.__idleRequested = [];
+      w.__idleCancelled = [];
+      window.requestIdleCallback = () => {
+        w.__idleRequested.push(1);
+        return 987654;
+      };
+      window.cancelIdleCallback = (id: number) => {
+        w.__idleCancelled.push(id);
+      };
+    });
+    await page.goto("/en");
+    const link = page.locator('[data-chapter="swift-performance"]').getByRole("link", { name: /Read case study/ });
+    // Hydration signal: React attaches its props key to a hydrated DOM node, so a
+    // click now is a client-side navigation, not a full page load.
+    await link.evaluate(
+      (el) =>
+        new Promise<void>((resolve) => {
+          const check = () =>
+            Object.keys(el).some((key) => key.startsWith("__reactProps$")) ? resolve() : requestAnimationFrame(check);
+          check();
+        })
+    );
+    await page.waitForFunction(() => (window as unknown as { __idleRequested: number[] }).__idleRequested.length > 0);
+    await expect(graph(page)).toHaveAttribute("data-gate", "pending");
+    await page.evaluate(() => ((window as unknown as { __marker: number }).__marker = 1));
+    await link.click();
     await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+    expect(await page.evaluate(() => (window as unknown as { __marker?: number }).__marker)).toBe(1);
+    // The old page unmounts after the transition, so give cleanup time to run.
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { __idleCancelled: number[] }).__idleCancelled))
+      .toContain(987654);
     await page.waitForTimeout(3000);
     await expect(page.locator("canvas")).toHaveCount(0);
     expect(problems).toEqual([]);

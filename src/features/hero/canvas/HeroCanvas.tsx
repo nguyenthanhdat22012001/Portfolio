@@ -21,6 +21,8 @@ const PerfOverlay =
     ? dynamic(() => import("./PerfOverlay"), { ssr: false })
     : null;
 
+const MAX_LOW_DECLINES = 3;
+
 export interface HeroCanvasProps {
   slot: HTMLDivElement;
   onLive: () => void;
@@ -60,12 +62,19 @@ export default function HeroCanvas({ slot, onLive, onFallback, onTier }: HeroCan
   const [initial] = useState(() => detectTier(readTierEnv(slot)));
   const tier = useQualityTier(initial);
   const visible = useInView(slot);
+  const lowDeclines = useRef(0);
 
   useEffect(() => onTier(tier.level), [tier.level, onTier]);
 
   const onDecline = (api: PerformanceMonitorApi) => {
-    if (tier.level === "low" && api.fps < LOW_FPS_FLOOR) onFallback();
-    else tier.downgrade();
+    // drei's own flipflops/onFallback also count inclines, so a steady 60 fps
+    // would trip them; Off is decided here from declines only.
+    if (tier.level !== "low") {
+      tier.downgrade();
+      return;
+    }
+    lowDeclines.current += 1;
+    if (api.fps < LOW_FPS_FLOOR || lowDeclines.current >= MAX_LOW_DECLINES) onFallback();
   };
 
   return (
@@ -74,6 +83,7 @@ export default function HeroCanvas({ slot, onLive, onFallback, onTier }: HeroCan
       dpr={tier.dpr}
       gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
       camera={{ fov: 45, near: 0.1, far: 50, position: [0, 0, 9] }}
+      flat
       frameloop={visible ? "always" : "never"}
       eventSource={slot}
       style={{ position: "absolute", inset: 0 }}
@@ -91,9 +101,10 @@ export default function HeroCanvas({ slot, onLive, onFallback, onTier }: HeroCan
         requestAnimationFrame(() => onLive());
       }}
     >
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[3, 4, 5]} intensity={1.1} />
-      <PerformanceMonitor onDecline={onDecline} onFallback={onFallback} flipflops={3} />
+      {/* Lights are physically based (r155+): the spec's 0.6/1.1 are ~pi too dim; `flat` skips tone mapping so layer colors stay near their tokens. */}
+      <ambientLight intensity={1.6} />
+      <directionalLight position={[3, 4, 5]} intensity={2.4} />
+      <PerformanceMonitor onDecline={onDecline} />
       <HeroScene tier={tier.level} />
       <GlStats />
       {PerfOverlay && <PerfOverlay />}

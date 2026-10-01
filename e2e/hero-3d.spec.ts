@@ -161,3 +161,52 @@ test.describe("desktop scene", () => {
     await expect(caption(page, "layered")).toBeVisible();
   });
 });
+
+test.describe("desktop scene (follow-up)", () => {
+  test("stays live well past the PerformanceMonitor sampling windows", async ({ page }) => {
+    await page.goto("/en");
+    await waitLive(page);
+    await page.waitForTimeout(12_000);
+    await expect(graph(page)).toHaveAttribute("data-gate", "live");
+    await expect(canvas(page)).toHaveCount(1);
+  });
+
+  test("the graph geometry follows the morph while the slot is still on screen", async ({ page }) => {
+    await page.goto("/en");
+    await waitLive(page);
+    await page.mouse.move(200, 200);
+    await expect(page.locator("html")).toHaveAttribute("data-motion-ready", "", { timeout: 10_000 });
+    await expect.poll(async () => Number(await graph(page).getAttribute("data-gl-calls"))).toBe(3);
+    const distance = await page.evaluate(() => {
+      const r = document.querySelector("#hero-canvas-slot")!.getBoundingClientRect();
+      const header = document.querySelector("header")!.getBoundingClientRect().bottom;
+      return Math.max(100, (r.top + r.height / 2 - header - 170) / 0.9);
+    });
+    await page.mouse.wheel(0, Math.round(distance * 0.92));
+    await expect.poll(async () => Number(await graph(page).getAttribute("data-gl-calls")), { timeout: 10_000 }).toBe(2);
+    const { centre, header } = await page.evaluate(() => {
+      const r = document.querySelector("#hero-canvas-slot")!.getBoundingClientRect();
+      return { centre: r.top + r.height / 2, header: document.querySelector("header")!.getBoundingClientRect().bottom };
+    });
+    expect(centre).toBeGreaterThanOrEqual(header + 80);
+    expect(centre).toBeLessThan(page.viewportSize()!.height);
+  });
+});
+
+test.describe("mobile scene", () => {
+  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
+
+  test("the geometry morphs while the slot is still below the header", async ({ page }) => {
+    await page.goto("/en");
+    await page.evaluate(() => window.scrollBy(0, 5));
+    await waitLive(page);
+    await expect(page.locator("html")).toHaveAttribute("data-motion-ready", "", { timeout: 10_000 });
+    await page.evaluate(() => window.scrollTo(0, 90));
+    await expect.poll(async () => Number(await graph(page).getAttribute("data-gl-calls")), { timeout: 10_000 }).toBe(2);
+    const { centre, header } = await page.evaluate(() => {
+      const r = document.querySelector("#hero-canvas-slot")!.getBoundingClientRect();
+      return { centre: r.top + r.height / 2, header: document.querySelector("header")!.getBoundingClientRect().bottom };
+    });
+    expect(centre).toBeGreaterThanOrEqual(header + 80);
+  });
+});

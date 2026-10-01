@@ -9,11 +9,11 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { setConsoleFunction } from "three";
 import {
-  LOW_FPS_FLOOR,
   detectTier,
   readTierEnv,
   type RenderTier
 } from "../quality/detect-tier";
+import { declineAction, monitorBounds } from "../quality/perf-policy";
 import { useQualityTier } from "../quality/useQualityTier";
 import { HeroScene } from "./HeroScene";
 
@@ -32,8 +32,6 @@ const PerfOverlay =
   process.env.NODE_ENV === "development"
     ? dynamic(() => import("./PerfOverlay"), { ssr: false })
     : null;
-
-const MAX_LOW_DECLINES = 3;
 
 export interface HeroCanvasProps {
   slot: HTMLDivElement;
@@ -79,20 +77,15 @@ export default function HeroCanvas({
   const [initial] = useState(() => detectTier(readTierEnv(slot)));
   const tier = useQualityTier(initial);
   const visible = useInView(slot);
-  const lowDeclines = useRef(0);
 
   useEffect(() => onTier(tier.level), [tier.level, onTier]);
 
+  // drei's own flipflops/onFallback also count inclines, so a steady 60 fps
+  // would trip them; Off is decided here from declines only (perf-policy).
   const onDecline = (api: PerformanceMonitorApi) => {
-    // drei's own flipflops/onFallback also count inclines, so a steady 60 fps
-    // would trip them; Off is decided here from declines only.
-    if (tier.level !== "low") {
-      tier.downgrade();
-      return;
-    }
-    lowDeclines.current += 1;
-    if (api.fps < LOW_FPS_FLOOR || lowDeclines.current >= MAX_LOW_DECLINES)
-      onFallback();
+    const action = declineAction(tier.level, api.averages);
+    if (action === "downgrade") tier.downgrade();
+    else if (action === "off") onFallback();
   };
 
   return (
@@ -129,7 +122,10 @@ export default function HeroCanvas({
       {/* Lights are physically based (r155+): the spec's 0.6/1.1 are ~pi too dim; `flat` skips tone mapping so layer colors stay near their tokens. */}
       <ambientLight intensity={1.6} />
       <directionalLight position={[3, 4, 5]} intensity={2.4} />
-      <PerformanceMonitor onDecline={onDecline} />
+      <PerformanceMonitor
+        bounds={(refreshrate) => monitorBounds(tier.level, refreshrate)}
+        onDecline={onDecline}
+      />
       <HeroScene tier={tier.level} slot={slot} />
       <GlStats />
       {PerfOverlay && <PerfOverlay />}

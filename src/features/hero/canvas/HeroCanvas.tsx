@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { setConsoleFunction } from "three";
 import { LOW_FPS_FLOOR, detectTier, readTierEnv, type RenderTier } from "../quality/detect-tier";
 import { useQualityTier } from "../quality/useQualityTier";
+import { HeroScene } from "./HeroScene";
 
 // R3F 9.8 still constructs THREE.Clock, which three 0.18x warns about on every
 // canvas mount. Drop only that message; everything else reaches the console.
@@ -93,6 +94,7 @@ export default function HeroCanvas({ slot, onLive, onFallback, onTier }: HeroCan
       <ambientLight intensity={0.6} />
       <directionalLight position={[3, 4, 5]} intensity={1.1} />
       <PerformanceMonitor onDecline={onDecline} onFallback={onFallback} flipflops={3} />
+      <HeroScene tier={tier.level} />
       <GlStats />
       {PerfOverlay && <PerfOverlay />}
     </Canvas>

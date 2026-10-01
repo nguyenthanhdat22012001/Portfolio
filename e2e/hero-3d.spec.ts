@@ -100,3 +100,64 @@ test.describe("mobile (Lighthouse-like)", () => {
     await expect(graph(page)).toHaveAttribute("data-tier", "low");
   });
 });
+
+async function waitLive(page: Page) {
+  await expect(graph(page)).toHaveAttribute("data-gate", "live", { timeout: 15_000 });
+}
+
+test.describe("desktop scene", () => {
+  test("draws in at most 6 draw calls", async ({ page }) => {
+    await page.goto("/en");
+    await waitLive(page);
+    await expect.poll(async () => Number(await graph(page).getAttribute("data-gl-calls"))).toBeGreaterThan(0);
+    const calls = Number(await graph(page).getAttribute("data-gl-calls"));
+    expect(calls).toBeLessThanOrEqual(6);
+  });
+
+  test("scrolling past the hero switches the caption to layered and back", async ({ page }) => {
+    await page.goto("/en");
+    await waitLive(page);
+    await page.mouse.move(200, 200);
+    await expect(page.locator("html")).toHaveAttribute("data-motion-ready", "", { timeout: 10_000 });
+    const heroHeight = await page.locator("#top").evaluate((el) => el.getBoundingClientRect().height);
+    await page.mouse.wheel(0, heroHeight);
+    await expect(caption(page, "layered")).toBeVisible();
+    await page.mouse.wheel(0, -heroHeight);
+    await expect(caption(page, "chaos")).toBeVisible();
+  });
+
+  test("the theme toggle recolors without remounting the canvas", async ({ page }) => {
+    const problems = collectConsoleProblems(page);
+    await page.goto("/en");
+    await waitLive(page);
+    const before = await canvas(page).elementHandle();
+    await page.getByRole("button", { name: "Dark theme" }).click();
+    expect(await before?.evaluate((el) => el.isConnected)).toBe(true);
+    await expect(canvas(page)).toHaveCount(1);
+    expect(problems).toEqual([]);
+  });
+
+  // Review Focus 1
+  test("resizing the window keeps the canvas matched to the slot", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/en");
+    await waitLive(page);
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await expect.poll(async () => {
+      const slot = await page.locator("#hero-canvas-slot").boundingBox();
+      const box = await canvas(page).boundingBox();
+      return Math.abs((slot?.width ?? 0) - (box?.width ?? -100));
+    }).toBeLessThan(2);
+  });
+
+  // Review Focus 4
+  test("a reload part-way down the hero restores the matching caption", async ({ page }) => {
+    await page.goto("/en");
+    const heroHeight = await page.locator("#top").evaluate((el) => el.getBoundingClientRect().height);
+    await page.evaluate((y) => window.scrollTo(0, y), Math.round(heroHeight * 0.8));
+    await page.reload();
+    await page.mouse.move(200, 200);
+    await expect(page.locator("html")).toHaveAttribute("data-motion-ready", "", { timeout: 10_000 });
+    await expect(caption(page, "layered")).toBeVisible();
+  });
+});

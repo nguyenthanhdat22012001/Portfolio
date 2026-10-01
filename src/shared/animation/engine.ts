@@ -6,10 +6,9 @@ import type {
   MotionEffectDef,
   MotionLibs
 } from "./types";
+import { DESKTOP_QUERY, REDUCE_QUERY } from "./media";
 
-export const DESKTOP_QUERY =
-  "(min-width: 768px) and (hover: hover) and (pointer: fine)";
-export const REDUCE_QUERY = "(prefers-reduced-motion: reduce)";
+export { DESKTOP_QUERY, REDUCE_QUERY };
 
 // gsap's matchMedia only invokes a branch's callback when at least one named
 // condition matches (see gsap-core.js's matchMedia: `active` stays 0 and the

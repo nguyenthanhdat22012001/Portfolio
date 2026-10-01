@@ -23,11 +23,12 @@ export function CameraRig({
   const inside = usePointerInside(slot, parallax);
 
   useFrame(({ camera, pointer }, delta) => {
+    const dt = Math.min(delta, 0.1); // no jump after a background tab
     const active = parallax && inside.current;
     const tx = active ? pointer.x * PARALLAX : 0;
     const ty = active ? pointer.y * PARALLAX : 0;
-    camera.position.x = damp(camera.position.x, tx, PARALLAX_DAMPING, delta);
-    camera.position.y = damp(camera.position.y, ty, PARALLAX_DAMPING, delta);
+    camera.position.x = damp(camera.position.x, tx, PARALLAX_DAMPING, dt);
+    camera.position.y = damp(camera.position.y, ty, PARALLAX_DAMPING, dt);
     camera.position.z = z;
     camera.lookAt(0, 0, 0);
   });

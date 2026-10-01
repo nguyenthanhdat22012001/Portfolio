@@ -87,6 +87,8 @@ export function Graph({ tier, slot }: { tier: RenderTier; slot: HTMLElement }) {
   });
 
   useFrame((state, delta) => {
+    // A frame after a background tab can be seconds long; don't jump.
+    const dt = Math.min(delta, 0.1);
     const morph = useScrollStore.getState().heroMorph;
     const k = morphK(morph);
     const positions = positionsRef.current;
@@ -130,18 +132,18 @@ export function Graph({ tier, slot }: { tier: RenderTier; slot: HTMLElement }) {
         push.target[1] = 0;
         push.target[2] = 0;
       }
-      damp3(offset, push.target, POSITION_DAMPING, delta);
+      damp3(offset, push.target, POSITION_DAMPING, dt);
       mixInto(target, chaos, layered, k, offset);
-      damp3(current, target, POSITION_DAMPING, delta);
+      damp3(current, target, POSITION_DAMPING, dt);
     }
 
     if (group) {
-      spinRef.current += SPIN_SPEED * delta * (1 - k);
+      spinRef.current += SPIN_SPEED * dt * (1 - k);
       group.rotation.y = damp(
         group.rotation.y,
         (1 - k) * spinRef.current,
         ROTATION_DAMPING,
-        delta
+        dt
       );
     }
 
@@ -149,7 +151,7 @@ export function Graph({ tier, slot }: { tier: RenderTier; slot: HTMLElement }) {
     if (!interactive || !inside.current) {
       hovered = null;
     } else {
-      hoverClockRef.current += delta;
+      hoverClockRef.current += dt;
       if (hoverClockRef.current >= HOVER_INTERVAL) {
         hoverClockRef.current = 0;
         hovered = pickNode(
@@ -171,7 +173,7 @@ export function Graph({ tier, slot }: { tier: RenderTier; slot: HTMLElement }) {
       setLabelIds(visibleLabels(graph.nodes, morph, hovered));
     }
 
-    const frame: GraphFrame = { morph, delta, hovered };
+    const frame: GraphFrame = { morph, delta: dt, hovered };
     nodesRef.current?.update(positions, frame);
     edgesRef.current?.update(positions, frame);
     labelsRef.current?.update(positions, frame);

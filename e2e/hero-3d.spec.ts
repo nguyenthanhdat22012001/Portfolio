@@ -399,22 +399,33 @@ test.describe("desktop hover", () => {
     await expect(slot).not.toHaveAttribute("data-cursor");
   });
 
-  test("layered labels do not overlap each other", async ({ page }) => {
+  test("layered labels are below the header and do not overlap each other", async ({ page }) => {
     await page.goto("/en");
     await waitLive(page);
     await page.mouse.move(200, 200);
     await expect(page.locator("html")).toHaveAttribute("data-motion-ready", "", { timeout: 10_000 });
     const heroHeight = await page.locator("#top").evaluate((el) => el.getBoundingClientRect().height);
-    await page.evaluate((y) => window.scrollTo(0, y), heroHeight * 0.3);
     const labels = page.locator("#hero-canvas-slot .hero-graph-label");
+    // Step down until the layered labels appear, then a little further (about morph 0.9).
+    let y = 0;
+    while ((await labels.count()) < 4 && y < heroHeight) {
+      y += 20;
+      await page.evaluate((v) => window.scrollTo(0, v), y);
+      await page.waitForTimeout(250);
+    }
     await expect(labels).toHaveCount(4);
+    await page.evaluate((v) => window.scrollTo(0, v), y + 40);
     await page.waitForTimeout(1200);
+    const headerBottom = await page.locator("header").first().evaluate((el) => el.getBoundingClientRect().bottom);
     const boxes = await labels.evaluateAll((els) =>
       els.map((el) => {
         const r = el.getBoundingClientRect();
         return { l: r.left, r: r.right, t: r.top, b: r.bottom };
       })
     );
+    for (const [i, box] of boxes.entries()) {
+      expect(box.t, `label ${i} is below the header`).toBeGreaterThanOrEqual(headerBottom);
+    }
     for (let i = 0; i < boxes.length; i += 1) {
       for (let j = i + 1; j < boxes.length; j += 1) {
         const a = boxes[i]!;

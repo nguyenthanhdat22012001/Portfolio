@@ -32,8 +32,18 @@ export function GraphLabels({
   return ids.map((id) => {
     const node = nodes.find((n) => n.id === id);
     if (!node) return null;
-    // Neighbours in a layer alternate above/below so same-row labels don't collide.
-    const side = nodes.filter((n) => n.layer === node.layer).indexOf(node) % 2 === 0 ? "above" : "below";
+    // Neighbours in a layer alternate above/below so same-row labels don't
+    // collide. The top (app) row sits just under the sticky header, so its
+    // labels stay below the nodes, staggered by distance instead.
+    const index = nodes.filter((n) => n.layer === node.layer).indexOf(node);
+    const side =
+      node.layer === "app"
+        ? index % 2 === 0
+          ? "below"
+          : "below-far"
+        : index % 2 === 0
+          ? "above"
+          : "below";
     return (
       <group
         key={id}

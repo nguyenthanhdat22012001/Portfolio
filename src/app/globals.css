@@ -147,6 +147,10 @@
   translate: 0 32px;
 }
 
+.hero-graph-label[data-side="below-far"] {
+  translate: 0 54px;
+}
+
 /* Hero graph (features/hero). CSS alone picks the static graph and caption
    line, so the result is right before hydration and without JS. The gate
    sets data-gate; the hero motion effect sets data-morph. */

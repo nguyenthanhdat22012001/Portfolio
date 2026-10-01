@@ -14,7 +14,8 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   interactive control that cannot work without client JS (currently
   `shared/theme/ThemeToggle.tsx`, `features/layout/LocaleSwitcher.tsx`,
   `features/contact/CopyEmailButton.tsx`, which must sit next to a `mailto:`
-  link as its no-JS fallback, and `app/[locale]/_motion/MotionRoot.tsx`).
+  link as its no-JS fallback, and `app/[locale]/_motion/MotionRoot.tsx`, and
+  `features/hero/canvas/HeroCanvasGate.tsx` (decides whether the 3D canvas mounts)).
   Pass translated labels to client components as props instead of shipping
   message catalogs to the client.
 
@@ -51,7 +52,8 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 ## Performance budget (enforced by Lighthouse CI — `lighthouserc.json`)
 
 - Initial JS (gzip) < 150 KB.
-- Lazy-loaded 3D chunk < 250 KB.
+- Lazy-loaded 3D chunk ≤ 250 KB gzip, enforced by `e2e/hero-3d.spec.ts`, which
+  also checks initial JS ≤ 150 KB gzip.
 - `.glb` models < 500 KB (except the Phase 5B avatar, budgeted separately at
   ≤ 1.5 MB).
 - Flag budget-relevant changes during implementation rather than waiting for

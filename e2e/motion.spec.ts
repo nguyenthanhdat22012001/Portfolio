@@ -40,6 +40,9 @@ test.describe("motion loading", () => {
 
     await page.goto("/en");
     await page.waitForLoadState("networkidle");
+    // The desktop hero canvas loads on idle; let it finish so its chunk
+    // isn't counted as motion code.
+    await expect(page.locator("[data-hero-graph]")).toHaveAttribute("data-gate", "live", { timeout: 15_000 });
     armed = true;
     await loadMotion(page);
 
@@ -381,11 +384,12 @@ test.describe("layout stability", () => {
       await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
     };
 
-    // The first return is the baseline: Swift is on screen on /en#work, so
-    // its isAtOrAboveViewport guard skips it and the count is lower than on
-    // the initial load. Every later trip must stay at or below it.
-    await roundTrip();
+    // Ceiling is the count right after the initial load, where nothing is
+    // skipped. After a return, sections already on screen are skipped, and
+    // which ones are varies with load (software WebGL in parallel specs), so
+    // the count toggles between low and high. A leak grows past the ceiling.
     await expect.poll(triggerCount).toBeGreaterThan(0);
+    await page.waitForTimeout(500);
     const baseline = await triggerCount();
 
     for (let trip = 0; trip < 10; trip += 1) {

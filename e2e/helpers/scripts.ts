@@ -1,0 +1,51 @@
+import { gzipSync } from "node:zlib";
+import type { Page, Response } from "@playwright/test";
+
+const SCRIPT = /\/_next\/static\/[^"'\s)]+\.js/g;
+
+// Records every Next script response. Scripts named in the document HTML
+// are "initial"; anything else was loaded later (dynamic chunks).
+export function trackScripts(page: Page) {
+  const responses: Response[] = [];
+  let initial = new Set<string>();
+  page.on("response", (response) => {
+    if (
+      response.request().resourceType() === "script" &&
+      response.url().includes("/_next/static/")
+    ) {
+      responses.push(response);
+    }
+  });
+  return {
+    async goto(path: string) {
+      const response = await page.goto(path);
+      const html = (await response?.text()) ?? "";
+      initial = new Set(html.match(SCRIPT) ?? []);
+    },
+    lazy: () => responses.filter((r) => !initial.has(new URL(r.url()).pathname)),
+    initial: () => responses.filter((r) => initial.has(new URL(r.url()).pathname))
+  };
+}
+
+export async function gzipBytes(responses: Response[]): Promise<number> {
+  const bodies = await Promise.all(responses.map((r) => r.body()));
+  return bodies.reduce((sum, body) => sum + gzipSync(body).length, 0);
+}
+
+// Known third-party noise: software-GL driver perf hints (SwiftShader) and
+// R3F 9 still constructing THREE.Clock, which three 0.18x deprecated.
+const IGNORED = [/GL Driver Message/, /THREE\.Clock: This module has been deprecated/];
+
+export function collectConsoleProblems(page: Page): string[] {
+  const problems: string[] = [];
+  page.on("console", (message) => {
+    if (
+      (message.type() === "error" || message.type() === "warning") &&
+      !IGNORED.some((pattern) => pattern.test(message.text()))
+    ) {
+      problems.push(`${message.type()}: ${message.text()}`);
+    }
+  });
+  page.on("pageerror", (error) => problems.push(`pageerror: ${error.message}`));
+  return problems;
+}

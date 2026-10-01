@@ -5,6 +5,7 @@ import { ButtonLink } from "@/shared/ui/ButtonLink";
 import { Container } from "@/shared/ui/Container";
 import { Eyebrow } from "@/shared/ui/Eyebrow";
 import { StackedLines } from "@/shared/ui/StackedLines";
+import { HeroCanvasGate } from "./canvas/HeroCanvasGate";
 import { HeroGraphCaption } from "./graph/HeroGraphCaption";
 import { HeroGraphStatic } from "./graph/HeroGraphStatic";
 
@@ -61,6 +62,7 @@ export async function HeroSection() {
           >
             <HeroGraphStatic state="chaos" />
             <HeroGraphStatic state="layered" />
+            <HeroCanvasGate />
           </div>
           <HeroGraphCaption
             labels={{

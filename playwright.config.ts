@@ -13,5 +13,25 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }]
+  projects: [
+    {
+      name: "chromium",
+      testIgnore: /hero-3d-no-webgl\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        // Headless Chromium no longer falls back to software WebGL on its own.
+        launchOptions: {
+          args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"]
+        }
+      }
+    },
+    {
+      name: "chromium-no-webgl",
+      testMatch: /hero-3d-no-webgl\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: { args: ["--disable-webgl", "--disable-3d-apis"] }
+      }
+    }
+  ]
 });

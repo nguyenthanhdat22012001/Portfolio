@@ -32,7 +32,17 @@ export function MotionRoot() {
   }, []);
 
   useEffect(() => {
-    handle.current?.rescan();
+    // Next applies the #hash scroll right after commit; scanning a frame later
+    // makes isAtOrAboveViewport see the landed scroll position, not the top.
+    let cancelled = false;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!cancelled) handle.current?.rescan();
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [pathname]);
 
   return null;

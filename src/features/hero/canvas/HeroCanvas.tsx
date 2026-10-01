@@ -4,8 +4,16 @@ import { PerformanceMonitor, type PerformanceMonitorApi } from "@react-three/dre
 import { Canvas, useFrame } from "@react-three/fiber";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
+import { setConsoleFunction } from "three";
 import { LOW_FPS_FLOOR, detectTier, readTierEnv, type RenderTier } from "../quality/detect-tier";
 import { useQualityTier } from "../quality/useQualityTier";
+
+// R3F 9.8 still constructs THREE.Clock, which three 0.18x warns about on every
+// canvas mount. Drop only that message; everything else reaches the console.
+setConsoleFunction((type, message, ...params) => {
+  if (type === "warn" && message.includes("Clock: This module has been deprecated")) return;
+  console[type](message, ...params);
+});
 
 const PerfOverlay =
   process.env.NODE_ENV === "development"

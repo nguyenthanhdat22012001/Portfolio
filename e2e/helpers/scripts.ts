@@ -32,9 +32,8 @@ export async function gzipBytes(responses: Response[]): Promise<number> {
   return bodies.reduce((sum, body) => sum + gzipSync(body).length, 0);
 }
 
-// Known third-party noise: software-GL driver perf hints (SwiftShader) and
-// R3F 9 still constructing THREE.Clock, which three 0.18x deprecated.
-const IGNORED = [/GL Driver Message/, /THREE\.Clock: This module has been deprecated/];
+// Known noise: software-GL driver perf hints (SwiftShader).
+const IGNORED = [/GL Driver Message/];
 
 export function collectConsoleProblems(page: Page): string[] {
   const problems: string[] = [];

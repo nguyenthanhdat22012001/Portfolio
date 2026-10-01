@@ -382,14 +382,23 @@ test.describe("layout stability", () => {
       await page.getByRole("link", { name: /←/ }).click();
       await expect(page).toHaveURL(/\/en#work$/);
       await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+      // Let the #work hash scroll land before anything is read.
+      let last = -1;
+      await expect
+        .poll(async () => {
+          const y = await page.evaluate(() => Math.round(window.scrollY));
+          const settled = y > 0 && y === last;
+          last = y;
+          return settled;
+        }, { intervals: [250] })
+        .toBe(true);
     };
 
-    // Ceiling is the count right after the initial load, where nothing is
-    // skipped. After a return, sections already on screen are skipped, and
-    // which ones are varies with load (software WebGL in parallel specs), so
-    // the count toggles between low and high. A leak grows past the ceiling.
+    // The first return is the baseline: Swift is on screen on /en#work, so
+    // its isAtOrAboveViewport guard skips it and the count is lower than on
+    // the initial load. Every later trip must stay at or below it.
+    await roundTrip();
     await expect.poll(triggerCount).toBeGreaterThan(0);
-    await page.waitForTimeout(500);
     const baseline = await triggerCount();
 
     for (let trip = 0; trip < 10; trip += 1) {

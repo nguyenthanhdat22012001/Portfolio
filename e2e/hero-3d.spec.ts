@@ -99,6 +99,29 @@ test.describe("mobile (Lighthouse-like)", () => {
     await expect(graph(page)).toHaveAttribute("data-gate", "live", { timeout: 15_000 });
     await expect(graph(page)).toHaveAttribute("data-tier", "low");
   });
+
+  test("on mobile without interaction, LCP is hero DOM text inside #top, never the canvas or graph", async ({ page }) => {
+    await page.goto("/en");
+    const lcp = await page.evaluate(
+      () =>
+        new Promise<{ tag: string; inTop: boolean; inSlot: boolean; inSvg: boolean }>((resolve) => {
+          new PerformanceObserver((list) => {
+            const entries = list.getEntries() as Array<PerformanceEntry & { element?: Element | null }>;
+            const el = entries.at(-1)?.element;
+            resolve({
+              tag: el?.tagName ?? "none",
+              inTop: !!el?.closest("#top"),
+              inSlot: !!el?.closest("#hero-canvas-slot"),
+              inSvg: !!el?.closest("svg") || el?.tagName === "CANVAS"
+            });
+          }).observe({ type: "largest-contentful-paint", buffered: true });
+        })
+    );
+    expect(lcp.inTop).toBe(true);
+    expect(lcp.inSlot).toBe(false);
+    expect(lcp.inSvg).toBe(false);
+    expect(["H1", "P"]).toContain(lcp.tag);
+  });
 });
 
 async function waitLive(page: Page) {
@@ -227,7 +250,7 @@ test.describe("robustness", () => {
     expect(problems).toEqual([]);
   });
 
-  test("the LCP element is the hero h1", async ({ page }) => {
+  test("on desktop with the canvas live, LCP is the hero h1", async ({ page }) => {
     await page.goto("/en");
     await waitLive(page);
     const lcp = await page.evaluate(

@@ -25,8 +25,10 @@ migration from the Oneloyalty case study, told without words.
   desktop (headless Chromium with SwiftShader software GL, 5 s `requestAnimationFrame`
   count, so vsync-bound and not a real-GPU figure); mobile fps: **TODO (owner):
   measure on a real Android phone and iPhone**; Lighthouse mobile Performance
-  91 (`/en`) and 91–95 (case study), `/vi` 87 (see below); LCP element: the
-  hero intro paragraph (the `h1` is not the LCP element in these runs).
+  91 (`/en`) and 91–95 (case study), `/vi` 87 (see below); LCP element on
+  mobile: the hero intro paragraph (`<p class="text-fg-muted text-lg ...">` in `#top`),
+  the same element as on `master` without Phase 5. With the canvas live on
+  desktop it is the `h1`.
   Lazy motion chunk 55.2 KB gzip.
 - **Lighthouse note.** `/vi` scores 87 on Performance (threshold 0.9). The same
   87 is measured on `master` without Phase 5, so it is not caused by the hero

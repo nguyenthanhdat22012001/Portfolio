@@ -33,7 +33,11 @@ describe("hero", () => {
     const el = mountHero();
     const { onUpdate, ScrollTrigger } = runAndGetUpdate(el);
     expect(ScrollTrigger.create).toHaveBeenCalledWith(
-      expect.objectContaining({ trigger: el, start: 0, end: expect.any(Function) })
+      expect.objectContaining({
+        trigger: el,
+        start: 0,
+        end: expect.any(Function)
+      })
     );
     onUpdate({ progress: 0.4 });
     expect(useScrollStore.getState().heroMorph).toBe(0.4);
@@ -42,7 +46,9 @@ describe("hero", () => {
   it("ends the morph range by slot position, with a minimum distance", () => {
     const el = mountHero();
     const { ScrollTrigger } = runAndGetUpdate(el);
-    const { end } = ScrollTrigger.create.mock.calls[0]?.[0] as { end: () => string };
+    const { end } = ScrollTrigger.create.mock.calls[0]?.[0] as {
+      end: () => string;
+    };
     // jsdom has zero-sized rects: the floor applies.
     expect(end()).toBe("+=100");
   });

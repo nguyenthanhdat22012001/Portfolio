@@ -23,11 +23,16 @@ export const hero: MotionEffectDef = {
     // climbed to ~170px below the header at 90% progress, with a floor so
     // short mobile layouts do not complete instantly. Measured from scroll 0 and re-evaluated on refresh.
     const morphDistance = () => {
-      const slot = el.querySelector<HTMLElement>("#hero-canvas-slot") ?? graph ?? el;
+      const slot =
+        el.querySelector<HTMLElement>("#hero-canvas-slot") ?? graph ?? el;
       const rect = slot.getBoundingClientRect();
       const centre = rect.top + window.scrollY + rect.height / 2;
-      const headerBottom = document.querySelector("header")?.getBoundingClientRect().bottom ?? 80;
-      return Math.max(MIN_MORPH_DISTANCE, (centre - headerBottom - CENTRE_CLEARANCE) / 0.9);
+      const headerBottom =
+        document.querySelector("header")?.getBoundingClientRect().bottom ?? 80;
+      return Math.max(
+        MIN_MORPH_DISTANCE,
+        (centre - headerBottom - CENTRE_CLEARANCE) / 0.9
+      );
     };
 
     ScrollTrigger.create({

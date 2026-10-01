@@ -41,7 +41,11 @@ describe("Low tier Off rule", () => {
   });
 
   it("sustained fps below the floor goes Off", () => {
-    for (const samples of [steady(20), noisy(18), [24, 20, 22, 19, 21, 23, 20, 18, 30, 22]]) {
+    for (const samples of [
+      steady(20),
+      noisy(18),
+      [24, 20, 22, 19, 21, 23, 20, 18, 30, 22]
+    ]) {
       expect(dreiDeclines(samples, "low")).toBe(true);
       expect(declineAction("low", samples)).toBe("off");
     }

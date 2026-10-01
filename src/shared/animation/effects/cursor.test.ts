@@ -73,7 +73,10 @@ describe("startCursor", () => {
 
   it("grows over a graph node in the hero canvas", () => {
     start();
-    document.body.insertAdjacentHTML("beforeend", '<div id="slot"><canvas></canvas></div>');
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      '<div id="slot"><canvas></canvas></div>'
+    );
     const slot = document.getElementById("slot")!;
     const canvasEl = slot.querySelector("canvas")!;
     slot.dataset.cursor = "node";

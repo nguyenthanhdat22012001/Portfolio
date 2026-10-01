@@ -67,7 +67,10 @@ export function HeroGraphStatic({ state }: { state: "chaos" | "layered" }) {
                 key={node.id}
                 cx={p[0]}
                 cy={p[1]}
-                r={Math.round(p[2] * NODE_RADIUS * nodeScale(node.size) * 10) / 10}
+                r={
+                  Math.round(p[2] * NODE_RADIUS * nodeScale(node.size) * 10) /
+                  10
+                }
               />
             ) : null;
           })}

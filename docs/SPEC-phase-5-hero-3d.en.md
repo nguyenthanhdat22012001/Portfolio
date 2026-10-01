@@ -24,12 +24,12 @@ One 3D scene, in the Hero only: a **node graph of a monorepo's packages**. At th
 
 ## 1. Libraries
 
-| Package | Notes |
-| --- | --- |
-| `three`, `@types/three` | |
-| `@react-three/fiber` | Use the major that matches the repo's React version (**v9 for React 19**, v8 for React 18) |
-| `@react-three/drei` | Only `Html` and `PerformanceMonitor`. Import named exports so the rest tree-shakes |
-| `r3f-perf` | **devDependency**, dev only, never imported in production code paths |
+| Package                 | Notes                                                                                      |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| `three`, `@types/three` |                                                                                            |
+| `@react-three/fiber`    | Use the major that matches the repo's React version (**v9 for React 19**, v8 for React 18) |
+| `@react-three/drei`     | Only `Html` and `PerformanceMonitor`. Import named exports so the rest tree-shakes         |
+| `r3f-perf`              | **devDependency**, dev only, never imported in production code paths                       |
 
 No other new dependencies. GSAP/ScrollTrigger and the Zustand scroll store already exist from Phase 4.
 
@@ -76,51 +76,86 @@ Respect the layer rules: `features/hero` may import from `shared/*`, never from 
 The labels are **illustrative** (Oneloyalty-style feature names that are public on the App Store); they do not claim to be the exact internal package list.
 
 ```ts
-export type Layer = 'app' | 'feature' | 'shared';
-export type GraphNode = { id: string; label: string; layer: Layer; size: 1 | 2 | 3 };
+export type Layer = "app" | "feature" | "shared";
+export type GraphNode = {
+  id: string;
+  label: string;
+  layer: Layer;
+  size: 1 | 2 | 3;
+};
 export type GraphEdge = { from: string; to: string };
 
 export const NODES: GraphNode[] = [
   // app
-  { id: 'admin',        label: 'apps/admin',          layer: 'app',     size: 3 },
-  { id: 'extensions',   label: 'apps/extensions',     layer: 'app',     size: 3 },
+  { id: "admin", label: "apps/admin", layer: "app", size: 3 },
+  { id: "extensions", label: "apps/extensions", layer: "app", size: 3 },
   // feature
-  { id: 'rewards',      label: 'features/rewards',    layer: 'feature', size: 2 },
-  { id: 'vip-tier',     label: 'features/vip-tier',   layer: 'feature', size: 2 },
-  { id: 'campaign',     label: 'features/campaign',   layer: 'feature', size: 2 },
-  { id: 'gamification', label: 'features/gamification', layer: 'feature', size: 2 },
-  { id: 'settings',     label: 'features/settings',   layer: 'feature', size: 2 },
-  { id: 'redeem',       label: 'features/redeem',     layer: 'feature', size: 2 },
+  { id: "rewards", label: "features/rewards", layer: "feature", size: 2 },
+  { id: "vip-tier", label: "features/vip-tier", layer: "feature", size: 2 },
+  { id: "campaign", label: "features/campaign", layer: "feature", size: 2 },
+  {
+    id: "gamification",
+    label: "features/gamification",
+    layer: "feature",
+    size: 2
+  },
+  { id: "settings", label: "features/settings", layer: "feature", size: 2 },
+  { id: "redeem", label: "features/redeem", layer: "feature", size: 2 },
   // shared
-  { id: 'ui',           label: 'packages/ui',         layer: 'shared',  size: 3 },
-  { id: 'i18n',         label: 'packages/i18n',       layer: 'shared',  size: 3 },
-  { id: 'types',        label: 'shared/types',        layer: 'shared',  size: 1 },
-  { id: 'api',          label: 'shared/api',          layer: 'shared',  size: 1 },
-  { id: 'hooks',        label: 'shared/hooks',        layer: 'shared',  size: 1 },
+  { id: "ui", label: "packages/ui", layer: "shared", size: 3 },
+  { id: "i18n", label: "packages/i18n", layer: "shared", size: 3 },
+  { id: "types", label: "shared/types", layer: "shared", size: 1 },
+  { id: "api", label: "shared/api", layer: "shared", size: 1 },
+  { id: "hooks", label: "shared/hooks", layer: "shared", size: 1 }
 ];
 
 /** Allowed dependencies: always point DOWN (app → feature → shared, or app → shared). */
 export const EDGES: GraphEdge[] = [
-  { from: 'admin', to: 'rewards' }, { from: 'admin', to: 'vip-tier' }, { from: 'admin', to: 'campaign' },
-  { from: 'admin', to: 'gamification' }, { from: 'admin', to: 'settings' },
-  { from: 'extensions', to: 'rewards' }, { from: 'extensions', to: 'redeem' }, { from: 'extensions', to: 'gamification' },
-  { from: 'admin', to: 'ui' }, { from: 'admin', to: 'i18n' }, { from: 'extensions', to: 'ui' }, { from: 'extensions', to: 'i18n' },
-  { from: 'rewards', to: 'types' }, { from: 'rewards', to: 'api' }, { from: 'vip-tier', to: 'types' },
-  { from: 'campaign', to: 'types' }, { from: 'campaign', to: 'ui' }, { from: 'gamification', to: 'ui' },
-  { from: 'settings', to: 'i18n' }, { from: 'settings', to: 'ui' },
-  { from: 'redeem', to: 'api' }, { from: 'redeem', to: 'hooks' },
+  { from: "admin", to: "rewards" },
+  { from: "admin", to: "vip-tier" },
+  { from: "admin", to: "campaign" },
+  { from: "admin", to: "gamification" },
+  { from: "admin", to: "settings" },
+  { from: "extensions", to: "rewards" },
+  { from: "extensions", to: "redeem" },
+  { from: "extensions", to: "gamification" },
+  { from: "admin", to: "ui" },
+  { from: "admin", to: "i18n" },
+  { from: "extensions", to: "ui" },
+  { from: "extensions", to: "i18n" },
+  { from: "rewards", to: "types" },
+  { from: "rewards", to: "api" },
+  { from: "vip-tier", to: "types" },
+  { from: "campaign", to: "types" },
+  { from: "campaign", to: "ui" },
+  { from: "gamification", to: "ui" },
+  { from: "settings", to: "i18n" },
+  { from: "settings", to: "ui" },
+  { from: "redeem", to: "api" },
+  { from: "redeem", to: "hooks" }
 ];
 
 /** Feature ↔ feature imports — the "before" problem. Visible only in the chaos state. */
 export const CROSS_EDGES: GraphEdge[] = [
-  { from: 'campaign', to: 'rewards' },   // e.g. a reward type living inside Rewards
-  { from: 'vip-tier', to: 'rewards' },
-  { from: 'rewards',  to: 'campaign' },  // closes a cycle
-  { from: 'gamification', to: 'settings' },
+  { from: "campaign", to: "rewards" }, // e.g. a reward type living inside Rewards
+  { from: "vip-tier", to: "rewards" },
+  { from: "rewards", to: "campaign" }, // closes a cycle
+  { from: "gamification", to: "settings" }
 ];
 
 /** Low tier keeps only these node ids (10). Edges touching removed nodes are dropped. */
-export const LOW_TIER_NODE_IDS = ['admin', 'extensions', 'rewards', 'campaign', 'gamification', 'settings', 'ui', 'i18n', 'types', 'api'];
+export const LOW_TIER_NODE_IDS = [
+  "admin",
+  "extensions",
+  "rewards",
+  "campaign",
+  "gamification",
+  "settings",
+  "ui",
+  "i18n",
+  "types",
+  "api"
+];
 ```
 
 ### 3.2 Layouts — `prng.ts`, `layouts.ts`
@@ -140,20 +175,30 @@ export function mulberry32(seed: number) {
 ```ts
 // layouts.ts
 export type Vec3 = [number, number, number];
-export const LAYER_Y: Record<Layer, number> = { app: 1.8, feature: 0, shared: -1.8 };
-export const LAYER_SPACING = 1.15;   // world units between nodes on a layer
+export const LAYER_Y: Record<Layer, number> = {
+  app: 1.8,
+  feature: 0,
+  shared: -1.8
+};
+export const LAYER_SPACING = 1.15; // world units between nodes on a layer
 export const CHAOS_RADIUS = 2.6;
 export const MIN_DIST = 0.6;
 export const SEED = 20260101;
 
 /** Deterministic tangle: rejection-sample points in a sphere, min distance MIN_DIST. */
-export function chaosLayout(nodes: GraphNode[], seed = SEED): Record<string, Vec3>;
+export function chaosLayout(
+  nodes: GraphNode[],
+  seed = SEED
+): Record<string, Vec3>;
 
 /** Three horizontal layers, nodes centered and evenly spaced on x, z = 0. */
 export function layeredLayout(nodes: GraphNode[]): Record<string, Vec3>;
 
 /** Orthographic projection to an SVG viewBox (for HeroGraphStatic). */
-export function project2D(pos: Record<string, Vec3>, viewBox: { w: number; h: number; pad: number }): Record<string, [number, number]>;
+export function project2D(
+  pos: Record<string, Vec3>,
+  viewBox: { w: number; h: number; pad: number }
+): Record<string, [number, number]>;
 ```
 
 - `chaosLayout`: for each node, draw `(x, y, z)` uniformly in a cube of side `2·CHAOS_RADIUS`, keep it only if inside the sphere and at least `MIN_DIST` from accepted points; give up after 200 tries per node and accept the last sample. Same seed → identical output on server and client.
@@ -209,9 +254,12 @@ A small legend under (desktop) / beside (mobile) the slot, `font-mono`, `--fg-mu
 Client component. Decides once whether the canvas may mount, then dynamic-imports it.
 
 ```tsx
-const HeroCanvas = dynamic(() => import('./HeroCanvas'), { ssr: false, loading: () => null });
+const HeroCanvas = dynamic(() => import("./HeroCanvas"), {
+  ssr: false,
+  loading: () => null
+});
 
-type Gate = 'pending' | 'mount' | 'fallback';
+type Gate = "pending" | "mount" | "fallback";
 ```
 
 **Decision order**
@@ -238,20 +286,28 @@ type Gate = 'pending' | 'mount' | 'fallback';
 
 ```tsx
 <Canvas
-  dpr={tier.dpr}                                  // see section 9
-  gl={{ antialias: false, alpha: true, powerPreference: 'high-performance' }}
+  dpr={tier.dpr} // see section 9
+  gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
   camera={{ fov: 45, near: 0.1, far: 50, position: [0, 0, 9] }}
-  frameloop={visible ? 'always' : 'never'}       // IntersectionObserver on the slot
-  eventSource={slotRef}                           // pointer events from the slot only
-  style={{ position: 'absolute', inset: 0 }}
+  frameloop={visible ? "always" : "never"} // IntersectionObserver on the slot
+  eventSource={slotRef} // pointer events from the slot only
+  style={{ position: "absolute", inset: 0 }}
   aria-hidden
-  onCreated={({ gl }) => { gl.setClearColor(0x000000, 0); onFirstFrame(); }}
+  onCreated={({ gl }) => {
+    gl.setClearColor(0x000000, 0);
+    onFirstFrame();
+  }}
 >
   <ambientLight intensity={0.6} />
   <directionalLight position={[3, 4, 5]} intensity={1.1} />
-  <PerformanceMonitor onDecline={tier.downgrade} onFallback={tier.toFallback} flipflops={3} />
+  <PerformanceMonitor
+    onDecline={tier.downgrade}
+    onFallback={tier.toFallback}
+    flipflops={3}
+  />
   <HeroScene tier={tier.level} />
-  {process.env.NODE_ENV === 'development' && <PerfOverlay />}  {/* r3f-perf, dynamic import */}
+  {process.env.NODE_ENV === "development" && <PerfOverlay />}{" "}
+  {/* r3f-perf, dynamic import */}
 </Canvas>
 ```
 
@@ -288,15 +344,22 @@ Owns a `Float32Array` of current positions (3 per node) and computes targets eac
 
 ```ts
 useFrame((_, delta) => {
-  const morph = useScrollStore.getState().heroMorph;      // never subscribe → no React re-renders
+  const morph = useScrollStore.getState().heroMorph; // never subscribe → no React re-renders
   const k = easeInOutCubic(clamp(morph, 0, 1));
   for (i of nodes) {
     target = lerp(chaos[i], layered[i], k) + pushOffset[i]; // pushOffset: section 8
     current[i] = damp3(current[i], target, 6, delta);
   }
-  groupRef.current.rotation.y = damp(groupRef.current.rotation.y, (1 - k) * spinAngle, 4, delta);
-  spinAngle += 0.05 * delta * (1 - k);                     // slow spin only while tangled
-  nodesRef.current.update(current); edgesRef.current.update(current); labelsRef.current.update(current);
+  groupRef.current.rotation.y = damp(
+    groupRef.current.rotation.y,
+    (1 - k) * spinAngle,
+    4,
+    delta
+  );
+  spinAngle += 0.05 * delta * (1 - k); // slow spin only while tangled
+  nodesRef.current.update(current);
+  edgesRef.current.update(current);
+  labelsRef.current.update(current);
 });
 ```
 
@@ -313,11 +376,11 @@ useFrame((_, delta) => {
 
 ### 7.3 `GraphEdges.tsx` — three `LineSegments`
 
-| Object | Content | Material | Opacity |
-| --- | --- | --- | --- |
-| `structural` | `EDGES` | `LineBasicMaterial`, color `--silver` | 0.25 |
-| `cross` | `CROSS_EDGES` | `LineDashedMaterial` (`dashSize 0.08, gapSize 0.06`), color `--earth` | `0.6 × (1 − smoothstep(0.35, 0.65, morph))` → fully gone by 0.65 |
-| `highlight` | edges touching the hovered node | `LineBasicMaterial`, color `--accent` | 0.8 (0 when nothing hovered) |
+| Object       | Content                         | Material                                                              | Opacity                                                          |
+| ------------ | ------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `structural` | `EDGES`                         | `LineBasicMaterial`, color `--silver`                                 | 0.25                                                             |
+| `cross`      | `CROSS_EDGES`                   | `LineDashedMaterial` (`dashSize 0.08, gapSize 0.06`), color `--earth` | `0.6 × (1 − smoothstep(0.35, 0.65, morph))` → fully gone by 0.65 |
+| `highlight`  | edges touching the hovered node | `LineBasicMaterial`, color `--accent`                                 | 0.8 (0 when nothing hovered)                                     |
 
 - Each has one preallocated `BufferAttribute` (`Float32Array(edges × 6)`), endpoints copied from current node positions every frame, `needsUpdate = true`; `computeLineDistances()` each frame for the dashed one.
 - `highlight` geometry is rebuilt only when the hovered node changes.
@@ -367,12 +430,12 @@ No hover, no push, no tap action. Only the scroll morph and the idle spin.
 
 `detect-tier.ts` (pure, unit-tested) returns the initial tier; `useQualityTier` exposes `{ level, dpr, downgrade(), toFallback() }`.
 
-| Tier | When (initial) | `dpr` | Nodes | Labels | Hover / push | Parallax |
-| --- | --- | --- | --- | --- | --- | --- |
-| **High** | fine pointer AND `hardwareConcurrency ≥ 8` AND (`deviceMemory` unknown or ≥ 8) | `[1, 1.5]` | 13 | yes | yes | yes |
-| **Medium** | fine pointer, otherwise | `[1, 1.25]` | 13 | yes | yes | yes |
-| **Low** | coarse pointer OR slot width < 480px | `1` | 10 (`LOW_TIER_NODE_IDS`) | no | no | no |
-| **Off** | reduced motion, no WebGL, Save-Data, `PerformanceMonitor` fallback, or `webglcontextlost` | — | static SVG `layered` | — | — | — |
+| Tier       | When (initial)                                                                            | `dpr`       | Nodes                    | Labels | Hover / push | Parallax |
+| ---------- | ----------------------------------------------------------------------------------------- | ----------- | ------------------------ | ------ | ------------ | -------- |
+| **High**   | fine pointer AND `hardwareConcurrency ≥ 8` AND (`deviceMemory` unknown or ≥ 8)            | `[1, 1.5]`  | 13                       | yes    | yes          | yes      |
+| **Medium** | fine pointer, otherwise                                                                   | `[1, 1.25]` | 13                       | yes    | yes          | yes      |
+| **Low**    | coarse pointer OR slot width < 480px                                                      | `1`         | 10 (`LOW_TIER_NODE_IDS`) | no     | no           | no       |
+| **Off**    | reduced motion, no WebGL, Save-Data, `PerformanceMonitor` fallback, or `webglcontextlost` | —           | static SVG `layered`     | —      | —            | —        |
 
 - `PerformanceMonitor`: `onDecline` steps down one tier (High → Medium → Low); `onFallback` (after 3 flip-flops, or sustained < 25 fps) → **Off**. Never step back up within the session.
 - Switching to **Off** at runtime: fade the canvas out (0.3 s), show the static SVG `layered`, then unmount the canvas.
@@ -392,15 +455,15 @@ No hover, no push, no tap action. Only the scroll morph and the idle spin.
 
 ## 11. Performance budget
 
-| Item | Budget | How to check |
-| --- | --- | --- |
-| Initial JS of `/[locale]` (gzip) | unchanged vs. before Phase 5 (≤ 150 KB) | `next build` output; three/R3F must not appear in the route's first-load chunks |
-| Lazy 3D chunk (three + R3F + drei parts + scene) | ≤ 250 KB gzip | `@next/bundle-analyzer` |
-| Draw calls | ≤ 6 (1 nodes, 3 lines, labels are DOM) | `r3f-perf` in dev |
-| Frame time | 60 fps desktop mid-range; ≥ 30 fps on a mid-range phone (Low tier) | DevTools Performance, 10 s of scrolling |
-| Main-thread work on mount | no long task > 50 ms caused by mounting | DevTools Performance |
-| LCP | still the Hero `h1`, < 2.5 s mobile | Lighthouse + `PerformanceObserver` in Playwright |
-| CLS | < 0.1 (slot size fixed from SSR; SVG ↔ canvas swap causes no shift) | Lighthouse |
+| Item                                             | Budget                                                              | How to check                                                                    |
+| ------------------------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Initial JS of `/[locale]` (gzip)                 | unchanged vs. before Phase 5 (≤ 150 KB)                             | `next build` output; three/R3F must not appear in the route's first-load chunks |
+| Lazy 3D chunk (three + R3F + drei parts + scene) | ≤ 250 KB gzip                                                       | `@next/bundle-analyzer`                                                         |
+| Draw calls                                       | ≤ 6 (1 nodes, 3 lines, labels are DOM)                              | `r3f-perf` in dev                                                               |
+| Frame time                                       | 60 fps desktop mid-range; ≥ 30 fps on a mid-range phone (Low tier)  | DevTools Performance, 10 s of scrolling                                         |
+| Main-thread work on mount                        | no long task > 50 ms caused by mounting                             | DevTools Performance                                                            |
+| LCP                                              | still the Hero `h1`, < 2.5 s mobile                                 | Lighthouse + `PerformanceObserver` in Playwright                                |
+| CLS                                              | < 0.1 (slot size fixed from SSR; SVG ↔ canvas swap causes no shift) | Lighthouse                                                                      |
 
 ---
 
@@ -429,19 +492,19 @@ No hover, no push, no tap action. Only the scroll morph and the idle spin.
 
 ## 13. Delivery plan (2-week time box)
 
-| Day | Work | Must / nice |
-| --- | --- | --- |
-| 1 | 5.1 data, layouts, tests | Must |
-| 2 | 5.2 static SVG + caption (site already looks finished without WebGL) | Must |
-| 3 | 5.3 gate + lazy load + fade-in | Must |
-| 4–5 | 5.4 canvas, camera fit; 5.5 nodes + structural edges | Must |
-| 6 | 8.1 scroll morph + cross-edges fade + spin | Must |
-| 7 | 9 quality tiers + PerformanceMonitor + Off switch | Must |
-| 8 | 10 robustness, theme switching, cleanup | Must |
-| 9 | 7.4 labels, 8.2 hover + highlight | Nice |
-| 10 | 8.3 pointer push, CameraRig parallax | Nice |
-| 11–12 | 12 tests, budget checks, fixes | Must |
-| 13–14 | Buffer; README section | — |
+| Day   | Work                                                                 | Must / nice |
+| ----- | -------------------------------------------------------------------- | ----------- |
+| 1     | 5.1 data, layouts, tests                                             | Must        |
+| 2     | 5.2 static SVG + caption (site already looks finished without WebGL) | Must        |
+| 3     | 5.3 gate + lazy load + fade-in                                       | Must        |
+| 4–5   | 5.4 canvas, camera fit; 5.5 nodes + structural edges                 | Must        |
+| 6     | 8.1 scroll morph + cross-edges fade + spin                           | Must        |
+| 7     | 9 quality tiers + PerformanceMonitor + Off switch                    | Must        |
+| 8     | 10 robustness, theme switching, cleanup                              | Must        |
+| 9     | 7.4 labels, 8.2 hover + highlight                                    | Nice        |
+| 10    | 8.3 pointer push, CameraRig parallax                                 | Nice        |
+| 11–12 | 12 tests, budget checks, fixes                                       | Must        |
+| 13–14 | Buffer; README section                                               | —           |
 
 **Cut line:** if day 10 arrives with "Must" items open, drop labels, hover, push and parallax and ship. The scene still tells the full story through the scroll morph.
 

@@ -69,7 +69,11 @@ export function writeEdges(
 /** Camera z that makes the layered graph fill 85% of the slot width. */
 export function fitCameraZ(aspect: number, fovDeg = 45): number {
   const halfFov = (fovDeg * Math.PI) / 360;
-  return clamp(GRAPH_WIDTH / 2 / (Math.tan(halfFov) * aspect * FIT_FRACTION), 7, 14);
+  return clamp(
+    GRAPH_WIDTH / 2 / (Math.tan(halfFov) * aspect * FIT_FRACTION),
+    7,
+    14
+  );
 }
 
 export const LABEL_MORPH = 0.7;

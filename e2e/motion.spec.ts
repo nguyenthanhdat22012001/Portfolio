@@ -42,7 +42,11 @@ test.describe("motion loading", () => {
     await page.waitForLoadState("networkidle");
     // The desktop hero canvas loads on idle; let it finish so its chunk
     // isn't counted as motion code.
-    await expect(page.locator("[data-hero-graph]")).toHaveAttribute("data-gate", "live", { timeout: 15_000 });
+    await expect(page.locator("[data-hero-graph]")).toHaveAttribute(
+      "data-gate",
+      "live",
+      { timeout: 15_000 }
+    );
     armed = true;
     await loadMotion(page);
 
@@ -385,12 +389,15 @@ test.describe("layout stability", () => {
       // Let the #work hash scroll land before anything is read.
       let last = -1;
       await expect
-        .poll(async () => {
-          const y = await page.evaluate(() => Math.round(window.scrollY));
-          const settled = y > 0 && y === last;
-          last = y;
-          return settled;
-        }, { intervals: [250] })
+        .poll(
+          async () => {
+            const y = await page.evaluate(() => Math.round(window.scrollY));
+            const settled = y > 0 && y === last;
+            last = y;
+            return settled;
+          },
+          { intervals: [250] }
+        )
         .toBe(true);
     };
 

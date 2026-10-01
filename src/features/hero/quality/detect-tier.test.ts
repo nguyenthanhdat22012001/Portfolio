@@ -1,8 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { LOW_TIER_NODE_IDS } from "../graph/graph-data";
-import { TIER_DPR, detectTier, downgradeTier, tierFeatures, type TierEnv } from "./detect-tier";
+import {
+  TIER_DPR,
+  detectTier,
+  downgradeTier,
+  tierFeatures,
+  type TierEnv
+} from "./detect-tier";
 
-const desktop: TierEnv = { finePointer: true, cores: 8, memory: undefined, slotWidth: 600 };
+const desktop: TierEnv = {
+  finePointer: true,
+  cores: 8,
+  memory: undefined,
+  slotWidth: 600
+};
 
 describe("detectTier", () => {
   it.each([

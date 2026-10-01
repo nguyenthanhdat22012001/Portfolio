@@ -22,8 +22,10 @@ export function trackScripts(page: Page) {
       const html = (await response?.text()) ?? "";
       initial = new Set(html.match(SCRIPT) ?? []);
     },
-    lazy: () => responses.filter((r) => !initial.has(new URL(r.url()).pathname)),
-    initial: () => responses.filter((r) => initial.has(new URL(r.url()).pathname))
+    lazy: () =>
+      responses.filter((r) => !initial.has(new URL(r.url()).pathname)),
+    initial: () =>
+      responses.filter((r) => initial.has(new URL(r.url()).pathname))
   };
 }
 

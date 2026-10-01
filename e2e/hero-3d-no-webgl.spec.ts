@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 import { collectConsoleProblems } from "./helpers/scripts";
 
-test("without WebGL the hero shows the static layered graph", async ({ page }) => {
+test("without WebGL the hero shows the static layered graph", async ({
+  page
+}) => {
   const problems = collectConsoleProblems(page);
   await page.goto("/en");
   const graph = page.locator("[data-hero-graph]");

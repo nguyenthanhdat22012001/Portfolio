@@ -15,7 +15,12 @@ export const NODES: readonly GraphNode[] = [
   { id: "rewards", label: "features/rewards", layer: "feature", size: 2 },
   { id: "vip-tier", label: "features/vip-tier", layer: "feature", size: 2 },
   { id: "campaign", label: "features/campaign", layer: "feature", size: 2 },
-  { id: "gamification", label: "features/gamification", layer: "feature", size: 2 },
+  {
+    id: "gamification",
+    label: "features/gamification",
+    layer: "feature",
+    size: 2
+  },
   { id: "settings", label: "features/settings", layer: "feature", size: 2 },
   { id: "redeem", label: "features/redeem", layer: "feature", size: 2 },
   { id: "ui", label: "packages/ui", layer: "shared", size: 3 },

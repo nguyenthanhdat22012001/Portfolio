@@ -100,21 +100,29 @@ describe("static SVG vs first canvas frame", () => {
     ["desktop 7/8", 7 / 8]
   ] as const) {
     it(`${name}: nodes land within 1.5% of the slot width`, () => {
-      expect(STATIC_VIEW.w / STATIC_VIEW.h).toBeGreaterThanOrEqual(aspect - 1e-9);
+      expect(STATIC_VIEW.w / STATIC_VIEW.h).toBeGreaterThanOrEqual(
+        aspect - 1e-9
+      );
       const z = fitCameraZ(aspect);
       const visibleWidth = 2 * z * halfTan * aspect;
       for (const layout of [chaosLayout(NODES), layeredLayout(NODES)]) {
         const svg = project2D(layout, STATIC_VIEW);
         for (const [id, p] of Object.entries(layout)) {
           const f = z / (z - p[2]);
-          const canvas = [(p[0] * f) / visibleWidth, (-p[1] * f) / visibleWidth];
+          const canvas = [
+            (p[0] * f) / visibleWidth,
+            (-p[1] * f) / visibleWidth
+          ];
           const [x, y] = svg[id]!;
           const placeholder = [
             (x - STATIC_VIEW.w / 2) / STATIC_VIEW.w,
             (y - STATIC_VIEW.h / 2) / STATIC_VIEW.w
           ];
           expect(
-            Math.hypot(canvas[0]! - placeholder[0]!, canvas[1]! - placeholder[1]!)
+            Math.hypot(
+              canvas[0]! - placeholder[0]!,
+              canvas[1]! - placeholder[1]!
+            )
           ).toBeLessThan(0.015);
         }
       }

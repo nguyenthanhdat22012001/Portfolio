@@ -4,7 +4,11 @@ import { mulberry32 } from "./prng";
 
 export type { Vec3 };
 
-export const LAYER_Y: Record<Layer, number> = { app: 1.8, feature: 0, shared: -1.8 };
+export const LAYER_Y: Record<Layer, number> = {
+  app: 1.8,
+  feature: 0,
+  shared: -1.8
+};
 export const LAYER_SPACING = 1.15;
 export const CHAOS_RADIUS = 2.6;
 export const MIN_DIST = 0.6;
@@ -82,12 +86,18 @@ export function graphLayouts(nodes: readonly GraphNode[]) {
 }
 
 /** Three horizontal layers, nodes centered and evenly spaced on x, z = 0. */
-export function layeredLayout(nodes: readonly GraphNode[]): Record<string, Vec3> {
+export function layeredLayout(
+  nodes: readonly GraphNode[]
+): Record<string, Vec3> {
   const out: Record<string, Vec3> = {};
   for (const layer of ["app", "feature", "shared"] as const) {
     const onLayer = nodes.filter((n) => n.layer === layer);
     onLayer.forEach((node, i) => {
-      out[node.id] = [(i - (onLayer.length - 1) / 2) * LAYER_SPACING, LAYER_Y[layer], 0];
+      out[node.id] = [
+        (i - (onLayer.length - 1) / 2) * LAYER_SPACING,
+        LAYER_Y[layer],
+        0
+      ];
     });
   }
   return out;
@@ -106,7 +116,8 @@ export function project2D(
 ): Record<string, [number, number, number]> {
   const out: Record<string, [number, number, number]> = {};
   for (const [id, p] of Object.entries(pos)) {
-    const unit = (view.w / view.worldWidth) * (view.cameraZ / (view.cameraZ - p[2]));
+    const unit =
+      (view.w / view.worldWidth) * (view.cameraZ / (view.cameraZ - p[2]));
     out[id] = [
       round1(view.w / 2 + p[0] * unit),
       round1(view.h / 2 - p[1] * unit),

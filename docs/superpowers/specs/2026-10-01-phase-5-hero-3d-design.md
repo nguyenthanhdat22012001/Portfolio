@@ -12,14 +12,14 @@
 - Work on the current branch, `phase-5`. One Conventional Commit per task.
 - The spec's names map to the repo's names as follows:
 
-| Spec | Repo |
-| --- | --- |
-| `src/shared/animation/scroll-store.ts` | `src/shared/lib/stores/scroll-store.ts` |
+| Spec                                                 | Repo                                                                                                |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `src/shared/animation/scroll-store.ts`               | `src/shared/lib/stores/scroll-store.ts`                                                             |
 | `useHeroMorph.ts` (ScrollTrigger in a client island) | dropped — the existing `hero` motion effect (`shared/animation/effects/hero.ts`) writes `heroMorph` |
-| "Phase 4 `gsap.matchMedia()` no-preference branch" | the engine's page `matchMedia` (`all` / `isDesktop` / `reduceMotion` conditions) |
-| "Phase 4 text crossfade" | a `data-morph` attribute toggled by the `hero` effect, crossfaded in CSS |
-| `--silver` | new token (see D1) |
-| `#hero-canvas-slot` box "~300 px on mobile" | the existing slot's aspect ratios: `aspect-[4/3]` mobile, `aspect-[7/8]` desktop |
+| "Phase 4 `gsap.matchMedia()` no-preference branch"   | the engine's page `matchMedia` (`all` / `isDesktop` / `reduceMotion` conditions)                    |
+| "Phase 4 text crossfade"                             | a `data-morph` attribute toggled by the `hero` effect, crossfaded in CSS                            |
+| `--silver`                                           | new token (see D1)                                                                                  |
+| `#hero-canvas-slot` box "~300 px on mobile"          | the existing slot's aspect ratios: `aspect-[4/3]` mobile, `aspect-[7/8]` desktop                    |
 
 ## Decisions
 
@@ -30,9 +30,9 @@ Add `--silver` to `src/app/globals.css` (light, `[data-theme="dark"]`, and the
 Tailwind theme, and add `"silver"` to `ColorToken` in
 `src/shared/theme/tokens.ts`.
 
-| Theme | Value | Contrast vs `--bg` |
-| --- | --- | --- |
-| dark | `#A8ACB2` | ≈ 8 : 1 |
+| Theme | Value     | Contrast vs `--bg`                        |
+| ----- | --------- | ----------------------------------------- |
+| dark  | `#A8ACB2` | ≈ 8 : 1                                   |
 | light | `#868A90` | ≈ 3.15 : 1 (WCAG 1.4.11 non-text minimum) |
 
 Like `--earth`, it is **decorative only** — never a text color. The comment
@@ -60,12 +60,16 @@ text-contrast pairs) are updated to say so.
 
 ```tsx
 <div data-hero-graph="" data-gate="pending" data-morph="chaos" className="…">
-  <div id="hero-canvas-slot" aria-hidden="true" className="relative aspect-[4/3] md:aspect-[7/8] …">
+  <div
+    id="hero-canvas-slot"
+    aria-hidden="true"
+    className="relative aspect-[4/3] md:aspect-[7/8] …"
+  >
     <HeroGraphStatic state="chaos" />
     <HeroGraphStatic state="layered" />
     <HeroCanvasGate />
   </div>
-  <HeroGraphCaption />   {/* both caption lines + sr-only sentence */}
+  <HeroGraphCaption /> {/* both caption lines + sr-only sentence */}
 </div>
 ```
 
@@ -76,13 +80,13 @@ The slot drops the dashed placeholder border. `PlaceholderSlot` stays in
 Which SVG and caption line are visible is decided **only by CSS**, so the
 result is correct before hydration and never flashes:
 
-| Condition | SVG | Caption line |
-| --- | --- | --- |
-| default (JS, motion allowed) | chaos | chaos, or layered when `data-morph="layered"` |
-| `@media (scripting: none)` | layered | layered |
-| `@media (prefers-reduced-motion: reduce)` | layered | layered |
-| `data-gate="fallback"` | layered | layered |
-| `data-gate="live"` | chaos SVG faded out, then `visibility: hidden` | as default |
+| Condition                                 | SVG                                            | Caption line                                  |
+| ----------------------------------------- | ---------------------------------------------- | --------------------------------------------- |
+| default (JS, motion allowed)              | chaos                                          | chaos, or layered when `data-morph="layered"` |
+| `@media (scripting: none)`                | layered                                        | layered                                       |
+| `@media (prefers-reduced-motion: reduce)` | layered                                        | layered                                       |
+| `data-gate="fallback"`                    | layered                                        | layered                                       |
+| `data-gate="live"`                        | chaos SVG faded out, then `visibility: hidden` | as default                                    |
 
 The spec's acceptance criterion "with JS disabled the Hero looks complete
 (layered graph + caption)" is met by the `scripting: none` row.
@@ -108,6 +112,7 @@ stays under 4 KB of markup. Caption copy lives under `hero.graph` in both
   run (412 px, no interaction) can never load the 3D chunk, whatever pointer
   type it emulates. (`load-trigger.ts` explains why an idle import would
   otherwise count as initial JS.)
+
 - WebGL probe: throwaway `<canvas>`, `getContext("webgl2") ?? getContext("webgl")`,
   then `WEBGL_lose_context.loseContext()` so the probe does not hold a second
   context.
@@ -221,17 +226,17 @@ Lighthouse CI: no threshold changes.
 
 ## Order of work
 
-| Day | Work |
-| --- | --- |
-| 1 | `graph/*`, `math.ts`, tests |
-| 2 | `--silver` token, `HeroGraphStatic`, caption, i18n, slot + CSS states, no-JS e2e |
-| 3 | `heroMorph` rename + caption toggle in `hero.ts`; `decideGate`; `HeroCanvasGate` + error boundary; first-load JS measurement; headless WebGL check |
-| 4–5 | Dependencies; `HeroCanvas`, `HeroScene`, `CameraRig` fit, nodes + structural edges; 3D chunk size test |
-| 6 | Scroll morph, cross-edge fade, spin |
-| 7 | Tiers, PerformanceMonitor, runtime Off |
-| 8 | Context loss, theme switching, disposal, leak e2e |
-| 9–10 | Nice: labels, hover + highlight + cursor; push, parallax |
-| 11–12 | Remaining e2e, budgets, real-device check, README "Hero 3D" section, CLAUDE.md |
+| Day   | Work                                                                                                                                               |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | `graph/*`, `math.ts`, tests                                                                                                                        |
+| 2     | `--silver` token, `HeroGraphStatic`, caption, i18n, slot + CSS states, no-JS e2e                                                                   |
+| 3     | `heroMorph` rename + caption toggle in `hero.ts`; `decideGate`; `HeroCanvasGate` + error boundary; first-load JS measurement; headless WebGL check |
+| 4–5   | Dependencies; `HeroCanvas`, `HeroScene`, `CameraRig` fit, nodes + structural edges; 3D chunk size test                                             |
+| 6     | Scroll morph, cross-edge fade, spin                                                                                                                |
+| 7     | Tiers, PerformanceMonitor, runtime Off                                                                                                             |
+| 8     | Context loss, theme switching, disposal, leak e2e                                                                                                  |
+| 9–10  | Nice: labels, hover + highlight + cursor; push, parallax                                                                                           |
+| 11–12 | Remaining e2e, budgets, real-device check, README "Hero 3D" section, CLAUDE.md                                                                     |
 
 Cut line unchanged from the spec: on day 10 with Must items open, drop
 labels, hover, push and parallax.

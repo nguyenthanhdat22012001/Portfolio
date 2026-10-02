@@ -41,7 +41,7 @@ timeline would stall until the visitor moves the mouse. Instead:
 - `choreography.ts` (pure, no three.js) exports
   `poseAt(t, mode) → { phase, z, opacity, clip, walkTimeScale, bubble }`,
   `scrollPose(morph) → { zOffset, opacity, visible, lookAt }`,
-  `clampLook(yaw, pitch)` and `projectToSlot(position, camera)`.
+  `clampLook(yaw, pitch)` and `avatarFrame(aspect)` (scale, feet height and horizontal % of the slot from the camera fit).
 - `useAvatarIntro.ts` owns the clock (advanced in `useFrame`, so it pauses
   when the canvas's `frameloop` is `"never"` off-screen — this is the spec's
   "slot is in view" start condition), detects phase edges, crossfades
@@ -74,9 +74,11 @@ l.setMeshoptDecoder(MeshoptDecoder))` using three's addons. drei's
 slot with two `<img>`s, `[data-avatar-pose="wave"]` and
 `[data-avatar-pose="idle"]`: fixed `width`/`height`, `alt=""`,
 `decoding="async"`, `fetchpriority="low"`. Placement (`left`, `bottom`,
-`height` in % of the slot) comes from `projectToSlot(AVATAR.end)`, the same
-math the 3D avatar uses for its scale and feet height, so the image stands
-where the 3D avatar would.
+`height` in % of the slot) comes from `avatarFrame(aspect)` for the two slot aspects (4/3 mobile,
+7/8 desktop), the same math the 3D avatar uses for its scale and feet height,
+so the image stands where the 3D avatar would. On mobile (where no 3D avatar
+exists) the image is 55 % of the slot tall instead of 70 % to keep the `h1`
+the LCP element.
 
 | State                                                                       | Shows                                                  |
 | --------------------------------------------------------------------------- | ------------------------------------------------------ |
@@ -104,8 +106,13 @@ where the 3D avatar would.
   drop to `low` it fades out over 0.3 s, then sets `visible = false` and stops
   updating its mixer; CSS shows the fallback in the same spot. A gate fallback
   needs nothing extra: the canvas fades out on its own.
-- `ContactShadows` only on `high`. Key light (front-top, ~1.2) and rim light
-  (behind, `--accent`, ~0.8) live inside `Avatar`; Phase 5 lights unchanged.
+- `ContactShadows` only on `high`.
+- Lights (amended while planning): three.js lights can't be scoped to one
+  object, and the graph nodes use `meshStandardMaterial`, so a second front
+  key light would also brighten the graph. The avatar therefore uses the Phase
+  5 ambient + front-top directional as its key, and adds only the rim light
+  (behind, `--accent`), which mostly hits faces the camera can't see on the
+  graph's spheres. Phase 5 lights unchanged.
 - The bubble label is read in `HeroSection` and passed as a prop through
   `HeroCanvasGate` → `HeroCanvas` → `HeroScene` → `Avatar`.
 
@@ -143,10 +150,19 @@ where the 3D avatar would.
   `stopPropagation` so graph nodes behind don't react. Hover sets
   `slot.dataset.cursor = "avatar"`.
 - Missing clips → dev `console.warn`, static pose, no crash.
-- Unmount: `mixer.stopAllAction()`, `mixer.uncacheRoot(scene)`, remove
-  `data-cursor` / `data-avatar-phase`, dispose geometries, materials and
-  textures. The loader cache keeps the parsed scene; a fresh renderer
-  re-uploads it on revisit.
+- Clone (amended while planning): each mount uses `SkeletonUtils.clone` of
+  the cached glTF scene with its own cloned materials, because a view
+  transition can briefly show two Home pages and one `Object3D` can't have
+  two parents. Geometries and textures stay shared with the loader cache.
+- Unmount: `mixer.stopAllAction()`, `mixer.uncacheRoot(clone)`, remove
+  `data-cursor` / `data-avatar-phase`, dispose the cloned materials. Shared
+  geometries/textures are freed with their renderer's context; a fresh
+  renderer re-uploads them on revisit.
+- Skinned meshes get `frustumCulled = false` (bind-pose bounds go stale while
+  animating).
+- Graph cursor: `Graph.tsx` only clears `data-cursor` when it is `"node"` and
+  never overwrites `"avatar"`, so the avatar's hover isn't erased by the
+  graph's per-frame node pick.
 
 ## Tests
 
@@ -156,7 +172,7 @@ Unit (Vitest, test-first):
   `wave`, `idle`); `repeat` starts at `wave`, `skip` at `idle`; z continuous,
   monotonic, `end` at 2.2; walk `timeScale ≥ 0.6`; `idle` by 4.5 s;
   `scrollPose` at 0 / 0.25 / ≥ 0.5; `clampLook` at and beyond limits;
-  `projectToSlot` against hand-computed values.
+  `avatarFrame` against hand-computed values.
 - `cursor.test.ts`: reacts to `data-cursor="avatar"`.
 - `AvatarFallback.test.tsx`: two images, `alt=""`, fixed size,
   `fetchpriority="low"`, placement styles, `data-avatar-pose`.

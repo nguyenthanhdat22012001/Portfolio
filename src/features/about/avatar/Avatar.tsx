@@ -11,7 +11,7 @@ import {
 import type { DirectionalLight, Group } from "three";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import type { RenderTier } from "@/features/hero/quality/detect-tier";
+import type { RenderTier } from "@/shared/three/detect-tier";
 import { AVATAR } from "./avatar.config";
 import { disposeAvatar, prepareAvatar, setOpacity } from "./avatar-model";
 import { AvatarBubble } from "./AvatarBubble";

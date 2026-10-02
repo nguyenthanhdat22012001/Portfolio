@@ -10,8 +10,8 @@ import {
   type ReactNode
 } from "react";
 import { onFirstInteraction } from "@/shared/animation/load-trigger";
-import type { RenderTier } from "../quality/detect-tier";
-import { decideGate, readGateEnv } from "./decide-gate";
+import type { RenderTier } from "@/shared/three/detect-tier";
+import { decideGate, readGateEnv } from "@/shared/three/decide-gate";
 import { afterLoadIdle } from "./schedule";
 
 // The only hero 3D code in the initial bundle. three.js and the scene load

@@ -7,12 +7,8 @@ import {
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import { setConsoleFunction } from "three";
-import {
-  detectTier,
-  readTierEnv,
-  type RenderTier
-} from "../quality/detect-tier";
-import { declineAction, monitorBounds } from "../quality/perf-policy";
+import type { RenderTier } from "@/shared/three/detect-tier";
+import { declineAction, monitorBounds } from "@/shared/three/perf-policy";
 import { useQualityTier } from "../quality/useQualityTier";
 import { CAMERA_FOV } from "./graph-frame";
 import { HeroScene } from "./HeroScene";
@@ -69,8 +65,7 @@ export default function HeroCanvas({
   onFallback,
   onTier
 }: HeroCanvasProps) {
-  const [initial] = useState(() => detectTier(readTierEnv(slot)));
-  const tier = useQualityTier(initial);
+  const tier = useQualityTier(slot);
   const visible = useInView(slot);
 
   useEffect(() => onTier(tier.level), [tier.level, onTier]);

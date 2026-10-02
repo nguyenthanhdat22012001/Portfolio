@@ -1,4 +1,5 @@
-import { tierFeatures, type RenderTier } from "../quality/detect-tier";
+import type { RenderTier } from "@/shared/three/detect-tier";
+import { tierFeatures } from "../quality/tier-features";
 import { CameraRig } from "./CameraRig";
 import { Graph } from "./Graph";
 

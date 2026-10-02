@@ -1,11 +1,6 @@
 import { AVATAR } from "./avatar.config";
 
-// Pure model of the avatar's motion (spec B.5/B.6/B.7). No three.js: the
-// frame loop in Avatar.tsx evaluates it and applies the result.
-//
-// Imports nothing from the canvas chunk's modules (graph-frame, shared math):
-// a module shared with another chunk can no longer be scope-hoisted there,
-// which cost the canvas chunk ~0.7 KB gzip it doesn't have (CLAUDE.md).
+// Pure model of the avatar's motion (spec 5B §B.5/B.6, 5C §5). No three.js: the frame loop in Avatar.tsx evaluates it and applies the result.
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -14,6 +9,7 @@ function clamp(value: number, min: number, max: number): number {
 export type ClipName = keyof typeof AVATAR.CLIPS;
 export type AvatarPhase = "enter" | "walk" | "wave" | "idle";
 export type IntroMode = "full" | "repeat" | "rewave" | "skip";
+export type StartMode = "full" | "repeat" | "skip";
 
 export interface IntroPose {
   phase: AvatarPhase;
@@ -24,6 +20,8 @@ export interface IntroPose {
   fade: number;
   walkTimeScale: number;
   bubble: boolean;
+  /** About counters may start (spec §6). */
+  counters: boolean;
 }
 
 const T = AVATAR.timings;
@@ -54,7 +52,8 @@ function walkAt(t: number): { z: number; speed: number } {
 function settled(
   phase: "wave" | "idle",
   opacity: number,
-  bubble: boolean
+  bubble: boolean,
+  counters: boolean
 ): IntroPose {
   return {
     phase,
@@ -63,12 +62,13 @@ function settled(
     clip: phase,
     fade: phase === "wave" ? T.walkToWave : T.waveToIdle,
     walkTimeScale: AVATAR.walkTimeScale,
-    bubble
+    bubble,
+    counters
   };
 }
 
 export function poseAt(t: number, mode: IntroMode): IntroPose {
-  if (mode === "skip") return settled("idle", 1, false);
+  if (mode === "skip") return settled("idle", 1, false, true);
 
   if (mode === "full") {
     if (t < T.walk) {
@@ -81,11 +81,17 @@ export function poseAt(t: number, mode: IntroMode): IntroPose {
         fade: 0,
         walkTimeScale:
           AVATAR.walkTimeScale * clamp(speed / CRUISE_SPEED, MIN_STEP_RATE, 1),
-        bubble: false
+        bubble: false,
+        counters: false
       };
     }
     const bubble = t >= T.bubbleIn && t < T.bubbleOut;
-    return settled(t < FULL_IDLE_AT ? "wave" : "idle", 1, bubble);
+    return settled(
+      t < FULL_IDLE_AT ? "wave" : "idle",
+      1,
+      bubble,
+      t >= T.countersStart
+    );
   }
 
   // "repeat" (same-session revisit) and "rewave" (click): a short wave.
@@ -93,35 +99,39 @@ export function poseAt(t: number, mode: IntroMode): IntroPose {
   return settled(
     t < SHORT_IDLE_AT ? "wave" : "idle",
     opacity,
-    t < BUBBLE_LENGTH
+    t < BUBBLE_LENGTH,
+    true
   );
 }
 
+export function startMode({
+  alreadyPast,
+  greeted
+}: {
+  alreadyPast: boolean;
+  greeted: boolean;
+}): StartMode {
+  if (alreadyPast) return "skip";
+  return greeted ? "repeat" : "full";
+}
+
 export interface Intro {
-  step(dt: number, morph: number): IntroPose;
+  step(dt: number): IntroPose;
   /** Click-to-wave; true if accepted (only from idle). */
   rewave(): boolean;
 }
 
-export function createIntro(initial: "full" | "repeat"): Intro {
+// The clock only moves forward, so once idle the intro never replays.
+export function createIntro(initial: StartMode): Intro {
   let mode: IntroMode = initial;
   let t = 0;
   let started = false;
   return {
-    step(dt, morph) {
-      if (!started) {
+    step(dt) {
+      if (!started)
         started = true; // the first frame is t = 0
-        if (morph > AVATAR.skipIntroAtMorph) mode = "skip";
-      } else {
-        t += dt;
-      }
-      let pose = poseAt(t, mode);
-      if (pose.phase !== "idle" && morph > AVATAR.skipIntroAtMorph) {
-        mode = "skip";
-        t = 0;
-        pose = poseAt(0, mode);
-      }
-      return pose;
+      else t += dt;
+      return poseAt(t, mode);
     },
     rewave() {
       if (poseAt(t, mode).phase !== "idle") return false;
@@ -129,24 +139,6 @@ export function createIntro(initial: "full" | "repeat"): Intro {
       t = 0;
       return true;
     }
-  };
-}
-
-export interface ScrollPose {
-  zOffset: number;
-  opacity: number;
-  visible: boolean;
-  lookAt: boolean;
-}
-
-export function scrollPose(morph: number): ScrollPose {
-  const hideAt = AVATAR.receded.opacityAtMorph;
-  const k = clamp(morph / hideAt, 0, 1);
-  return {
-    zOffset: k === 0 ? 0 : (AVATAR.receded.z - AVATAR.end.z) * k, // never -0
-    opacity: 1 - k,
-    visible: morph < hideAt,
-    lookAt: morph <= 0.001
   };
 }
 
@@ -174,26 +166,21 @@ export function lookTarget(
   return { yaw: look.yaw * yawSign || 0, pitch: look.pitch * pitchSign || 0 };
 }
 
-export interface AvatarFrame {
-  /** Uniform model scale so the avatar is screenHeight of the slot at end.z. */
-  scale: number;
-  /** World y of the feet (constant; perspective lifts them while far away). */
-  feetY: number;
-  /** Horizontal position of end.x as a % of the slot width. */
-  leftPct: number;
+export interface AboutFrame {
+  cameraZ: number;
+  cameraY: number;
 }
 
-/** cameraZ/fovDeg: the hero camera (CameraRig fits z to the slot aspect). */
-export function avatarFrame(
-  aspect: number,
-  cameraZ: number,
-  fovDeg: number
-): AvatarFrame {
-  const depth = cameraZ - AVATAR.end.z;
-  const visibleH = 2 * depth * Math.tan(toRad(fovDeg / 2));
+/**
+ * Camera position for About: looking straight down -Z, the avatar at end.z
+ * is screenHeight of the slot tall with its feet feetFromBottom up. With a
+ * fixed vertical fov this holds at every slot size.
+ */
+export function aboutFrame(fovDeg: number): AboutFrame {
+  const visibleH = AVATAR.height / AVATAR.screenHeight;
+  const depth = visibleH / (2 * Math.tan(toRad(fovDeg / 2)));
   return {
-    scale: (AVATAR.screenHeight * visibleH) / AVATAR.height,
-    feetY: visibleH * (AVATAR.feetFromBottom - 0.5),
-    leftPct: 50 + (AVATAR.end.x / ((visibleH / 2) * aspect)) * 50
+    cameraZ: AVATAR.end.z + depth,
+    cameraY: visibleH * (0.5 - AVATAR.feetFromBottom)
   };
 }

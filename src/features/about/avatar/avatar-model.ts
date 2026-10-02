@@ -46,7 +46,7 @@ export function prepareAvatar(gltf: {
 
   const head = root.getObjectByName(AVATAR.HEAD_BONE) ?? null;
   if (!head && process.env.NODE_ENV !== "production") {
-    console.warn(`[hero-avatar] head bone "${AVATAR.HEAD_BONE}" not found`);
+    console.warn(`[about-avatar] head bone "${AVATAR.HEAD_BONE}" not found`);
   }
   const headTrack = `${AVATAR.HEAD_BONE}.quaternion`;
   return {

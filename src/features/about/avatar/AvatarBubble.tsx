@@ -17,7 +17,7 @@ export function AvatarBubble({
       zIndexRange={[20, 10]}
       style={{ pointerEvents: "none" }}
     >
-      <div ref={ref} className="hero-avatar-bubble" aria-hidden="true">
+      <div ref={ref} className="about-avatar-bubble" aria-hidden="true">
         {text}
       </div>
     </Html>

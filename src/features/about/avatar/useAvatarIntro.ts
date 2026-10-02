@@ -1,9 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   createIntro,
+  startMode,
   type AvatarPhase,
   type ClipName,
-  type IntroPose
+  type Intro,
+  type IntroPose,
+  type StartMode
 } from "./choreography";
 import { playClip, setWalkSpeed, type AvatarActions } from "./useAvatarMixer";
 
@@ -27,14 +30,17 @@ function markGreeted() {
   }
 }
 
-// Exposed for e2e (spec B.10) and CSS, like data-gate.
+// Exposed on the About slot for e2e and CSS (spec §5.3).
 function setPhase(slot: HTMLElement, phase: AvatarPhase | null) {
   if (phase) slot.dataset.avatarPhase = phase;
   else delete slot.dataset.avatarPhase;
 }
 
 export interface IntroController {
-  advance(dt: number, morph: number): IntroPose;
+  /** Starts the clock (first visible frame). alreadyPast → skip to idle. */
+  start(alreadyPast: boolean): StartMode;
+  started(): boolean;
+  advance(dt: number): IntroPose;
   rewave(): boolean;
 }
 
@@ -44,7 +50,7 @@ export function useAvatarIntro(
   slot: HTMLElement,
   actions: AvatarActions
 ): IntroController {
-  const [intro] = useState(() => createIntro(readMode()));
+  const intro = useRef<Intro | null>(null);
   const clip = useRef<ClipName | null>(null);
   const phase = useRef<AvatarPhase | null>(null);
 
@@ -52,8 +58,17 @@ export function useAvatarIntro(
 
   return useMemo(
     () => ({
-      advance(dt, morph) {
-        const pose = intro.step(dt, morph);
+      start(alreadyPast) {
+        const mode = startMode({
+          alreadyPast,
+          greeted: readMode() === "repeat"
+        });
+        intro.current = createIntro(mode);
+        return mode;
+      },
+      started: () => intro.current !== null,
+      advance(dt) {
+        const pose = intro.current!.step(dt);
         if (pose.clip !== clip.current) {
           playClip(actions, clip.current, pose.clip, pose.fade);
           clip.current = pose.clip;
@@ -66,8 +81,8 @@ export function useAvatarIntro(
         }
         return pose;
       },
-      rewave: () => intro.rewave()
+      rewave: () => intro.current?.rewave() ?? false
     }),
-    [intro, actions, slot]
+    [actions, slot]
   );
 }

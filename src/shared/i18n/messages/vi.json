@@ -49,13 +49,13 @@
       "chaos": "Feature-driven: các feature import lẫn nhau.",
       "layered": "Layered: app → feature → shared.",
       "description": "Sơ đồ minh họa các package của một monorepo được sắp xếp lại từ cấu trúc feature-driven thành các tầng."
-    },
-    "avatar": {
-      "bubble": "Chào, mình là Đạt"
     }
   },
   "about": {
     "label": "Giới thiệu",
+    "avatar": {
+      "bubble": "Chào, mình là Đạt"
+    },
     "title": "Từ fresher đến kỹ sư mid-level",
     "lead": "Front-End Engineer với ~4 năm xây ứng dụng eCommerce production cho merchant Shopify bằng React, TypeScript và Tailwind CSS — gần đây thêm Next.js. Mình quan tâm tới code dễ thay đổi (layered architecture, shared package trong monorepo, migration JavaScript sang TypeScript) và sản phẩm nhanh, ổn định — như đưa CLS của một dashboard về ≤ 0.1.",
     "body": "Mình làm việc sát với designer, backend engineer và PO trong team Scrum. Với sản phẩm của riêng mình, SafeBulk, mình tự viết spec business logic và ra MVP trong khoảng 1.5 tháng.",

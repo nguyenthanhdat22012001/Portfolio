@@ -172,19 +172,23 @@ async function waitLive(page: Page) {
 }
 
 test.describe("desktop scene", () => {
-  test("draws in at most 9 draw calls with the avatar", async ({ page }) => {
+  test("draws in at most 6 draw calls and has no avatar", async ({ page }) => {
+    const glb: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().endsWith("/models/avatar.glb")) glb.push(request.url());
+    });
     await page.goto("/en");
     await waitLive(page);
-    await expect(page.locator("#hero-canvas-slot")).toHaveAttribute(
-      "data-avatar-phase",
-      "idle",
-      { timeout: 20_000 }
-    );
     await expect
       .poll(async () => Number(await graph(page).getAttribute("data-gl-calls")))
       .toBeGreaterThan(0);
     const calls = Number(await graph(page).getAttribute("data-gl-calls"));
-    expect(calls).toBeLessThanOrEqual(9);
+    expect(calls).toBeLessThanOrEqual(6);
+    await expect(
+      page.locator("#top [data-avatar-pose], #top [data-avatar-phase]")
+    ).toHaveCount(0);
+    await page.waitForTimeout(1000);
+    expect(glb).toEqual([]);
   });
 
   test("scrolling past the hero switches the caption to layered and back", async ({
@@ -459,25 +463,17 @@ test.describe("robustness", () => {
         )
         .toBe(true);
     };
-    const avatarIdle = () =>
-      expect(page.locator("#hero-canvas-slot")).toHaveAttribute(
-        "data-avatar-phase",
-        "idle",
-        { timeout: 20_000 }
-      );
     const backToTopLive = async () => {
       // Let the #work hash scroll land before leaving it.
       await settle(false);
       await page.evaluate(() => window.scrollTo(0, 0));
       await settle(true);
       await waitLive(page);
-      await avatarIdle();
       await expect.poll(async () => (await stats()).geometries).not.toBeNull();
     };
 
     await page.goto("/en");
     await waitLive(page);
-    await avatarIdle();
     // Motion must be loaded so the trigger count means something.
     let step = 0;
     await expect(async () => {

@@ -19,15 +19,12 @@ export const AVATAR = {
   height: 1.7,
 
   /**
+   * About framing: the avatar walks toward the camera from the back of the slot.
    * Walk distance matches the clip's natural speed (1.36 m/s × ~2.1 s ≈ 2.8 m) so feet don't slide.
-   * Start sits inside the graph's tangle (radius 2.6), end in front of it.
    * If you change timings.walk, keep (end.z - start.z) ≈ 1.3 × timings.walk.
    */
-  start: { x: 0.6, z: -1.2 },
-  end: { x: 0.6, z: 1.6 },
-  receded: { z: 0.2, opacityAtMorph: 0.5 },
-  /** Scrolled past this morph when the intro starts (or while it runs) → straight to idle. */
-  skipIntroAtMorph: 0.3,
+  start: { x: 0, z: -1.2 },
+  end: { x: 0, z: 1.6 },
 
   timings: {
     fadeIn: 0.4,
@@ -36,7 +33,8 @@ export const AVATAR = {
     wave: 2.45, // full clip length, LoopOnce + clampWhenFinished
     waveToIdle: 0.5,
     bubbleIn: 2.2,
-    bubbleOut: 4.4
+    bubbleOut: 4.4,
+    countersStart: 2.5 // About stat counters start (spec §6)
   },
   walkSlowdown: 0.4,
   /** Repeat visit: appear at `end` with this fade (s). */
@@ -46,16 +44,14 @@ export const AVATAR = {
 
   walkTimeScale: 1.0,
 
-  /** On-screen size at `end.z`: fraction of the slot height, feet this far above the slot bottom. */
-  screenHeight: 0.7,
-  feetFromBottom: 0.15,
-  /** Mirrors HeroSection's slot classes: aspect-[4/3] and md:aspect-[7/8]. */
-  slotAspect: { sm: 4 / 3, md: 7 / 8 },
+  /** On-screen size at `end.z`: fraction of the slot height, feet this far above the slot bottom (spec §2: ≈ 80 %). */
+  screenHeight: 0.8,
+  feetFromBottom: 0.06,
+  /** Vertical fov; the camera looks straight ahead (aboutFrame), so framing doesn't depend on the slot's aspect. */
+  camera: { fov: 30 },
 
-  /** Server-rendered WebP fallback (Low/Off tiers). anchorX = feet centre as a fraction of the image width. */
+  /** Server-rendered WebP fallback (no JS, reduced motion, Low tier, failed 3D). anchorX = feet centre as a fraction of the image width. */
   fallback: {
-    /** Mobile height (fraction of the slot): smaller than 3D's 0.7 so the h1 stays the LCP element. */
-    heightSm: 0.55,
     /** Low tier: wave image swaps to idle after this many seconds. */
     swapAt: 2,
     wave: {
@@ -77,7 +73,7 @@ export const AVATAR = {
   /** Bubble anchor above the model's top, in model units. */
   bubbleOffset: 0.15,
   hitCapsule: { radius: 0.3 },
-  /** Rim light only; the Phase 5 ambient + directional act as the key (design doc D4). */
+  /** Rim light behind the avatar, colored --accent. */
   rim: { position: [-1.5, 2.5, -2], intensity: 2.5 },
   contactShadows: {
     opacity: 0.35,

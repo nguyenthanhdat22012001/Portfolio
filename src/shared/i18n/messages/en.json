@@ -49,13 +49,13 @@
       "chaos": "Feature-driven: features import each other.",
       "layered": "Layered: app → feature → shared.",
       "description": "Illustrative diagram of a monorepo's packages reorganizing from a feature-driven structure into layers."
-    },
-    "avatar": {
-      "bubble": "Hi, I'm Dat"
     }
   },
   "about": {
     "label": "About",
+    "avatar": {
+      "bubble": "Hi, I'm Dat"
+    },
     "title": "From fresher to mid-level engineer",
     "lead": "Front-End Engineer with ~4 years building production eCommerce apps for Shopify merchants with React, TypeScript and Tailwind CSS — and, more recently, Next.js. I care about code that stays easy to change (layered architecture, shared packages in a monorepo, a JavaScript-to-TypeScript migration) and about products that feel fast and steady, like bringing a dashboard's CLS to ≤ 0.1.",
     "body": "I work closely with designers, backend engineers and product owners in Scrum teams. On my own product, SafeBulk, I wrote the business-logic specs myself and shipped the MVP in about 1.5 months.",

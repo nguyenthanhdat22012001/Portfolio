@@ -26,7 +26,7 @@ export function createActions(
     if (!clip) {
       if (process.env.NODE_ENV !== "production") {
         console.warn(
-          `[hero-avatar] clip "${AVATAR.CLIPS[name]}" missing; static pose`
+          `[about-avatar] clip "${AVATAR.CLIPS[name]}" missing; static pose`
         );
       }
       continue;

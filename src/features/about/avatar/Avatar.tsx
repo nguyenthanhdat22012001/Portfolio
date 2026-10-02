@@ -8,19 +8,17 @@ import {
   useRef,
   type ReactNode
 } from "react";
-import type { DirectionalLight, Group, PerspectiveCamera } from "three";
+import type { DirectionalLight, Group } from "three";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { useScrollStore } from "@/shared/lib/stores/scroll-store";
-import type { RenderTier } from "../../quality/detect-tier";
-import type { GraphPalette } from "../useGraphColors";
+import type { RenderTier } from "@/features/hero/quality/detect-tier";
 import { AVATAR } from "./avatar.config";
 import { disposeAvatar, prepareAvatar, setOpacity } from "./avatar-model";
 import { AvatarBubble } from "./AvatarBubble";
 import { AvatarHitProxy } from "./AvatarHitProxy";
-import { avatarFrame, scrollPose } from "./choreography";
 import { useAvatarIntro } from "./useAvatarIntro";
 import { useAvatarMixer } from "./useAvatarMixer";
+import type { AccentColor } from "./useAccentColor";
 import { useHeadLook } from "./useHeadLook";
 
 // three's own loader + meshopt; drei's useGLTF would bundle DRACOLoader too.
@@ -37,13 +35,12 @@ export interface AvatarProps {
   tier: RenderTier;
   slot: HTMLElement;
   bubble: string;
-  /** Theme colors from the canvas chunk (rim light = --accent). */
-  palette: GraphPalette;
+  /** Theme accent (rim light). */
+  accent: AccentColor;
 }
 
-// Per frame this reads the scroll store with getState() and writes three
-// objects and data-* attributes directly; no React state changes after mount.
-function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
+// Per frame this writes three objects and data-* attributes directly; no React state changes after mount.
+function AvatarScene({ tier, slot, bubble, accent }: AvatarProps) {
   const gltf = useLoader(GLTFLoader, AVATAR.url, withMeshopt);
   const model = useMemo(() => prepareAvatar(gltf), [gltf]);
   const { mixer, actions } = useAvatarMixer(model.root, gltf.animations);
@@ -52,7 +49,7 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
   const rootRef = useRef<Group>(null);
   const rimRef = useRef<DirectionalLight>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
-  const paletteVersion = useRef(-1);
+  const accentVersion = useRef(-1);
   const tierRef = useRef(tier);
   const tierOpacity = useRef(1);
 
@@ -68,56 +65,44 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
     [model, slot]
   );
 
-  useFrame(({ camera, size, pointer }, delta) => {
+  useFrame(({ pointer }, delta) => {
     const root = rootRef.current;
     if (!root) return;
     const dt = Math.min(delta, 0.1); // no jump after a background tab
     const rim = rimRef.current;
-    if (rim && paletteVersion.current !== palette.version) {
-      rim.color.copy(palette.app); // --accent, follows the theme
-      paletteVersion.current = palette.version;
+    if (rim && accentVersion.current !== accent.version) {
+      rim.color.copy(accent.color); // follows the theme
+      accentVersion.current = accent.version;
     }
 
-    const morph = useScrollStore.getState().heroMorph;
-    const scroll = scrollPose(morph);
-    const pose = intro.advance(dt, morph);
-    // Runtime drop to Low (PerformanceMonitor): fade out; CSS shows the image.
+    if (!intro.started()) intro.start(false); // Task 5 gates this on the 70 % trigger
+    const pose = intro.advance(dt);
+    // Runtime drop to Low (PerformanceMonitor): fade out.
     if (tierRef.current === "low") {
       tierOpacity.current = Math.max(
         0,
         tierOpacity.current - dt / AVATAR.tierFadeOut
       );
     }
-    const opacity = pose.opacity * scroll.opacity * tierOpacity.current;
-    const visible = scroll.visible && opacity > 0;
+    const opacity = pose.opacity * tierOpacity.current;
+    const visible = opacity > 0;
     if (visible !== root.visible) {
       root.visible = visible;
       setHidden(slot, !visible);
     }
     bubbleRef.current?.toggleAttribute("data-visible", visible && pose.bubble);
-    if (!visible) return; // hidden: the mixer is paused too (spec B.7)
+    if (!visible) return;
 
-    // CameraRig fits camera z to the slot each frame; follow it (resize).
-    const frame = avatarFrame(
-      size.width / Math.max(1, size.height),
-      camera.position.z,
-      (camera as PerspectiveCamera).fov
-    );
-    root.scale.setScalar(frame.scale);
-    root.position.set(AVATAR.end.x, frame.feetY, pose.z + scroll.zOffset);
+    root.position.set(AVATAR.end.x, 0, pose.z);
     setOpacity(model.materials, opacity);
     mixer.update(dt);
-    // pointer: slot-relative NDC (eventSource is the slot). Touch never gets
-    // here: a coarse pointer is always tier Low.
-    lookAt(dt, pose.phase === "idle" && scroll.lookAt, pointer);
+    // pointer: slot-relative NDC (eventSource is the slot).
+    lookAt(dt, pose.phase === "idle", pointer);
   });
 
   return (
     <>
-      {/* Outside the visibility-toggled group: hiding the avatar must not
-          change the scene's light count, which would recompile the graph's
-          lit materials and visibly re-shade it at morph 0.5. Directional, so
-          only its direction (towards the origin) matters. */}
+      {/* Outside the visibility-toggled group so hiding the avatar never changes the scene's light count (a recompile would flash). */}
       <directionalLight
         ref={rimRef}
         position={[...AVATAR.rim.position]}
@@ -141,10 +126,7 @@ function markFailed(slot: HTMLElement, failed: boolean) {
   slot.toggleAttribute("data-avatar-failed", failed);
 }
 
-// A failed GLB must not take the graph down with it: the gate's
-// CanvasBoundary would switch the whole canvas off. CSS then shows the
-// static idle image (data-avatar-failed). (If this chunk itself fails to
-// load, the gate's boundary does take over: static graph + idle image.)
+// A failed GLB shows the static idle image (data-avatar-failed).
 class AvatarBoundary extends Component<
   { slot: HTMLElement; children: ReactNode },
   { failed: boolean }
@@ -158,7 +140,7 @@ class AvatarBoundary extends Component<
   componentDidCatch(error: unknown) {
     markFailed(this.props.slot, true);
     if (process.env.NODE_ENV !== "production") {
-      console.warn("[hero-avatar] failed, showing the static image", error);
+      console.warn("[about-avatar] failed, showing the static image", error);
     }
   }
 
@@ -171,7 +153,7 @@ class AvatarBoundary extends Component<
   }
 }
 
-// Entry of the hero-avatar chunk.
+// Rendered inside AboutAvatarCanvas (about-avatar chunk).
 export default function Avatar(props: AvatarProps) {
   return (
     <AvatarBoundary slot={props.slot}>

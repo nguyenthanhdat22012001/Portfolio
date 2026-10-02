@@ -1,20 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { CAMERA_FOV, fitCameraZ } from "../graph-frame";
 import { AVATAR } from "./avatar.config";
 import {
   CRUISE_SPEED,
   FULL_IDLE_AT,
-  avatarFrame,
+  aboutFrame,
   clampLook,
   createIntro,
   lookTarget,
   poseAt,
-  scrollPose
+  startMode
 } from "./choreography";
 
 const deg = (d: number) => (d * Math.PI) / 180;
-const frameFor = (aspect: number) =>
-  avatarFrame(aspect, fitCameraZ(aspect), CAMERA_FOV);
 
 describe("poseAt (full intro)", () => {
   it("walks, waves, then idles", () => {
@@ -101,61 +98,25 @@ describe("poseAt (other modes)", () => {
 describe("createIntro", () => {
   it("runs the full intro from the first step", () => {
     const intro = createIntro("full");
-    expect(intro.step(0.016, 0).phase).toBe("enter"); // first step is t = 0
-    expect(intro.step(1, 0).phase).toBe("walk");
-    expect(intro.step(2, 0).phase).toBe("wave");
-    expect(intro.step(2, 0).phase).toBe("idle");
-  });
-
-  it("starts in idle when the visitor has already scrolled", () => {
-    expect(createIntro("full").step(0, 0.4).phase).toBe("idle");
-  });
-
-  it("jumps to idle when the visitor scrolls past during the walk", () => {
-    const intro = createIntro("full");
-    intro.step(0, 0);
-    expect(intro.step(1, 0).phase).toBe("walk");
-    expect(intro.step(0.016, 0.35).phase).toBe("idle");
-    expect(intro.step(0.016, 0).phase).toBe("idle"); // never replays
+    expect(intro.step(0.016).phase).toBe("enter"); // first step is t = 0
+    expect(intro.step(1).phase).toBe("walk");
+    expect(intro.step(2).phase).toBe("wave");
+    expect(intro.step(2).phase).toBe("idle");
   });
 
   it("starts the repeat path at wave", () => {
-    expect(createIntro("repeat").step(0, 0).phase).toBe("wave");
+    expect(createIntro("repeat").step(0).phase).toBe("wave");
   });
 
   it("rewaves only from idle", () => {
     const intro = createIntro("full");
-    intro.step(0, 0);
+    intro.step(0);
     expect(intro.rewave()).toBe(false); // still entering
-    intro.step(5, 0);
+    intro.step(5);
     expect(intro.rewave()).toBe(true);
-    expect(intro.step(0.016, 0).phase).toBe("wave");
+    expect(intro.step(0.016).phase).toBe("wave");
     expect(intro.rewave()).toBe(false); // already waving
-    expect(intro.step(AVATAR.timings.wave, 0).phase).toBe("idle");
-  });
-});
-
-describe("scrollPose", () => {
-  it("is neutral at the top", () => {
-    expect(scrollPose(0)).toEqual({
-      zOffset: 0,
-      opacity: 1,
-      visible: true,
-      lookAt: true
-    });
-  });
-
-  it("recedes and fades halfway to the hide point", () => {
-    const pose = scrollPose(0.25);
-    expect(pose.zOffset).toBeCloseTo((AVATAR.receded.z - AVATAR.end.z) / 2, 5);
-    expect(pose.opacity).toBeCloseTo(0.5, 5);
-    expect(pose.visible).toBe(true);
-    expect(pose.lookAt).toBe(false);
-  });
-
-  it("hides from morph 0.5", () => {
-    expect(scrollPose(0.5).visible).toBe(false);
-    expect(scrollPose(1)).toMatchObject({ visible: false, opacity: 0 });
+    expect(intro.step(AVATAR.timings.wave).phase).toBe("idle");
   });
 });
 
@@ -174,18 +135,54 @@ describe("look-at", () => {
   });
 });
 
-describe("avatarFrame", () => {
-  // Hand-computed: GRAPH_WIDTH = 7.17, tan(22.5°) = 0.414214, FIT_FRACTION 0.85.
-  it("mobile slot (4/3)", () => {
-    const frame = frameFor(4 / 3);
-    expect(frame.scale).toBeCloseTo(2.0592, 3);
-    expect(frame.feetY).toBeCloseTo(-1.7503, 3);
-    expect(frame.leftPct).toBeCloseTo(59.0, 1);
+describe("startMode", () => {
+  it("already past About → skip (straight to idle)", () => {
+    expect(startMode({ alreadyPast: true, greeted: false })).toBe("skip");
+    expect(startMode({ alreadyPast: true, greeted: true })).toBe("skip");
+    expect(
+      poseAt(0, startMode({ alreadyPast: true, greeted: false })).phase
+    ).toBe("idle");
   });
 
-  it("desktop slot (7/8)", () => {
-    const frame = frameFor(7 / 8);
-    expect(frame.scale).toBeCloseTo(3.4238, 3);
-    expect(frame.leftPct).toBeCloseTo(58.25, 1);
+  it("greeted this session → repeat, else full", () => {
+    expect(startMode({ alreadyPast: false, greeted: true })).toBe("repeat");
+    expect(startMode({ alreadyPast: false, greeted: false })).toBe("full");
+  });
+});
+
+describe("createIntro (start modes)", () => {
+  it("skip starts in idle and never walks", () => {
+    const intro = createIntro("skip");
+    expect(intro.step(0).phase).toBe("idle");
+    expect(intro.step(1).phase).toBe("idle");
+  });
+
+  it("time only moves forward: idle stays idle", () => {
+    const intro = createIntro("full");
+    intro.step(0);
+    intro.step(FULL_IDLE_AT + 0.1);
+    for (let i = 0; i < 100; i += 1) expect(intro.step(0.1).phase).toBe("idle");
+  });
+});
+
+describe("counters", () => {
+  it("full intro: due at timings.countersStart (2.5 s), right after the wave starts", () => {
+    expect(AVATAR.timings.countersStart).toBe(2.5);
+    expect(poseAt(2.49, "full").counters).toBe(false);
+    expect(poseAt(2.5, "full").counters).toBe(true);
+  });
+
+  it("repeat and skip: due at once", () => {
+    expect(poseAt(0, "repeat").counters).toBe(true);
+    expect(poseAt(0, "skip").counters).toBe(true);
+  });
+});
+
+describe("aboutFrame", () => {
+  // Hand-computed: visible height = 1.70 / 0.8 = 2.125 m; tan(15°) = 0.267949.
+  it("fits the avatar at end.z to 80 % of the slot height, feet 6 % up", () => {
+    const frame = aboutFrame(30);
+    expect(frame.cameraZ).toBeCloseTo(1.6 + 2.125 / (2 * 0.267949), 4); // 5.5653
+    expect(frame.cameraY).toBeCloseTo(2.125 * (0.5 - 0.06), 4); // 0.935
   });
 });

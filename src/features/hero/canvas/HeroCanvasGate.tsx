@@ -12,7 +12,7 @@ import {
 import { onFirstInteraction } from "@/shared/animation/load-trigger";
 import type { RenderTier } from "@/shared/three/detect-tier";
 import { decideGate, readGateEnv } from "@/shared/three/decide-gate";
-import { afterLoadIdle } from "./schedule";
+import { afterLoadIdle } from "@/shared/lib/schedule";
 
 // The only hero 3D code in the initial bundle. three.js and the scene load
 // in HeroCanvas's lazy chunk once this gate decides to mount.

@@ -9,6 +9,10 @@ import {
   useState,
   type ReactNode
 } from "react";
+import {
+  afterLoadIdleOrInput,
+  type IdleOrInputCause
+} from "@/shared/lib/schedule";
 import { readGateEnv } from "@/shared/three/decide-gate";
 import { readTierEnv } from "@/shared/three/detect-tier";
 import { qualityStore } from "@/shared/three/quality-store";
@@ -37,6 +41,8 @@ const INTENT_EVENTS = [
   "keydown",
   "pointerdown"
 ] as const;
+const isIntent = (cause: IdleOrInputCause) =>
+  (INTENT_EVENTS as readonly string[]).includes(cause);
 
 class CanvasBoundary extends Component<
   { onError: () => void; children: ReactNode },
@@ -85,95 +91,118 @@ export function AboutAvatarGate({ bubble }: { bubble: string }) {
   useEffect(() => {
     const slot = document.getElementById(SLOT_ID);
     if (!slot) return;
-    const signals = createAvatarSignals(slot, slot.closest("section"));
-    const tier = qualityStore.getState().init(readTierEnv());
-    const path = decideAvatarPath(readGateEnv(), tier, isBelowViewport(slot));
 
-    if (path === "fallback") {
-      slot.dataset.gate = "fallback";
-      return () => signals.dispose();
-    }
-    slot.dataset.gate = "pending";
-    if (path === "low") slot.dataset.tier = "low";
-    else signals.hold();
+    // Decides the path and sets up the observers. Kept off the hydration path
+    // (Lighthouse render delay): it runs once the page is idle, or on the
+    // visitor's first input, which still comes before the motion chunk (and
+    // the counters it holds) loads.
+    const decide = (cause: IdleOrInputCause): (() => void) => {
+      const signals = createAvatarSignals(slot, slot.closest("section"));
+      const tier = qualityStore.getState().init(readTierEnv());
+      const path = decideAvatarPath(readGateEnv(), tier, isBelowViewport(slot));
 
-    // "top 70%" without GSAP. A slot already above the viewport (landing on
-    // #contact) counts as crossed.
-    const start = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry) return;
-        if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
-          signals.setTriggered();
-          start.disconnect();
-        }
-      },
-      { rootMargin: START_MARGIN }
-    );
-    start.observe(slot);
+      if (path === "fallback") {
+        slot.dataset.gate = "fallback";
+        return () => signals.dispose();
+      }
+      slot.dataset.gate = "pending";
+      if (path === "low") slot.dataset.tier = "low";
+      else signals.hold();
 
-    const visible = new IntersectionObserver(([entry]) =>
-      signals.setInView(entry?.isIntersecting ?? false)
-    );
-    visible.observe(slot);
-
-    let mount: IntersectionObserver | undefined;
-    const armMount = () => {
-      mount = new IntersectionObserver(
+      // "top 70%" without GSAP. A slot already above the viewport (landing on
+      // #contact) counts as crossed.
+      const start = new IntersectionObserver(
         ([entry]) => {
-          if (!entry?.isIntersecting) return;
-          mount?.disconnect();
-          // The Hero canvas may have stepped the shared tier down meanwhile:
-          // the Low image path, unless the image is already on screen.
-          if (qualityStore.getState().level === "low") {
-            if (isBelowViewport(slot)) slot.dataset.tier = "low";
-            else slot.dataset.gate = "fallback";
-            signals.lost();
-            return;
+          if (!entry) return;
+          if (entry.isIntersecting || entry.boundingClientRect.top < 0) {
+            signals.setTriggered();
+            start.disconnect();
           }
-          slot.dataset.gate = "mount";
-          const next = { slot, signals };
-          liveRef.current = next;
-          setLive(next);
         },
-        { rootMargin: MOUNT_MARGIN }
+        { rootMargin: START_MARGIN }
       );
-      mount.observe(slot);
-    };
-    // The slot can start inside the 400px margin on a short desktop viewport;
-    // waiting for the first scroll keeps the chunk and the GLB off the initial
-    // load (design D8).
-    const listenForScroll = () => {
-      for (const type of INTENT_EVENTS) {
-        window.removeEventListener(type, listenForScroll);
-      }
-      window.addEventListener("scroll", armMount, {
-        once: true,
-        passive: true
-      });
-    };
-    if (path === "3d") {
-      // A #hash landing (the case study's back link to /en#work) scrolls the
-      // page itself, often right next to About, and the motion rescan adjusts
-      // it again. Those scrolls aren't the visitor's: wait for their own
-      // input first (Review Focus 2).
-      if (window.location.hash) {
+      start.observe(slot);
+
+      const visible = new IntersectionObserver(([entry]) =>
+        signals.setInView(entry?.isIntersecting ?? false)
+      );
+      visible.observe(slot);
+
+      let mount: IntersectionObserver | undefined;
+      const armMount = () => {
+        mount = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry?.isIntersecting) return;
+            mount?.disconnect();
+            // The Hero canvas may have stepped the shared tier down meanwhile:
+            // the Low image path, unless the image is already on screen.
+            if (qualityStore.getState().level === "low") {
+              if (isBelowViewport(slot)) slot.dataset.tier = "low";
+              else slot.dataset.gate = "fallback";
+              signals.lost();
+              return;
+            }
+            slot.dataset.gate = "mount";
+            const next = { slot, signals };
+            liveRef.current = next;
+            setLive(next);
+          },
+          { rootMargin: MOUNT_MARGIN }
+        );
+        mount.observe(slot);
+      };
+      // The slot can start inside the 400px margin on a short desktop
+      // viewport; waiting for the first scroll keeps the chunk and the GLB off
+      // the initial load (design D8).
+      const listenForScroll = () => {
         for (const type of INTENT_EVENTS) {
-          window.addEventListener(type, listenForScroll, { passive: true });
+          window.removeEventListener(type, listenForScroll);
         }
-      } else {
-        listenForScroll();
+        window.addEventListener("scroll", armMount, {
+          once: true,
+          passive: true
+        });
+      };
+      if (path === "3d") {
+        if (window.location.hash) {
+          // A #hash landing (the case study's back link to /en#work) scrolls
+          // the page itself, often right next to About, and the motion rescan
+          // adjusts it again. Those scrolls aren't the visitor's: wait for
+          // their own input first (Review Focus 2).
+          if (isIntent(cause)) listenForScroll();
+          else {
+            for (const type of INTENT_EVENTS) {
+              window.addEventListener(type, listenForScroll, { passive: true });
+            }
+          }
+        } else if (cause === "scroll") {
+          // This decision ran on the first scroll itself.
+          armMount();
+        } else {
+          listenForScroll();
+        }
       }
-    }
+
+      return () => {
+        for (const type of INTENT_EVENTS) {
+          window.removeEventListener(type, listenForScroll);
+        }
+        window.removeEventListener("scroll", armMount);
+        start.disconnect();
+        visible.disconnect();
+        mount?.disconnect();
+        signals.dispose();
+      };
+    };
+
+    let teardown: (() => void) | undefined;
+    const cancel = afterLoadIdleOrInput((cause) => {
+      teardown = decide(cause);
+    });
 
     return () => {
-      for (const type of INTENT_EVENTS) {
-        window.removeEventListener(type, listenForScroll);
-      }
-      window.removeEventListener("scroll", armMount);
-      start.disconnect();
-      visible.disconnect();
-      mount?.disconnect();
-      signals.dispose();
+      cancel();
+      teardown?.();
       window.clearTimeout(unmountTimer.current);
       liveRef.current = null;
       failedRef.current = false;

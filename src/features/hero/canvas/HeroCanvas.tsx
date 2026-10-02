@@ -14,6 +14,7 @@ import {
 } from "../quality/detect-tier";
 import { declineAction, monitorBounds } from "../quality/perf-policy";
 import { useQualityTier } from "../quality/useQualityTier";
+import { CAMERA_FOV } from "./graph-frame";
 import { HeroScene } from "./HeroScene";
 
 // R3F 9.8 still constructs THREE.Clock, which three 0.18x warns about on every
@@ -91,7 +92,7 @@ export default function HeroCanvas({
         alpha: true,
         powerPreference: "high-performance"
       }}
-      camera={{ fov: 45, near: 0.1, far: 50, position: [0, 0, 9] }}
+      camera={{ fov: CAMERA_FOV, near: 0.1, far: 50, position: [0, 0, 9] }}
       flat
       frameloop={visible ? "always" : "never"}
       eventSource={slot}

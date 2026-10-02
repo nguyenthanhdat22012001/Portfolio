@@ -14,16 +14,14 @@ test("without WebGL the hero shows the static layered graph", async ({
   expect(problems).toEqual([]);
 });
 
-test("without WebGL the avatar is the static idle image", async ({ page }) => {
+test("without WebGL the About avatar is the static idle image", async ({
+  page
+}) => {
   await page.goto("/en");
-  await expect(page.locator("[data-hero-graph]")).toHaveAttribute(
-    "data-gate",
-    "fallback"
-  );
-  await expect(
-    page.locator('#hero-canvas-slot [data-avatar-pose="idle"]')
-  ).toBeVisible();
-  await expect(
-    page.locator('#hero-canvas-slot [data-avatar-pose="wave"]')
-  ).toBeHidden();
+  const slot = page.locator("#about-avatar-slot");
+  await expect(slot).toHaveAttribute("data-gate", "fallback");
+  await slot.scrollIntoViewIfNeeded();
+  await expect(slot.locator('[data-avatar-pose="idle"]')).toBeVisible();
+  await expect(slot.locator('[data-avatar-pose="wave"]')).toBeHidden();
+  await expect(slot.locator("canvas")).toHaveCount(0);
 });

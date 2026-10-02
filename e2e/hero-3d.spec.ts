@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import { trackLiveGl } from "./helpers/gl";
 import {
   collectConsoleProblems,
   gzipBytes,
-  splitAvatarChunks,
   trackScripts
 } from "./helpers/scripts";
 
@@ -79,7 +79,7 @@ test.describe("desktop", () => {
     await expect(graph(page)).toHaveAttribute("data-gate", "live", {
       timeout: 15_000
     });
-    const { rest: canvasChunks } = await splitAvatarChunks(scripts.lazy());
+    const canvasChunks = scripts.lazy();
     const lazyBytes = await gzipBytes(canvasChunks);
     const initialBytes = await gzipBytes(scripts.initial());
     console.log(
@@ -254,12 +254,18 @@ test.describe("desktop scene", () => {
       Math.round(heroHeight * 0.8)
     );
     await page.reload();
-    await page.mouse.move(200, 200);
-    await expect(page.locator("html")).toHaveAttribute(
-      "data-motion-ready",
-      "",
-      { timeout: 10_000 }
-    );
+    // A move before hydration has no listener yet (the restored scroll lands
+    // before it too), so keep moving until motion loads.
+    let step = 0;
+    await expect(async () => {
+      step += 1;
+      await page.mouse.move(200 + step * 10, 200);
+      await expect(page.locator("html")).toHaveAttribute(
+        "data-motion-ready",
+        "",
+        { timeout: 500 }
+      );
+    }).toPass({ timeout: 10_000 });
     await expect(caption(page, "layered")).toBeVisible();
   });
 });
@@ -404,43 +410,9 @@ test.describe("robustness", () => {
     page
   }) => {
     test.setTimeout(180_000);
-    // A live WebGL context is one that exists and has not been lost. The gate's
-    // support probe loses its context immediately, and R3F force-loses the
-    // renderer's context on unmount, so a leaked renderer (even on a detached
-    // canvas) stays "live" and shows up here. gl.info only covers the current
-    // renderer, so it cannot see leaks across mounts; this can.
-    await page.addInitScript(() => {
-      const contexts = new Set<
-        WebGLRenderingContext | WebGL2RenderingContext
-      >();
-      const original = HTMLCanvasElement.prototype.getContext;
-      HTMLCanvasElement.prototype.getContext = function (
-        this: HTMLCanvasElement,
-        type: string,
-        ...rest: unknown[]
-      ) {
-        const ctx = (original as (...args: unknown[]) => unknown).call(
-          this,
-          type,
-          ...rest
-        );
-        if (
-          ctx &&
-          (type === "webgl" ||
-            type === "webgl2" ||
-            type === "experimental-webgl")
-        ) {
-          contexts.add(ctx as WebGLRenderingContext);
-        }
-        return ctx;
-      } as typeof original;
-      (window as unknown as { __liveGl: () => number }).__liveGl = () =>
-        [...contexts].filter((c) => !c.isContextLost()).length;
-    });
-    const liveContexts = () =>
-      page.evaluate(() =>
-        (window as unknown as { __liveGl: () => number }).__liveGl()
-      );
+    // gl.info only covers the current renderer, so it cannot see leaks across
+    // mounts; counting live contexts can.
+    const liveContexts = await trackLiveGl(page);
     const triggers = () =>
       page.evaluate(() =>
         Number(document.documentElement.dataset.motionTriggers)
@@ -486,7 +458,8 @@ test.describe("robustness", () => {
       );
     }).toPass({ timeout: 10_000 });
     const baseline = await stats();
-    expect(await liveContexts()).toBe(1);
+    // Hero + (maybe) About; never more (spec §9).
+    expect(await liveContexts()).toBeLessThanOrEqual(2);
 
     // Fresh-load count is the ceiling: after a return, the rescan runs while the
     // #work hash scroll may or may not have landed, so effects for already-visible
@@ -507,7 +480,8 @@ test.describe("robustness", () => {
       await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
       await backToTopLive();
       await expect(canvas(page)).toHaveCount(1);
-      await expect.poll(liveContexts).toBe(1);
+      // Hero + (maybe) About; never more (spec §9).
+      await expect.poll(liveContexts).toBeLessThanOrEqual(2);
       await expect.poll(stats).toEqual(baseline);
       await expect.poll(triggers).toBeGreaterThan(0);
       await expect.poll(triggers).toBeLessThanOrEqual(triggerCeiling);

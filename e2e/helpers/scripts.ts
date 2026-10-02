@@ -50,21 +50,3 @@ export function collectConsoleProblems(page: Page): string[] {
   page.on("pageerror", (error) => problems.push(`pageerror: ${error.message}`));
   return problems;
 }
-
-// The avatar's lazy chunk (webpackChunkName "hero-avatar") and any vendor
-// chunk webpack split out of it, recognised by GLTFLoader's extension name.
-export async function splitAvatarChunks(
-  responses: Response[]
-): Promise<{ avatar: Response[]; rest: Response[] }> {
-  const avatar: Response[] = [];
-  const rest: Response[] = [];
-  for (const response of responses) {
-    const named = /\/hero-avatar\.[^/]+\.js$/.test(
-      new URL(response.url()).pathname
-    );
-    const isAvatar =
-      named || (await response.text()).includes("KHR_mesh_quantization");
-    (isAvatar ? avatar : rest).push(response);
-  }
-  return { avatar, rest };
-}

@@ -424,6 +424,74 @@ test.describe("About avatar on desktop", () => {
     await expect(slot(page)).toHaveAttribute("data-gate", "mount");
   });
 
+  // Final review 1: a leaked About renderer would stay a live context.
+  test("5 round trips to a case study re-mount About with exact live contexts and stable GPU counts", async ({
+    page
+  }) => {
+    test.setTimeout(240_000);
+    const liveGl = await trackLiveGl(page);
+    const glStats = async () => ({
+      geometries: await slot(page).getAttribute("data-gl-geometries"),
+      textures: await slot(page).getAttribute("data-gl-textures")
+    });
+    const settled = async () => {
+      let last = -1;
+      await expect
+        .poll(
+          async () => {
+            const y = await page.evaluate(() => Math.round(window.scrollY));
+            const still = y === last;
+            last = y;
+            return still;
+          },
+          { intervals: [250] }
+        )
+        .toBe(true);
+    };
+    // The visitor's own wheel arms the mount (a #work return waits for real
+    // input); let Lenis's smooth scroll land, then bring the slot in.
+    const mountAbout = async () => {
+      await page.mouse.move(640, 360);
+      await page.mouse.wheel(0, 100);
+      await settled();
+      await scrollSlotTo(page, 0.3);
+      await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+        timeout: 20_000
+      });
+      await expect
+        .poll(async () => (await glStats()).geometries)
+        .not.toBeNull();
+    };
+
+    await page.goto("/en");
+    await heroLive(page);
+    await mountAbout();
+    await expect(slot(page).locator("canvas")).toHaveCount(1);
+    await expect.poll(liveGl).toBe(2); // Hero + About
+    const baseline = await glStats();
+
+    for (let trip = 0; trip < 5; trip += 1) {
+      await scrollToTop(page);
+      await page
+        .locator('[data-chapter="swift-performance"]')
+        .getByRole("link", { name: /Read case study/ })
+        .click();
+      await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+      await expect(slot(page)).toHaveCount(0);
+      await expect.poll(liveGl).toBe(0);
+      await page.getByRole("link", { name: /←/ }).click();
+      await expect(page).toHaveURL(/\/en#work$/);
+      // Let the #work hash scroll land, then bring the Hero live first.
+      await settled();
+      await scrollToTop(page);
+      await heroLive(page);
+      await mountAbout();
+      await expect(slot(page).locator("canvas")).toHaveCount(1);
+      await expect.poll(liveGl).toBe(2);
+      await expect.poll(glStats).toEqual(baseline);
+    }
+  });
+
   // Review Focus 3
   test("the theme toggle keeps the About canvas and its state", async ({
     page

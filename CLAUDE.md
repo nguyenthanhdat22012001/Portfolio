@@ -17,7 +17,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   link as its no-JS fallback, and `app/[locale]/_motion/MotionRoot.tsx`, and
   `features/hero/canvas/HeroCanvasGate.tsx` (decides whether the 3D canvas
   mounts), and `features/about/avatar/AboutAvatarGate.tsx` (decides whether the
-  About avatar canvas mounts)).
+  About avatar canvas mounts, once the page is idle or on the first input,
+  never during hydration), and `features/about/avatar/AboutAvatarCanvas.tsx`
+  (the About avatar canvas, the `about-avatar` chunk's entry)).
   Pass translated labels to client components as props instead of shipping
   message catalogs to the client.
 
@@ -93,9 +95,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   About after the Hero is live — canvas, avatar code, `GLTFLoader`, meshopt
   decoder, `SkeletonUtils`, `ContactShadows`, drei `Html`) ≤ 26 KB gzip,
   excluding the three/R3F chunks the Hero already loaded (measured 25.5 KB
-  after Phase 5C), enforced by `e2e/about-avatar.spec.ts`. It mounts only after the first scroll. Load the GLB with three's
-  `GLTFLoader` through R3F `useLoader`, not drei's `useGLTF` (which bundles
-  `DRACOLoader`).
+  after Phase 5C), enforced by `e2e/about-avatar.spec.ts`. It mounts only
+  after the first scroll. Load the GLB with three's `GLTFLoader` through R3F
+  `useLoader`, not drei's `useGLTF` (which bundles `DRACOLoader`).
 - `.glb` models < 500 KB (except the avatar, budgeted separately at
   ≤ 1.5 MB).
 - Flag budget-relevant changes during implementation rather than waiting for

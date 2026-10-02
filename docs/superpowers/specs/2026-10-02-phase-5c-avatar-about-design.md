@@ -170,7 +170,7 @@ page view.
 
 - `AboutAvatarSlot` (server) replaces `PlaceholderSlot`: `aria-hidden`,
   `data-avatar-slot`, `--bg-elevated`, `--radius-lg`, 4:5 with max-height
-  560px on md+, 320px tall and centred on mobile, a `::after` floor gradient
+  560px on md+, 320px tall and centred on mobile, a `::before` floor gradient
   (`--bg` → transparent, bottom 30 %).
 - `.hero-avatar-fallback` → `.about-avatar-fallback`, keyed on the slot's
   `data-gate` / `data-tier` / `data-avatar-stage` / `data-avatar-failed` /
@@ -272,3 +272,34 @@ in the Hero, draw calls ≤ 6 again; leak test covers the About canvas.
   (70).
 - `e2e/about-avatar.spec.ts` runs in CI; `about-avatar-visual.spec.ts` stays
   local-only, like the Hero visual spec.
+
+### After the final whole-branch review (2026-10-02)
+
+- **Losing the 3D avatar, by timing (ruling R9 on D8's single path).** A drop
+  to Low at mount time (the mount observer finds the shared tier already Low)
+  takes the Low image path: nothing 3D was shown yet. A drop after mount fails
+  over to the static idle image through the single fail path.
+- **On-screen images stay put (CLAUDE.md).** The Low path swaps wave → idle,
+  so it is entered only when the slot is below the viewport at decision time
+  (`decideAvatarPath(env, tier, slotBelowViewport)`, `isBelowViewport`);
+  otherwise the slot takes `data-gate="fallback"` and keeps its static idle
+  image (e.g. a phone landing on `/vi#about`). The same check applies to the
+  drop to Low at mount time.
+- **`alreadyPast` = triggered and above the viewport** (spec §5.3):
+  `ready()` reads `slot.getBoundingClientRect().bottom < 0`. Scrolling back up
+  over About after the trigger no longer skips the intro.
+- **Probe cache + deferred gate decision (Lighthouse /en margin).**
+  `probeWebGL` caches its answer per document (WeakMap), so the About gate
+  reuses the Hero gate's probe. `AboutAvatarGate` no longer decides in its
+  hydration effect: `afterLoadIdleOrInput` (`shared/lib/schedule.ts`, where
+  `afterLoadIdle` moved from `features/hero/canvas/`) runs the decision and
+  sets up the observers once the page is idle, or on the visitor's first
+  input — which still comes before the motion chunk, so the counters' hold is
+  in place before they can start. If that first input is a scroll (no hash) it
+  arms the mount at once; after a `#hash` landing a first intent event does.
+- The About canvas starts paused (`useInView` initial `false`); the
+  IntersectionObserver reports the real state on its first callback.
+- E2E: 5 round trips to a case study re-mount About each time and assert
+  exactly 2 live contexts on Home, 0 on the case study, and stable
+  `data-gl-geometries` / `data-gl-textures`; a phone landing on `/en#about`
+  shows the idle image and never the wave.

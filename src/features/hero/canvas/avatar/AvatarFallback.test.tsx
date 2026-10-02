@@ -29,6 +29,7 @@ describe("AvatarFallback", () => {
       expect(img.getAttribute("height")).toBe(
         String(AVATAR.fallback[pose].height)
       );
+      expect(img.getAttribute("loading")).toBe("lazy");
       expect(img.getAttribute("decoding")).toBe("async");
       expect(img.getAttribute("fetchpriority")).toBe("low");
     }

@@ -36,6 +36,9 @@ export function AvatarFallback() {
           width={fallback[pose].width}
           height={fallback[pose].height}
           alt=""
+          // Lazy: never fetched on desktop, where the wrapper is display:
+          // none; in view on mobile it still loads right after layout.
+          loading="lazy"
           decoding="async"
           fetchPriority="low"
         />

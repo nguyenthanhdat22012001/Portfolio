@@ -89,6 +89,22 @@ test.describe("avatar fallback on mobile (Low tier)", () => {
 });
 
 test.describe("avatar fallback on desktop", () => {
+  test("never downloads the fallback images it doesn't show", async ({
+    page
+  }) => {
+    const webp: string[] = [];
+    page.on("request", (request) => {
+      if (/\/images\/avatar-(wave|idle)\.webp$/.test(request.url()))
+        webp.push(request.url());
+    });
+    await page.goto("/en");
+    await expect(graph(page)).toHaveAttribute("data-gate", "live", {
+      timeout: 15_000
+    });
+    await page.waitForTimeout(1000);
+    expect(webp).toEqual([]);
+  });
+
   test("is not shown while the 3D avatar can stand there", async ({ page }) => {
     await page.goto("/en");
     await expect(page.locator(".hero-avatar-fallback")).toBeHidden();

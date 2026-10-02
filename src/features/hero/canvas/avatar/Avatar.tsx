@@ -17,6 +17,7 @@ import type { GraphPalette } from "../useGraphColors";
 import { AVATAR } from "./avatar.config";
 import { disposeAvatar, prepareAvatar, setOpacity } from "./avatar-model";
 import { AvatarBubble } from "./AvatarBubble";
+import { AvatarHitProxy } from "./AvatarHitProxy";
 import { avatarFrame, scrollPose } from "./choreography";
 import { useAvatarIntro } from "./useAvatarIntro";
 import { useAvatarMixer } from "./useAvatarMixer";
@@ -120,6 +121,11 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
         intensity={AVATAR.rim.intensity}
       />
       {tier === "high" && <ContactShadows {...AVATAR.contactShadows} />}
+      <AvatarHitProxy
+        slot={slot}
+        active={() => rootRef.current?.visible === true}
+        onWave={intro.rewave}
+      />
       <AvatarBubble ref={bubbleRef} text={bubble} />
     </group>
   );

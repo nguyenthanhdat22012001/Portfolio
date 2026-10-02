@@ -299,3 +299,36 @@ test.describe("avatar and scroll", () => {
     expect((await phases()).filter((p) => p === "walk")).toHaveLength(1);
   });
 });
+
+test.describe("avatar interaction", () => {
+  test("clicking the avatar in idle waves again; the cursor reacts on hover", async ({
+    page
+  }) => {
+    const phases = await recordPhases(page);
+    await page.goto("/en");
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    // The avatar's body: horizontally at --avatar-left-md, vertically mid-figure.
+    const target = await slot(page).evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const left = parseFloat(
+        getComputedStyle(
+          el.querySelector(".hero-avatar-fallback")!
+        ).getPropertyValue("--avatar-left-md")
+      );
+      return { x: r.left + (r.width * left) / 100, y: r.top + r.height * 0.5 };
+    });
+    await page.mouse.move(target.x, target.y, { steps: 4 });
+    await expect(slot(page)).toHaveAttribute("data-avatar-hover", "");
+    const before = (await phases()).length;
+    await page.mouse.click(target.x, target.y);
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "wave");
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 5_000
+    });
+    expect((await phases()).slice(before)).toEqual(["wave", "idle"]);
+    await page.mouse.move(5, 5, { steps: 4 });
+    await expect(slot(page)).not.toHaveAttribute("data-avatar-hover", "");
+  });
+});

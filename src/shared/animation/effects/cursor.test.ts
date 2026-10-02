@@ -86,4 +86,20 @@ describe("startCursor", () => {
     canvasEl.dispatchEvent(pointer("pointermove", { clientX: 6, clientY: 6 }));
     expect(ring()?.hasAttribute("data-node")).toBe(false);
   });
+
+  it("grows over the avatar in the hero canvas, even with a node behind it", () => {
+    start();
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      '<div id="slot" data-avatar-hover data-cursor="node"><canvas></canvas></div>'
+    );
+    const slot = document.getElementById("slot")!;
+    const canvasEl = slot.querySelector("canvas")!;
+    delete slot.dataset.cursor; // no graph node behind the avatar
+    canvasEl.dispatchEvent(pointer("pointermove", { clientX: 5, clientY: 5 }));
+    expect(ring()?.hasAttribute("data-node")).toBe(true);
+    slot.removeAttribute("data-avatar-hover");
+    canvasEl.dispatchEvent(pointer("pointermove", { clientX: 6, clientY: 6 }));
+    expect(ring()?.hasAttribute("data-node")).toBe(false);
+  });
 });

@@ -269,15 +269,15 @@ The three About stats (`4` years · `3` Shopify apps · `1.5` months to MVP) cur
 
 ## Acceptance criteria
 
-- [ ] Hero shows only the node graph; no avatar code or asset loads with the Hero
-- [ ] About shows the avatar in place of the portrait; no real photo anywhere on the page or in `public/`
-- [ ] Desktop: intro (walk → wave + bubble → idle) starts once when About reaches 70 % of the viewport and never replays in the same page view
-- [ ] Leaving and returning to About pauses and resumes without restarting; fast scroll past About lands in `idle`
+- [x] Hero shows only the node graph; no avatar code or asset loads with the Hero
+- [x] About shows the avatar in place of the portrait; no real photo anywhere on the page or in `public/`
+- [x] Desktop: intro (walk → wave + bubble → idle) starts once when About reaches 70 % of the viewport and never replays in the same page view
+- [x] Leaving and returning to About pauses and resumes without restarting; fast scroll past About lands in `idle`
 - [ ] Head follows the pointer in idle; click/tap waves again
-- [ ] Counters start right after the wave begins on the 3D path, and independently otherwise
-- [ ] Mobile/Low tier never downloads `avatar.glb`; fallback images animate in About; reduced motion shows a static image
-- [ ] Image ↔ canvas swap without visible jump (≤ 8px) and without layout shift
-- [ ] Only one canvas renders at a time; ≤ 2 WebGL contexts; no GPU memory growth after 10 navigations
-- [ ] `personSchema` has no `image`; no portrait files or references remain
+- [x] Counters start right after the wave begins on the 3D path, and independently otherwise
+- [x] Mobile/Low tier never downloads `avatar.glb`; fallback images animate in About; reduced motion shows a static image
+- [x] Image ↔ canvas swap without visible jump (≤ 8px) and without layout shift
+- [x] Only one canvas renders at a time; ≤ 2 WebGL contexts; no GPU memory growth after 10 navigations (amended, design D1: each canvas pauses when its slot is out of view; ≤ 2 contexts)
+- [x] `personSchema` has no `image`; no portrait files or references remain
 - [ ] LCP is still the Hero `h1`; Lighthouse mobile Performance ≥ 90; CLS < 0.1
 - [ ] Lint, typecheck, unit, e2e, build and Lighthouse CI green

@@ -1,7 +1,7 @@
 # CLAUDE.md — Rules for AI-assisted implementation
 
 This file governs how AI-assisted changes are made in this repo. See also the
-two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
+two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
 
 ## Architecture
 
@@ -15,7 +15,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   `shared/theme/ThemeToggle.tsx`, `features/layout/LocaleSwitcher.tsx`,
   `features/contact/CopyEmailButton.tsx`, which must sit next to a `mailto:`
   link as its no-JS fallback, and `app/[locale]/_motion/MotionRoot.tsx`, and
-  `features/hero/canvas/HeroCanvasGate.tsx` (decides whether the 3D canvas mounts), and `features/about/avatar/AboutAvatarGate.tsx` (decides whether the About avatar canvas mounts)).
+  `features/hero/canvas/HeroCanvasGate.tsx` (decides whether the 3D canvas
+  mounts), and `features/about/avatar/AboutAvatarGate.tsx` (decides whether the
+  About avatar canvas mounts)).
   Pass translated labels to client components as props instead of shipping
   message catalogs to the client.
 
@@ -29,12 +31,16 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   (`shared/lib/stores/scroll-store.ts`; the hero canvas reads `heroMorph`).
   GSAP writes to it (the `hero` effect); `useFrame` reads it with
   `getState()`. Never drive per-frame updates through React state/re-renders.
-- The Phase 5B avatar's intro is not a GSAP timeline: a clock in `useFrame`
-  evaluates the pure `features/hero/canvas/avatar/choreography.ts`, and clips
-  change only on its phase edges. It exposes `data-avatar-phase`,
-  `data-avatar-hidden`, `data-avatar-failed` and `data-avatar-hover` on
-  `#hero-canvas-slot` for tests, CSS and the cursor effect (which reacts to
-  `data-cursor="node"` or `data-avatar-hover`).
+- The avatar's intro (Phase 5B, now in About) is not a GSAP timeline: a clock
+  in `useFrame` evaluates the pure `features/about/avatar/choreography.ts`, and
+  clips change only on its phase edges. It exposes `data-avatar-phase`,
+  `data-avatar-hidden`, `data-avatar-failed` and `data-avatar-hover` on the
+  About slot (`#about-avatar-slot`) for tests, CSS and the cursor effect (which
+  reacts to `data-cursor="node"` or `data-avatar-hover`). It starts when the
+  slot crosses 70 % of the viewport (IntersectionObserver, no GSAP), pauses off
+  screen, and never replays in a page view. The About canvas is separate from
+  the Hero's; each renders only while its slot is in view; at most 2 WebGL
+  contexts.
 - The hero graph's visible state is CSS-driven: the server renders both
   static SVGs and both caption lines; `data-gate` (set by
   `HeroCanvasGate`), `data-morph` (set by the `hero` effect),
@@ -44,7 +50,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   tuned for that), drei `Html` is imported per-component
   (`@react-three/drei/web/Html`) to stay under the 3D budget, and the quality
   tier only ever steps down (our own Off rule in
-  `features/hero/quality/perf-policy.ts`, not drei's `flipflops`).
+  `shared/three/perf-policy.ts`, not drei's `flipflops`); the device tier lives
+  in the shared `shared/three/quality-store.ts`, and each canvas applies its
+  own slot cap.
 - Exactly one `Lenis` instance and one `gsap.ticker` for the whole app,
   created once at the app root. Do not instantiate either inside a feature
   component.
@@ -65,9 +73,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   hero graph's two-state SVG/caption toggle (`[data-graph-state]` /
   `[data-caption-line]`) and of the avatar fallback's wave/idle pair
   (`[data-avatar-pose]`), hidden with `opacity: 0; visibility: hidden`;
-  `.hero-graph-canvas` and `.hero-avatar-bubble`, which JS creates; and
-  `.hero-avatar-fallback`, which is `display: none` on desktop because the 3D
-  avatar stands in its place.
+  `.hero-graph-canvas` and `.about-avatar-bubble`, which JS creates; and
+  `.about-avatar-fallback`, hidden under `[data-avatar-stage="3d"]` while the
+  3D avatar stands in its place.
 - Page transitions use React `<ViewTransition>` (`shared/ui/PageTransition.tsx`
   in each `page.tsx`, never a layout) with `transitionTypes` on links.
 
@@ -75,20 +83,20 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 
 - Initial JS (gzip) < 150 KB.
 - Lazy-loaded 3D chunk ≤ 250 KB gzip, enforced by `e2e/hero-3d.spec.ts`, which
-  also checks initial JS ≤ 150 KB gzip. It measures 255,954 B after Phase 5B
-  (46 B headroom). Anything new for the canvas goes in its own lazy chunk.
+  also checks initial JS ≤ 150 KB gzip. It measures 249.6 KB after Phase 5C
+  (the avatar left the Hero). Anything new for the canvas goes in its own lazy chunk.
   Code in another chunk must not import the canvas chunk's own modules
   (`graph-frame`, `layouts`, `useGraphColors`, `@/shared/lib/math`, …): a
   module shared across chunks is no longer scope-hoisted into the canvas
   chunk, which cost ~0.7 KB gzip in Phase 5B. Pass values in as props instead.
-- Lazy avatar chunk (`hero-avatar` + the vendor chunk webpack splits from it:
-  avatar code, `GLTFLoader`, meshopt decoder, `SkeletonUtils`,
-  `ContactShadows`) ≤ 26 KB gzip (measured 24.5 KB after Phase 5B;
-  cap set at 22.8 KB + 3 KB when the chunk was created), enforced by
-  `e2e/hero-avatar.spec.ts` and excluded from the 3D chunk check. Load the
-  GLB with three's `GLTFLoader` through R3F `useLoader`, not drei's `useGLTF`
-  (which bundles `DRACOLoader`).
-- `.glb` models < 500 KB (except the Phase 5B avatar, budgeted separately at
+- Lazy About avatar chunk (`about-avatar`: everything loaded by scrolling to
+  About after the Hero is live — canvas, avatar code, `GLTFLoader`, meshopt
+  decoder, `SkeletonUtils`, `ContactShadows`, drei `Html`) ≤ 26 KB gzip
+  (measured 25.5 KB after Phase 5C), enforced by `e2e/about-avatar.spec.ts`.
+  It mounts only after the first scroll. Load the GLB with three's
+  `GLTFLoader` through R3F `useLoader`, not drei's `useGLTF` (which bundles
+  `DRACOLoader`).
+- `.glb` models < 500 KB (except the avatar, budgeted separately at
   ≤ 1.5 MB).
 - Flag budget-relevant changes during implementation rather than waiting for
   Lighthouse CI to catch them later. Never loosen a `lighthouserc.json`

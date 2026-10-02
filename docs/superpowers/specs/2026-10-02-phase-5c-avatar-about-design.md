@@ -240,3 +240,35 @@ in the Hero, draw calls ≤ 6 again; leak test covers the About canvas.
   and policy.
 - Opacity exception: `about-avatar-fallback`, `[data-avatar-pose]`.
 - Canvas rule: each canvas pauses when its slot is out of view; ≤ 2 contexts.
+
+## Implementation notes (2026-10-02, after the build)
+
+- Camera needs `rotation: [0, 0, 0]`; without it R3F's default `lookAt(0,0,0)`
+  tilts the camera down.
+- The bubble's drei `Html` is portaled into the slot (`portal` = slot ref):
+  with the default target the root was created before canvas events connected
+  and lost its content.
+- `AVATAR.bubbleOffset` lowered 0.15 to 0.05 so the bubble stays inside the
+  slot. The image to canvas swap measured 8 px down / 3 px right (within the
+  8 px tolerance).
+- Gate fail path: `FADE_OUT_MS = 400` (matches the image's 0.4 s CSS fade); a
+  drop to Low before the intro starts fails over at once (no fade); `data-gl-*`
+  is cleared on canvas unmount.
+- Signals: after `lost()`/`dispose()` late calls are no-ops; a late `hold()`
+  after the trigger arms the 1.5 s grace.
+- The `count` effect now uses `ScrollTrigger.create` + `onEnter` (same
+  trigger, `top 90%`, `once`) so it can honour `data-count-hold`, with a 4 s
+  safety start.
+- Regression found and fixed during e2e (commit 738fad4): returning from a
+  case study to `/en#work` made Next's client hash scroll count as the
+  visitor's first scroll and mounted the About canvas and GLB. After a `#hash`
+  landing the mount now arms only after real input (wheel/touch/key/pointer)
+  followed by a scroll. Known edge: a browser Back that restores a mid-page
+  scroll without a hash still counts as a first scroll.
+- Hero visual baselines regenerated (graph only); `hero-3d-no-webgl` now
+  checks the About slot.
+- Measured (gzip): initial JS 142.6 KB (150); Hero 3D chunk 249.6 KB (250);
+  `about-avatar` 25.5 KB, 26,080 B in 2 files (26 KB); motion chunk 55.4 KB
+  (70).
+- `e2e/about-avatar.spec.ts` runs in CI; `about-avatar-visual.spec.ts` stays
+  local-only, like the Hero visual spec.

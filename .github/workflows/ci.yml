@@ -28,7 +28,7 @@ jobs:
       - run: pnpm check:claims
 
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm exec playwright test e2e/motion.spec.ts e2e/hero-3d.spec.ts e2e/hero-3d-no-webgl.spec.ts
+      - run: pnpm exec playwright test e2e/motion.spec.ts e2e/hero-3d.spec.ts e2e/hero-3d-no-webgl.spec.ts e2e/about-avatar.spec.ts
 
       - run: pnpm lhci
 

@@ -348,3 +348,37 @@ test.describe("avatar interaction", () => {
     await expect(slot(page)).not.toHaveAttribute("data-avatar-hover", "");
   });
 });
+
+test.describe("avatar hover and scroll", () => {
+  test("hiding the avatar clears its hover state", async ({ page }) => {
+    await page.goto("/en");
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    await page.mouse.move(200, 200);
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-motion-ready",
+      "",
+      { timeout: 10_000 }
+    );
+    const target = await slot(page).evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const left = parseFloat(
+        getComputedStyle(
+          el.querySelector(".hero-avatar-fallback")!
+        ).getPropertyValue("--avatar-left-md")
+      );
+      return { x: r.left + (r.width * left) / 100, y: r.top + r.height * 0.5 };
+    });
+    await page.mouse.move(target.x, target.y, { steps: 4 });
+    await expect(slot(page)).toHaveAttribute("data-avatar-hover", "");
+    const heroHeight = await page
+      .locator("#top")
+      .evaluate((el) => el.getBoundingClientRect().height);
+    await page.mouse.wheel(0, heroHeight);
+    await expect(slot(page)).toHaveAttribute("data-avatar-hidden", "", {
+      timeout: 10_000
+    });
+    await expect(slot(page)).not.toHaveAttribute("data-avatar-hover", "");
+  });
+});

@@ -113,21 +113,27 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
   });
 
   return (
-    <group ref={rootRef} visible={false}>
-      <primitive object={model.root} />
+    <>
+      {/* Outside the visibility-toggled group: hiding the avatar must not
+          change the scene's light count, which would recompile the graph's
+          lit materials and visibly re-shade it at morph 0.5. Directional, so
+          only its direction (towards the origin) matters. */}
       <directionalLight
         ref={rimRef}
         position={[...AVATAR.rim.position]}
         intensity={AVATAR.rim.intensity}
       />
-      {tier === "high" && <ContactShadows {...AVATAR.contactShadows} />}
-      <AvatarHitProxy
-        slot={slot}
-        active={() => rootRef.current?.visible === true}
-        onWave={intro.rewave}
-      />
-      <AvatarBubble ref={bubbleRef} text={bubble} />
-    </group>
+      <group ref={rootRef} visible={false}>
+        <primitive object={model.root} />
+        {tier === "high" && <ContactShadows {...AVATAR.contactShadows} />}
+        <AvatarHitProxy
+          slot={slot}
+          active={() => rootRef.current?.visible === true}
+          onWave={intro.rewave}
+        />
+        <AvatarBubble ref={bubbleRef} text={bubble} />
+      </group>
+    </>
   );
 }
 

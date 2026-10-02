@@ -49,6 +49,9 @@
       "chaos": "Feature-driven: các feature import lẫn nhau.",
       "layered": "Layered: app → feature → shared.",
       "description": "Sơ đồ minh họa các package của một monorepo được sắp xếp lại từ cấu trúc feature-driven thành các tầng."
+    },
+    "avatar": {
+      "bubble": "Chào, mình là Đạt"
     }
   },
   "about": {

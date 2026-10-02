@@ -348,6 +348,41 @@
   }
 }
 
+/* Speech bubble: created by JS inside the canvas (drei Html), never in SSR
+   HTML, so it may start hidden. Avatar toggles data-visible. */
+.hero-avatar-bubble {
+  position: relative;
+  translate: -50% -100%;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.hero-avatar-bubble[data-visible] {
+  opacity: 1;
+}
+
+.hero-avatar-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  translate: -50% 0;
+  rotate: 45deg;
+  background: var(--bg-elevated);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
 /* View transitions (Next 16 guide): directional slides for typed
    navigations, a morph for the shared chapter title, an anchored header. */
 ::view-transition {

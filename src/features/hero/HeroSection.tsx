@@ -64,7 +64,7 @@ export async function HeroSection() {
             <HeroGraphStatic state="chaos" />
             <HeroGraphStatic state="layered" />
             <AvatarFallback />
-            <HeroCanvasGate />
+            <HeroCanvasGate avatarBubble={t("avatar.bubble")} />
           </div>
           <HeroGraphCaption
             labels={{

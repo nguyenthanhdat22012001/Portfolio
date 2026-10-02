@@ -11,12 +11,15 @@ import {
 import type { DirectionalLight, Group, PerspectiveCamera } from "three";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { useScrollStore } from "@/shared/lib/stores/scroll-store";
 import type { RenderTier } from "../../quality/detect-tier";
 import type { GraphPalette } from "../useGraphColors";
 import { AVATAR } from "./avatar.config";
-import { disposeAvatar, prepareAvatar } from "./avatar-model";
+import { disposeAvatar, prepareAvatar, setOpacity } from "./avatar-model";
+import { AvatarBubble } from "./AvatarBubble";
 import { avatarFrame } from "./choreography";
-import { playClip, useAvatarMixer } from "./useAvatarMixer";
+import { useAvatarIntro } from "./useAvatarIntro";
+import { useAvatarMixer } from "./useAvatarMixer";
 
 // three's own loader + meshopt; drei's useGLTF would bundle DRACOLoader too.
 function withMeshopt(loader: GLTFLoader) {
@@ -31,20 +34,38 @@ export interface AvatarProps {
   palette: GraphPalette;
 }
 
-function AvatarScene({ tier, palette }: AvatarProps) {
+// Per frame this reads the scroll store with getState() and writes three
+// objects and data-* attributes directly; no React state changes after mount.
+function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
   const gltf = useLoader(GLTFLoader, AVATAR.url, withMeshopt);
   const model = useMemo(() => prepareAvatar(gltf), [gltf]);
   const { mixer, actions } = useAvatarMixer(model.root, gltf.animations);
+  const intro = useAvatarIntro(slot, actions);
   const rootRef = useRef<Group>(null);
   const rimRef = useRef<DirectionalLight>(null);
+  const bubbleRef = useRef<HTMLDivElement>(null);
   const paletteVersion = useRef(-1);
 
   useEffect(() => () => disposeAvatar(model), [model]);
-  useEffect(() => playClip(actions, null, "idle", 0), [actions]);
 
   useFrame(({ camera, size }, delta) => {
     const root = rootRef.current;
     if (!root) return;
+    const dt = Math.min(delta, 0.1); // no jump after a background tab
+    const rim = rimRef.current;
+    if (rim && paletteVersion.current !== palette.version) {
+      rim.color.copy(palette.app); // --accent, follows the theme
+      paletteVersion.current = palette.version;
+    }
+
+    const morph = useScrollStore.getState().heroMorph;
+    const pose = intro.advance(dt, morph);
+    const opacity = pose.opacity;
+    const visible = opacity > 0;
+    root.visible = visible;
+    bubbleRef.current?.toggleAttribute("data-visible", visible && pose.bubble);
+    if (!visible) return;
+
     // CameraRig fits camera z to the slot each frame; follow it (resize).
     const frame = avatarFrame(
       size.width / Math.max(1, size.height),
@@ -52,17 +73,13 @@ function AvatarScene({ tier, palette }: AvatarProps) {
       (camera as PerspectiveCamera).fov
     );
     root.scale.setScalar(frame.scale);
-    root.position.set(AVATAR.end.x, frame.feetY, AVATAR.end.z);
-    const rim = rimRef.current;
-    if (rim && paletteVersion.current !== palette.version) {
-      rim.color.copy(palette.app); // --accent, follows the theme
-      paletteVersion.current = palette.version;
-    }
-    mixer.update(Math.min(delta, 0.1));
+    root.position.set(AVATAR.end.x, frame.feetY, pose.z);
+    setOpacity(model.materials, opacity);
+    mixer.update(dt);
   });
 
   return (
-    <group ref={rootRef}>
+    <group ref={rootRef} visible={false}>
       <primitive object={model.root} />
       <directionalLight
         ref={rimRef}
@@ -70,6 +87,7 @@ function AvatarScene({ tier, palette }: AvatarProps) {
         intensity={AVATAR.rim.intensity}
       />
       {tier === "high" && <ContactShadows {...AVATAR.contactShadows} />}
+      <AvatarBubble ref={bubbleRef} text={bubble} />
     </group>
   );
 }

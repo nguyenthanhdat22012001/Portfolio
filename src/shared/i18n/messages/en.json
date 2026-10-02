@@ -49,6 +49,9 @@
       "chaos": "Feature-driven: features import each other.",
       "layered": "Layered: app → feature → shared.",
       "description": "Illustrative diagram of a monorepo's packages reorganizing from a feature-driven structure into layers."
+    },
+    "avatar": {
+      "bubble": "Hi, I'm Dat"
     }
   },
   "about": {

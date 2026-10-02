@@ -175,6 +175,11 @@ test.describe("desktop scene", () => {
   test("draws in at most 9 draw calls with the avatar", async ({ page }) => {
     await page.goto("/en");
     await waitLive(page);
+    await expect(page.locator("#hero-canvas-slot")).toHaveAttribute(
+      "data-avatar-phase",
+      "idle",
+      { timeout: 20_000 }
+    );
     await expect
       .poll(async () => Number(await graph(page).getAttribute("data-gl-calls")))
       .toBeGreaterThan(0);

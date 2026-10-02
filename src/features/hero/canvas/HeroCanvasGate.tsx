@@ -52,7 +52,7 @@ class CanvasBoundary extends Component<
   }
 }
 
-export function HeroCanvasGate() {
+export function HeroCanvasGate({ avatarBubble }: { avatarBubble: string }) {
   const rootRef = useRef<HTMLElement | null>(null);
   const failedRef = useRef(false);
   const [slot, setSlot] = useState<HTMLDivElement | null>(null);
@@ -128,7 +128,7 @@ export function HeroCanvasGate() {
         onLive={onLive}
         onFallback={toFallback}
         onTier={onTier}
-        avatarBubble=""
+        avatarBubble={avatarBubble}
       />
     </CanvasBoundary>
   );

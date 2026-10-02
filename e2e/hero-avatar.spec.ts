@@ -158,3 +158,113 @@ test.describe("avatar 3D on desktop", () => {
     await expect(page.locator("#hero-canvas-slot canvas")).toHaveCount(1);
   });
 });
+
+const slot = (page: Page) => page.locator("#hero-canvas-slot");
+
+// Records every data-avatar-phase value, in order, for each document.
+async function recordPhases(page: Page) {
+  await page.addInitScript(() => {
+    const seen: string[] = [];
+    (window as unknown as { __avatarPhases: string[] }).__avatarPhases = seen;
+    new MutationObserver(() => {
+      const phase =
+        document.getElementById("hero-canvas-slot")?.dataset.avatarPhase;
+      if (phase && seen.at(-1) !== phase) seen.push(phase);
+    }).observe(document, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-avatar-phase"]
+    });
+  });
+  return () =>
+    page.evaluate(
+      () => (window as unknown as { __avatarPhases: string[] }).__avatarPhases
+    );
+}
+
+test.describe("avatar intro on desktop", () => {
+  test("walks, waves, then idles within 6 s of the model loading", async ({
+    page
+  }) => {
+    const problems = collectConsoleProblems(page);
+    const phases = await recordPhases(page);
+    const loaded = page.waitForResponse((r) => isGlb(r.url()), {
+      timeout: 20_000
+    });
+    await page.goto("/en");
+    await (await loaded).finished();
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 6_000
+    });
+    expect(await phases()).toEqual(["enter", "walk", "wave", "idle"]);
+    expect(problems).toEqual([]);
+  });
+
+  test("a reload in the same session only waves", async ({ page }) => {
+    const phases = await recordPhases(page);
+    await page.goto("/en");
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    await page.reload();
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    expect(await phases()).toEqual(["wave", "idle"]);
+  });
+
+  // Review Focus 2
+  test("runs the full intro when sessionStorage throws", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(window, "sessionStorage", {
+        get() {
+          throw new DOMException("blocked", "SecurityError");
+        }
+      });
+    });
+    const phases = await recordPhases(page);
+    await page.goto("/en");
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    expect((await phases())[0]).toBe("enter");
+  });
+
+  // Review Focus 3
+  test("switching locale keeps one canvas and only waves on the new page", async ({
+    page
+  }) => {
+    const phases = await recordPhases(page);
+    await page.goto("/en");
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    // A client navigation keeps `window`, so the recorder spans both pages;
+    // only look at what happened after the switch.
+    const before = (await phases()).length;
+    await page.locator('a[hreflang="vi"]').first().click();
+    await expect(page).toHaveURL(/\/vi/);
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    await expect(page.locator("canvas")).toHaveCount(1);
+    expect((await phases()).slice(before)).not.toContain("walk");
+  });
+
+  // Review Focus 4
+  test("the theme toggle neither remounts the canvas nor replays the intro", async ({
+    page
+  }) => {
+    await page.goto("/en");
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    const before = await page
+      .locator("#hero-canvas-slot canvas")
+      .elementHandle();
+    await page.getByRole("button", { name: "Dark theme" }).click();
+    await page.waitForTimeout(500);
+    expect(await before?.evaluate((el) => el.isConnected)).toBe(true);
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle");
+  });
+});

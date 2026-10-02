@@ -29,6 +29,12 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   (`shared/lib/stores/scroll-store.ts`; the hero canvas reads `heroMorph`).
   GSAP writes to it (the `hero` effect); `useFrame` reads it with
   `getState()`. Never drive per-frame updates through React state/re-renders.
+- The Phase 5B avatar's intro is not a GSAP timeline: a clock in `useFrame`
+  evaluates the pure `features/hero/canvas/avatar/choreography.ts`, and clips
+  change only on its phase edges. It exposes `data-avatar-phase`,
+  `data-avatar-hidden`, `data-avatar-failed` and `data-avatar-hover` on
+  `#hero-canvas-slot` for tests, CSS and the cursor effect (which reacts to
+  `data-cursor="node"` or `data-avatar-hover`).
 - The hero graph's visible state is CSS-driven: the server renders both
   static SVGs and both caption lines; `data-gate` (set by
   `HeroCanvasGate`), `data-morph` (set by the `hero` effect),

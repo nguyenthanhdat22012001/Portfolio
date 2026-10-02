@@ -2,7 +2,6 @@ import type { ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { ExternalLinks } from "./ExternalLinks";
-import { PlaceholderSlot } from "./PlaceholderSlot";
 import { SectionHeading } from "./SectionHeading";
 import { StackedLines } from "./StackedLines";
 import { Stat } from "./Stat";
@@ -60,16 +59,6 @@ describe("StackedLines", () => {
     );
     expect(host.querySelectorAll("h1 > span")).toHaveLength(2);
     expect(host.textContent).toBe("Nguyen Thanh Dat");
-  });
-});
-
-describe("PlaceholderSlot", () => {
-  it("is hidden from assistive tech, empty, and forwards data attributes", () => {
-    const host = render(<PlaceholderSlot data-hero-canvas-slot="" />);
-    const slot = host.firstElementChild;
-    expect(slot?.getAttribute("aria-hidden")).toBe("true");
-    expect(slot?.hasAttribute("data-hero-canvas-slot")).toBe(true);
-    expect(slot?.textContent).toBe("");
   });
 });
 

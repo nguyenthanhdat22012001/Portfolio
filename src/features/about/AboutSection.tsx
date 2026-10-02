@@ -1,9 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import { motion } from "@/shared/animation/motion";
-import { PlaceholderSlot } from "@/shared/ui/PlaceholderSlot";
 import { Section } from "@/shared/ui/Section";
 import { SectionHeading } from "@/shared/ui/SectionHeading";
 import { Stat, type StatEntry } from "@/shared/ui/Stat";
+import { AboutAvatarSlot } from "./avatar/AboutAvatarSlot";
 
 interface Milestone {
   year: string;
@@ -21,8 +21,7 @@ export async function AboutSection() {
         {t("title")}
       </SectionHeading>
       <div className="mt-12 grid gap-8 md:grid-cols-12 md:gap-12">
-        {/* Portrait photo goes here later (next/image, same aspect ratio). */}
-        <PlaceholderSlot className="aspect-[4/3] w-full md:col-span-4 md:aspect-[3/4]" />
+        <AboutAvatarSlot />
         <div className="flex flex-col gap-8 md:col-span-8">
           <p
             className="max-w-[42.5rem] text-lg leading-[1.7]"

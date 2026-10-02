@@ -232,6 +232,119 @@
   transition-duration: 0.3s;
 }
 
+/* About avatar slot (features/about/avatar). A soft floor under the feet;
+   painted before the images and the canvas. */
+.about-avatar-slot::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 30%;
+  border-radius: inherit;
+  background: linear-gradient(to top, var(--bg), transparent);
+  pointer-events: none;
+}
+
+/* Fallback images. Inline custom properties carry the placement from
+   avatar.config (same numbers as aboutFrame). CSS alone picks the pose: idle
+   by default (no JS, reduced motion, gate fallback, failed 3D); wave → idle
+   on the Low tier once the slot crosses the 70 % line; hidden while the 3D
+   avatar stands here. The inactive pose is hidden with opacity 0 +
+   visibility hidden (CLAUDE.md exception). */
+.about-avatar-fallback {
+  position: absolute;
+  left: 50%;
+  bottom: var(--avatar-bottom);
+  height: var(--avatar-h);
+  pointer-events: none;
+  transition:
+    opacity 0.4s,
+    visibility 0s;
+}
+
+.about-avatar-fallback img {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  max-width: none;
+}
+
+.about-avatar-fallback [data-avatar-pose="idle"] {
+  height: 100%;
+  translate: calc(-100% * var(--avatar-idle-anchor)) 0;
+}
+
+.about-avatar-fallback [data-avatar-pose="wave"] {
+  height: calc(100% * var(--avatar-wave-scale));
+  translate: calc(-100% * var(--avatar-wave-anchor)) 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-avatar-slot][data-tier="low"]:not([data-gate="fallback"])
+    [data-avatar-pose="wave"] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  [data-avatar-slot][data-tier="low"]:not([data-gate="fallback"])
+    [data-avatar-pose="idle"] {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  [data-avatar-slot][data-tier="low"][data-avatar-inview]:not(
+      [data-gate="fallback"]
+    )
+    .about-avatar-fallback {
+    animation: about-avatar-bob 4s ease-in-out var(--avatar-swap) infinite;
+  }
+
+  [data-avatar-slot][data-tier="low"][data-avatar-inview]:not(
+      [data-gate="fallback"]
+    )
+    [data-avatar-pose="wave"] {
+    animation: about-avatar-pose-out 0s var(--avatar-swap) forwards;
+  }
+
+  [data-avatar-slot][data-tier="low"][data-avatar-inview]:not(
+      [data-gate="fallback"]
+    )
+    [data-avatar-pose="idle"] {
+    animation: about-avatar-pose-in 0s var(--avatar-swap) forwards;
+  }
+}
+
+/* The 3D avatar stands here: fade the image out under it. */
+[data-avatar-slot][data-avatar-stage="3d"] .about-avatar-fallback {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.4s,
+    visibility 0s 0.4s;
+}
+
+@keyframes about-avatar-pose-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes about-avatar-pose-in {
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@keyframes about-avatar-bob {
+  50% {
+    translate: 0 -2px;
+  }
+}
+
 /* Speech bubble: created by JS inside the canvas (drei Html), never in SSR
    HTML, so it may start hidden. Avatar toggles data-visible. */
 .about-avatar-bubble {

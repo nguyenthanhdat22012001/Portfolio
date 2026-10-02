@@ -20,6 +20,7 @@ import { AvatarBubble } from "./AvatarBubble";
 import { avatarFrame, scrollPose } from "./choreography";
 import { useAvatarIntro } from "./useAvatarIntro";
 import { useAvatarMixer } from "./useAvatarMixer";
+import { useHeadLook } from "./useHeadLook";
 
 // three's own loader + meshopt; drei's useGLTF would bundle DRACOLoader too.
 function withMeshopt(loader: GLTFLoader) {
@@ -46,6 +47,7 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
   const model = useMemo(() => prepareAvatar(gltf), [gltf]);
   const { mixer, actions } = useAvatarMixer(model.root, gltf.animations);
   const intro = useAvatarIntro(slot, actions);
+  const lookAt = useHeadLook(model, slot);
   const rootRef = useRef<Group>(null);
   const rimRef = useRef<DirectionalLight>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
@@ -65,7 +67,7 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
     [model, slot]
   );
 
-  useFrame(({ camera, size }, delta) => {
+  useFrame(({ camera, size, pointer }, delta) => {
     const root = rootRef.current;
     if (!root) return;
     const dt = Math.min(delta, 0.1); // no jump after a background tab
@@ -104,6 +106,9 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
     root.position.set(AVATAR.end.x, frame.feetY, pose.z + scroll.zOffset);
     setOpacity(model.materials, opacity);
     mixer.update(dt);
+    // pointer: slot-relative NDC (eventSource is the slot). Touch never gets
+    // here: a coarse pointer is always tier Low.
+    lookAt(dt, pose.phase === "idle" && scroll.lookAt, pointer);
   });
 
   return (

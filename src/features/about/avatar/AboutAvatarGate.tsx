@@ -30,6 +30,8 @@ const AboutAvatarCanvas = dynamic(
 const SLOT_ID = "about-avatar-slot";
 // Matches the image's fade back in (.about-avatar-fallback transition, globals.css).
 const FADE_OUT_MS = 400;
+// What a visitor does to scroll: wheel, touch, keys, or the scrollbar.
+const INTENT_EVENTS = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
 
 class CanvasBoundary extends Component<
   { onError: () => void; children: ReactNode },
@@ -133,14 +135,33 @@ export function AboutAvatarGate({ bubble }: { bubble: string }) {
     // The slot can start inside the 400px margin on a short desktop viewport;
     // waiting for the first scroll keeps the chunk and the GLB off the initial
     // load (design D8).
-    if (path === "3d") {
+    const listenForScroll = () => {
+      for (const type of INTENT_EVENTS) {
+        window.removeEventListener(type, listenForScroll);
+      }
       window.addEventListener("scroll", armMount, {
         once: true,
         passive: true
       });
+    };
+    if (path === "3d") {
+      // A #hash landing (the case study's back link to /en#work) scrolls the
+      // page itself, often right next to About, and the motion rescan adjusts
+      // it again. Those scrolls aren't the visitor's: wait for their own
+      // input first (Review Focus 2).
+      if (window.location.hash) {
+        for (const type of INTENT_EVENTS) {
+          window.addEventListener(type, listenForScroll, { passive: true });
+        }
+      } else {
+        listenForScroll();
+      }
     }
 
     return () => {
+      for (const type of INTENT_EVENTS) {
+        window.removeEventListener(type, listenForScroll);
+      }
       window.removeEventListener("scroll", armMount);
       start.disconnect();
       visible.disconnect();

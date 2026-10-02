@@ -6,7 +6,7 @@ import {
   trackScripts
 } from "./helpers/scripts";
 
-// Measured 22.8 KB (2 files) + 3 KB (CLAUDE.md, design doc D2).
+// Set at 22.8 KB + 3 KB when created; 24.5 KB after Phase 5B (CLAUDE.md).
 const AVATAR_BUDGET_BYTES = 26 * 1024;
 
 const graph = (page: Page) => page.locator("[data-hero-graph]");

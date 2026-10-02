@@ -206,3 +206,32 @@ check.
 - Cursor: `data-cursor` values `"node"` and `"avatar"`.
 - Avatar intro runs on a `useFrame` clock, not GSAP (extends the "useFrame
   reads the store" convention).
+
+## Implementation notes (2026-10-02, after the build)
+
+These supersede the matching parts above; the full rulings are in the
+implementation ledger and the commit messages.
+
+- **Canvas chunk bytes.** The avatar chunk imports nothing from the canvas
+  chunk's modules (sharing a module across chunks broke scope hoisting and
+  cost ~0.7 KB gzip). So `avatarFrame(aspect, cameraZ, fovDeg)` takes the
+  live R3F camera, `choreography.ts` has its own `clamp`, the palette is
+  passed in from `AvatarMount`, and `useHeadLook` uses three's
+  `MathUtils.damp` and its own mouse-inside listener. Canvas chunk: 255,954 B
+  of 256,000 B.
+- **Mount timing (replaces D4's `painted` + idle wait).** `AvatarMount`
+  mounts on its first `useFrame` tick if the tier is High/Medium. The canvas
+  itself only mounts after load + idle on desktop.
+- **Error boundary** lives inside the avatar chunk around the GLB loader. A
+  failed avatar _chunk_ download falls through to the gate's boundary
+  (static graph + idle image).
+- **Cursor (replaces `data-cursor="avatar"` and the `Graph.tsx` change).**
+  The avatar sets its own `data-avatar-hover`; `cursor.ts` reacts to it or to
+  `data-cursor="node"`. `Graph.tsx` is unchanged.
+- **Unmount** stops the mixer's actions only; `uncacheRoot` broke the
+  memoized actions under StrictMode's dev remount, and the per-mount mixer
+  and clone are garbage-collected together.
+- **Rim light** sits outside the visibility-toggled group so hiding the
+  avatar never changes the scene's light count.
+- **Fallback images** are `loading="lazy"`: never fetched on desktop
+  (`display: none`), still loaded right after layout on mobile.

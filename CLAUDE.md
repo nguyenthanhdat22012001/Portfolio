@@ -83,7 +83,8 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   chunk, which cost ~0.7 KB gzip in Phase 5B. Pass values in as props instead.
 - Lazy avatar chunk (`hero-avatar` + the vendor chunk webpack splits from it:
   avatar code, `GLTFLoader`, meshopt decoder, `SkeletonUtils`,
-  `ContactShadows`) ≤ 26 KB gzip (measured 22.8 KB + 3 KB), enforced by
+  `ContactShadows`) ≤ 26 KB gzip (measured 24.5 KB after Phase 5B;
+  cap set at 22.8 KB + 3 KB when the chunk was created), enforced by
   `e2e/hero-avatar.spec.ts` and excluded from the 3D chunk check. Load the
   GLB with three's `GLTFLoader` through R3F `useLoader`, not drei's `useGLTF`
   (which bundles `DRACOLoader`).

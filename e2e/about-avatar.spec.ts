@@ -64,12 +64,13 @@ const scrollToBottom = (page: Page) =>
     window.scrollTo(0, document.documentElement.scrollHeight)
   );
 
-// Steps the shared quality tier (src/shared/three/quality-store.ts) down to
-// Low, as the Hero's perf policy would. There's no test hook in the product:
-// this finds the store through webpack's runtime (the only module factory
-// with a `downgrade` that exports a store whose state has `level`).
-const dropTierToLow = (page: Page) =>
-  page.evaluate(() => {
+// The shared quality tier store (src/shared/three/quality-store.ts). There's
+// no test hook in the product: this finds the store through webpack's runtime
+// (the only module factory with a `downgrade` that exports a store whose state
+// has `level`). "drop" steps it down to Low, as the Hero's perf policy would;
+// "read" returns the current level.
+const tierStore = (page: Page, action: "read" | "drop") =>
+  page.evaluate((op) => {
     type Store = {
       getState(): { level: string | null; downgrade(): void };
     };
@@ -98,8 +99,12 @@ const dropTierToLow = (page: Page) =>
     if (stores.length !== 1)
       throw new Error(`found ${stores.length} tier stores`);
     const store = stores[0]!;
-    while (store.getState().level !== "low") store.getState().downgrade();
-  });
+    if (op === "drop") {
+      while (store.getState().level !== "low") store.getState().downgrade();
+    }
+    return store.getState().level;
+  }, action);
+const dropTierToLow = (page: Page) => tierStore(page, "drop");
 
 test.describe("About avatar on desktop", () => {
   test("initial load: no avatar code, no avatar.glb, nothing in the Hero", async ({
@@ -424,16 +429,45 @@ test.describe("About avatar on desktop", () => {
     await expect(slot(page)).toHaveAttribute("data-gate", "mount");
   });
 
-  // Final review 1: a leaked About renderer would stay a live context.
-  test("5 round trips to a case study re-mount About with exact live contexts and stable GPU counts", async ({
+  // Final review 1: a leaked About renderer would stay a live context. Since
+  // 738fad4 the Hero leak loop's /en#work returns never mount About, so this
+  // loop mounts it on every return.
+  test("5 round trips to a case study re-mount About with exact live contexts and stable GPU counts per tier", async ({
     page
   }) => {
-    test.setTimeout(240_000);
+    test.setTimeout(300_000);
     const liveGl = await trackLiveGl(page);
+    const canvases = () => page.locator("canvas").count();
     const glStats = async () => ({
+      tier: await tierStore(page, "read"),
       geometries: await slot(page).getAttribute("data-gl-geometries"),
       textures: await slot(page).getAttribute("data-gl-textures")
     });
+    const aboutLost = async () =>
+      (await slot(page).getAttribute("data-gate")) === "fallback";
+    // GlStats writes every 30 frames: wait until the tier and the counts read
+    // the same three times in a row. null: the About canvas failed over.
+    const settledStats = async () => {
+      let last = "";
+      let runs = 0;
+      type Stats = Awaited<ReturnType<typeof glStats>>;
+      const latest: { stats: Stats | null } = { stats: null };
+      await expect
+        .poll(
+          async () => {
+            if (await aboutLost()) return "lost";
+            const stats = await glStats();
+            latest.stats = stats;
+            const key = JSON.stringify(stats);
+            runs = key === last && stats.geometries !== null ? runs + 1 : 0;
+            last = key;
+            return runs >= 2 ? "settled" : "waiting";
+          },
+          { intervals: [500], timeout: 20_000 }
+        )
+        .not.toBe("waiting");
+      return (await aboutLost()) ? null : latest.stats;
+    };
     const settled = async () => {
       let last = -1;
       await expect
@@ -448,29 +482,69 @@ test.describe("About avatar on desktop", () => {
         )
         .toBe(true);
     };
+    // Every live context belongs to a canvas in the page: a leaked renderer
+    // would be live with its canvas gone.
+    const contextsMatchCanvases = () =>
+      expect.poll(async () => (await liveGl()) - (await canvases())).toBe(0);
+
+    // Under parallel SwiftShader load the shared tier can step down (never
+    // up). Medium changes what the scene holds: a fresh Medium mount has no
+    // ContactShadows (2/5), a High mount that stepped to Medium keeps its
+    // targets until the renderer goes (3/7). Low fails the About canvas over
+    // to the image. So stats are compared only for mounts that stayed at one
+    // tier, against the first such mount at that tier.
+    const baselines = new Map<string | null, object>();
+    let compared = 0;
+
     // The visitor's own wheel arms the mount (a #work return waits for real
-    // input); let Lenis's smooth scroll land, then bring the slot in.
-    const mountAbout = async () => {
+    // input); let Lenis's smooth scroll land, then bring the slot in. True
+    // when About mounted, reached idle with exactly Hero + About live, and
+    // the tier held.
+    const mountAbout = async (): Promise<boolean> => {
+      const tierAtMount = await tierStore(page, "read");
       await page.mouse.move(640, 360);
       await page.mouse.wheel(0, 100);
       await settled();
       await scrollSlotTo(page, 0.3);
-      await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
-        timeout: 20_000
-      });
       await expect
-        .poll(async () => (await glStats()).geometries)
-        .not.toBeNull();
+        .poll(
+          () =>
+            page.evaluate(() => {
+              const el = document.getElementById("about-avatar-slot")!;
+              if (el.dataset.gate === "fallback" || el.dataset.tier === "low")
+                return "lost";
+              return el.dataset.avatarPhase === "idle" ? "idle" : "pending";
+            }),
+          { timeout: 20_000 }
+        )
+        .not.toBe("pending");
+      const stats = await settledStats();
+      await contextsMatchCanvases();
+      if (!stats || stats.tier !== tierAtMount) return false;
+      await expect(slot(page).locator("canvas")).toHaveCount(1);
+      expect(await liveGl()).toBe(2); // Hero + About
+      if (baselines.has(stats.tier)) compared += 1;
+      else baselines.set(stats.tier, stats);
+      expect(stats).toEqual(baselines.get(stats.tier));
+      return true;
+    };
+    // A fresh page view resets the session tier once it reaches Low (About
+    // can't mount at Low); never happens on an unloaded machine.
+    const freshHome = async () => {
+      await page.goto("/en");
+      await heroLive(page);
     };
 
-    await page.goto("/en");
-    await heroLive(page);
+    await freshHome();
     await mountAbout();
-    await expect(slot(page).locator("canvas")).toHaveCount(1);
-    await expect.poll(liveGl).toBe(2); // Hero + About
-    const baseline = await glStats();
-
-    for (let trip = 0; trip < 5; trip += 1) {
+    let trips = 0;
+    let mountedTrips = 0;
+    while (mountedTrips < 5) {
+      trips += 1;
+      expect(trips, "too many trips lost to tier drops").toBeLessThanOrEqual(
+        15
+      );
+      if ((await tierStore(page, "read")) === "low") await freshHome();
       await scrollToTop(page);
       await page
         .locator('[data-chapter="swift-performance"]')
@@ -485,11 +559,10 @@ test.describe("About avatar on desktop", () => {
       await settled();
       await scrollToTop(page);
       await heroLive(page);
-      await mountAbout();
-      await expect(slot(page).locator("canvas")).toHaveCount(1);
-      await expect.poll(liveGl).toBe(2);
-      await expect.poll(glStats).toEqual(baseline);
+      if (await mountAbout()) mountedTrips += 1;
     }
+    // At most two tiers (High, Medium) hold a baseline.
+    expect(compared).toBeGreaterThanOrEqual(3);
   });
 
   // Review Focus 3

@@ -73,6 +73,7 @@ export function createFakeLibs(
     to: vi.fn((..._args: unknown[]) => tween()),
     from: vi.fn((..._args: unknown[]) => tween()),
     fromTo: vi.fn((..._args: unknown[]) => tween()),
+    delayedCall: vi.fn((..._args: unknown[]) => tween()),
     timeline: vi.fn((..._args: unknown[]) => timeline),
     killTweensOf: vi.fn(),
     utils: { random: vi.fn((min: number) => min) }

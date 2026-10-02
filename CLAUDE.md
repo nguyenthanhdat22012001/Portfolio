@@ -15,7 +15,7 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   `shared/theme/ThemeToggle.tsx`, `features/layout/LocaleSwitcher.tsx`,
   `features/contact/CopyEmailButton.tsx`, which must sit next to a `mailto:`
   link as its no-JS fallback, and `app/[locale]/_motion/MotionRoot.tsx`, and
-  `features/hero/canvas/HeroCanvasGate.tsx` (decides whether the 3D canvas mounts)).
+  `features/hero/canvas/HeroCanvasGate.tsx` (decides whether the 3D canvas mounts), and `features/about/avatar/AboutAvatarGate.tsx` (decides whether the About avatar canvas mounts)).
   Pass translated labels to client components as props instead of shipping
   message catalogs to the client.
 

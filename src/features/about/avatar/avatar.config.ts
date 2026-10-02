@@ -71,7 +71,7 @@ export const AVATAR = {
   },
 
   /** Bubble anchor above the model's top, in model units. */
-  bubbleOffset: 0.15,
+  bubbleOffset: 0.05,
   hitCapsule: { radius: 0.3 },
   /** Rim light behind the avatar, colored --accent. */
   rim: { position: [-1.5, 2.5, -2], intensity: 2.5 },

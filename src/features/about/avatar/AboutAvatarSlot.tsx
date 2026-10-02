@@ -1,9 +1,10 @@
+import { AboutAvatarGate } from "./AboutAvatarGate";
 import { AvatarFallback } from "./AvatarFallback";
 
 // Server shell in the portrait's place (spec §2): fixed size from SSR so
 // nothing shifts; decorative, since the About heading and text carry the
-// meaning. The idle image shows until the 3D avatar takes over.
-export function AboutAvatarSlot() {
+// meaning. The gate adds the 3D canvas near About.
+export function AboutAvatarSlot({ bubble }: { bubble: string }) {
   return (
     <div
       id="about-avatar-slot"
@@ -12,6 +13,7 @@ export function AboutAvatarSlot() {
       className="about-avatar-slot bg-bg-elevated rounded-card relative h-80 w-full md:col-span-4 md:aspect-[4/5] md:h-auto md:max-h-[560px] md:self-start"
     >
       <AvatarFallback />
+      <AboutAvatarGate bubble={bubble} />
     </div>
   );
 }

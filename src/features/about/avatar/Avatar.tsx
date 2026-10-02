@@ -13,6 +13,7 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.j
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { RenderTier } from "@/shared/three/detect-tier";
 import { AVATAR } from "./avatar.config";
+import type { AvatarSignals } from "./avatar-signals";
 import { disposeAvatar, prepareAvatar, setOpacity } from "./avatar-model";
 import { AvatarBubble } from "./AvatarBubble";
 import { AvatarHitProxy } from "./AvatarHitProxy";
@@ -26,6 +27,10 @@ function withMeshopt(loader: GLTFLoader) {
   loader.setMeshoptDecoder(MeshoptDecoder);
 }
 
+// The about-avatar chunk loads only when the gate mounts the canvas near
+// About, so fetching here starts the GLB as early as allowed (spec §5.1).
+useLoader.preload(GLTFLoader, AVATAR.url, withMeshopt);
+
 // Exposed for e2e: present while the 3D avatar is hidden.
 function setHidden(slot: HTMLElement, hidden: boolean) {
   slot.toggleAttribute("data-avatar-hidden", hidden);
@@ -37,10 +42,21 @@ export interface AvatarProps {
   bubble: string;
   /** Theme accent (rim light). */
   accent: AccentColor;
+  /** Gate ↔ canvas channel (avatar-signals.ts). */
+  signals: AvatarSignals;
+  /** The 3D avatar is gone for good: the gate shows the static image. */
+  onFail: () => void;
 }
 
 // Per frame this writes three objects and data-* attributes directly; no React state changes after mount.
-function AvatarScene({ tier, slot, bubble, accent }: AvatarProps) {
+function AvatarScene({
+  tier,
+  slot,
+  bubble,
+  accent,
+  signals,
+  onFail
+}: AvatarProps) {
   const gltf = useLoader(GLTFLoader, AVATAR.url, withMeshopt);
   const model = useMemo(() => prepareAvatar(gltf), [gltf]);
   const { mixer, actions } = useAvatarMixer(model.root, gltf.animations);
@@ -52,6 +68,15 @@ function AvatarScene({ tier, slot, bubble, accent }: AvatarProps) {
   const accentVersion = useRef(-1);
   const tierRef = useRef(tier);
   const tierOpacity = useRef(1);
+  const alreadyPast = useRef(false);
+  const countersSent = useRef(false);
+  const failed = useRef(false);
+
+  // Runs once the GLB has loaded (Suspense resolved), even while the canvas
+  // isn't rendering off screen.
+  useEffect(() => {
+    alreadyPast.current = signals.ready().alreadyPast;
+  }, [signals]);
 
   useEffect(() => {
     tierRef.current = tier;
@@ -75,14 +100,27 @@ function AvatarScene({ tier, slot, bubble, accent }: AvatarProps) {
       accentVersion.current = accent.version;
     }
 
-    if (!intro.started()) intro.start(false); // Task 5 gates this on the 70 % trigger
+    if (!intro.started()) {
+      if (!signals.triggered) return; // waits for the 70 % line, image still showing
+      intro.start(alreadyPast.current);
+      signals.started();
+    }
     const pose = intro.advance(dt);
-    // Runtime drop to Low (PerformanceMonitor): fade out.
+    if (pose.counters && !countersSent.current) {
+      countersSent.current = true;
+      signals.counters();
+    }
+    // Runtime drop to Low (PerformanceMonitor): fade out, then hand over to
+    // the static image (the gate unmounts the canvas).
     if (tierRef.current === "low") {
       tierOpacity.current = Math.max(
         0,
         tierOpacity.current - dt / AVATAR.tierFadeOut
       );
+      if (tierOpacity.current === 0 && !failed.current) {
+        failed.current = true;
+        onFail();
+      }
     }
     const opacity = pose.opacity * tierOpacity.current;
     const visible = opacity > 0;
@@ -116,7 +154,7 @@ function AvatarScene({ tier, slot, bubble, accent }: AvatarProps) {
           active={() => rootRef.current?.visible === true}
           onWave={intro.rewave}
         />
-        <AvatarBubble ref={bubbleRef} text={bubble} />
+        <AvatarBubble ref={bubbleRef} text={bubble} slot={slot} />
       </group>
     </>
   );
@@ -128,7 +166,7 @@ function markFailed(slot: HTMLElement, failed: boolean) {
 
 // A failed GLB shows the static idle image (data-avatar-failed).
 class AvatarBoundary extends Component<
-  { slot: HTMLElement; children: ReactNode },
+  { slot: HTMLElement; onFail: () => void; children: ReactNode },
   { failed: boolean }
 > {
   state = { failed: false };
@@ -139,6 +177,7 @@ class AvatarBoundary extends Component<
 
   componentDidCatch(error: unknown) {
     markFailed(this.props.slot, true);
+    this.props.onFail();
     if (process.env.NODE_ENV !== "production") {
       console.warn("[about-avatar] failed, showing the static image", error);
     }
@@ -156,7 +195,7 @@ class AvatarBoundary extends Component<
 // Rendered inside AboutAvatarCanvas (about-avatar chunk).
 export default function Avatar(props: AvatarProps) {
   return (
-    <AvatarBoundary slot={props.slot}>
+    <AvatarBoundary slot={props.slot} onFail={props.onFail}>
       <Suspense fallback={null}>
         <AvatarScene {...props} />
       </Suspense>

@@ -21,7 +21,7 @@ export async function AboutSection() {
         {t("title")}
       </SectionHeading>
       <div className="mt-12 grid gap-8 md:grid-cols-12 md:gap-12">
-        <AboutAvatarSlot />
+        <AboutAvatarSlot bubble={t("avatar.bubble")} />
         <div className="flex flex-col gap-8 md:col-span-8">
           <p
             className="max-w-[42.5rem] text-lg leading-[1.7]"

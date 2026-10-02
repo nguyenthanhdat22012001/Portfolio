@@ -1,11 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { AboutAvatarSlot } from "./AboutAvatarSlot";
+
+vi.mock("./AboutAvatarGate", () => ({ AboutAvatarGate: () => null }));
 
 describe("AboutAvatarSlot", () => {
   it("is a decorative, fixed-size slot holding the fallback images", () => {
     const host = document.createElement("div");
-    host.innerHTML = renderToStaticMarkup(<AboutAvatarSlot />);
+    host.innerHTML = renderToStaticMarkup(<AboutAvatarSlot bubble="Hi" />);
     const slot = host.querySelector<HTMLElement>("#about-avatar-slot")!;
     expect(slot.getAttribute("aria-hidden")).toBe("true");
     expect(slot.hasAttribute("data-avatar-slot")).toBe(true);

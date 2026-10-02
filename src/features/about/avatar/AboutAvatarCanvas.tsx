@@ -47,6 +47,12 @@ function writeGlStats(slot: HTMLElement, info: WebGLRenderer["info"]) {
   slot.dataset.glCalls = String(info.render.calls);
 }
 
+function clearGlStats(slot: HTMLElement) {
+  delete slot.dataset.glGeometries;
+  delete slot.dataset.glTextures;
+  delete slot.dataset.glCalls;
+}
+
 // Renderer counters on the slot for the e2e leak and draw-call checks.
 function GlStats({ slot }: { slot: HTMLElement }) {
   const frame = useRef(0);
@@ -55,6 +61,8 @@ function GlStats({ slot }: { slot: HTMLElement }) {
     if (frame.current % 30 !== 1) return;
     writeGlStats(slot, gl.info);
   });
+  // No stale values after a fallback.
+  useEffect(() => () => clearGlStats(slot), [slot]);
   return null;
 }
 

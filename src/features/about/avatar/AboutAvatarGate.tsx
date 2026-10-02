@@ -28,7 +28,8 @@ const AboutAvatarCanvas = dynamic(
 );
 
 const SLOT_ID = "about-avatar-slot";
-const FADE_OUT_MS = 300;
+// Matches the image's fade back in (.about-avatar-fallback transition, globals.css).
+const FADE_OUT_MS = 400;
 
 class CanvasBoundary extends Component<
   { onError: () => void; children: ReactNode },
@@ -61,6 +62,7 @@ export function AboutAvatarGate({ bubble }: { bubble: string }) {
   const [live, setLive] = useState<Live | null>(null);
   const liveRef = useRef<Live | null>(null);
   const failedRef = useRef(false);
+  const unmountTimer = useRef<number | undefined>(undefined);
 
   // One path for every loss of the 3D avatar (design D8): static idle image,
   // counters released, canvas unmounted after the fade.
@@ -70,7 +72,7 @@ export function AboutAvatarGate({ bubble }: { bubble: string }) {
     failedRef.current = true;
     current.slot.dataset.gate = "fallback";
     current.signals.lost();
-    window.setTimeout(() => setLive(null), FADE_OUT_MS);
+    unmountTimer.current = window.setTimeout(() => setLive(null), FADE_OUT_MS);
   }, []);
 
   useEffect(() => {
@@ -144,6 +146,7 @@ export function AboutAvatarGate({ bubble }: { bubble: string }) {
       visible.disconnect();
       mount?.disconnect();
       signals.dispose();
+      window.clearTimeout(unmountTimer.current);
       liveRef.current = null;
       failedRef.current = false;
     };

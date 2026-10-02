@@ -82,6 +82,15 @@ function AvatarScene({
     tierRef.current = tier;
   }, [tier]);
 
+  // A drop to Low before the intro starts: nothing 3D is visible yet, so hand
+  // over at once (useFrame may not run: off screen, or waiting for the 70 % line).
+  useEffect(() => {
+    if (tier === "low" && !intro.started() && !failed.current) {
+      failed.current = true;
+      onFail();
+    }
+  }, [tier, intro, onFail]);
+
   useEffect(
     () => () => {
       disposeAvatar(model);

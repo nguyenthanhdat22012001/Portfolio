@@ -15,9 +15,21 @@ export function decideGate(env: GateEnv): GateDecision {
   return env.isDesktop ? "wait-idle" : "wait-interaction";
 }
 
+// One answer per document: the Hero and About gates both ask, and a second
+// probe would cost another context creation on the hydration path.
+const probed = new WeakMap<Document, boolean>();
+
 // Creates a throwaway context and releases it at once, so the probe never
 // counts as a second live WebGL context next to the canvas.
 export function probeWebGL(doc: Document = document): boolean {
+  const cached = probed.get(doc);
+  if (cached !== undefined) return cached;
+  const result = createProbe(doc);
+  probed.set(doc, result);
+  return result;
+}
+
+function createProbe(doc: Document): boolean {
   try {
     const canvas = doc.createElement("canvas");
     const gl = canvas.getContext("webgl2") ?? canvas.getContext("webgl");

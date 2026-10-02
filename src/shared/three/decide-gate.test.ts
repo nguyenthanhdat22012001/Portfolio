@@ -58,4 +58,25 @@ describe("probeWebGL", () => {
     } as unknown as Document;
     expect(probeWebGL(doc)).toBe(false);
   });
+
+  it("probes once per document: a second call creates no canvas", () => {
+    const loseContext = vi.fn();
+    const gl = { getExtension: () => ({ loseContext }) };
+    const { doc, getContext } = fakeDoc({ webgl2: gl });
+    const createElement = vi.spyOn(doc, "createElement");
+    expect(probeWebGL(doc)).toBe(true);
+    expect(probeWebGL(doc)).toBe(true);
+    expect(createElement).toHaveBeenCalledOnce();
+    expect(getContext).toHaveBeenCalledOnce();
+    // Another document gets its own probe.
+    expect(probeWebGL(fakeDoc({}).doc)).toBe(false);
+  });
+
+  it("caches a negative answer too", () => {
+    const { doc, getContext } = fakeDoc({});
+    expect(probeWebGL(doc)).toBe(false);
+    expect(probeWebGL(doc)).toBe(false);
+    // webgl2 then webgl on the first call only.
+    expect(getContext).toHaveBeenCalledTimes(2);
+  });
 });

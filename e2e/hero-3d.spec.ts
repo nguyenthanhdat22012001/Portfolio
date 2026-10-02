@@ -300,7 +300,7 @@ test.describe("desktop scene (follow-up)", () => {
         async () => Number(await graph(page).getAttribute("data-gl-calls")),
         { timeout: 10_000 }
       )
-      .toBeLessThanOrEqual(4);
+      .toBe(2);
     const { centre, header } = await page.evaluate(() => {
       const r = document
         .querySelector("#hero-canvas-slot")!
@@ -459,17 +459,25 @@ test.describe("robustness", () => {
         )
         .toBe(true);
     };
+    const avatarIdle = () =>
+      expect(page.locator("#hero-canvas-slot")).toHaveAttribute(
+        "data-avatar-phase",
+        "idle",
+        { timeout: 20_000 }
+      );
     const backToTopLive = async () => {
       // Let the #work hash scroll land before leaving it.
       await settle(false);
       await page.evaluate(() => window.scrollTo(0, 0));
       await settle(true);
       await waitLive(page);
+      await avatarIdle();
       await expect.poll(async () => (await stats()).geometries).not.toBeNull();
     };
 
     await page.goto("/en");
     await waitLive(page);
+    await avatarIdle();
     // Motion must be loaded so the trigger count means something.
     let step = 0;
     await expect(async () => {
@@ -504,7 +512,7 @@ test.describe("robustness", () => {
       await backToTopLive();
       await expect(canvas(page)).toHaveCount(1);
       await expect.poll(liveContexts).toBe(1);
-      expect(await stats()).toEqual(baseline);
+      await expect.poll(stats).toEqual(baseline);
       await expect.poll(triggers).toBeGreaterThan(0);
       await expect.poll(triggers).toBeLessThanOrEqual(triggerCeiling);
     }

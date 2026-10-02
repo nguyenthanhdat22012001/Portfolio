@@ -268,3 +268,34 @@ test.describe("avatar intro on desktop", () => {
     await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle");
   });
 });
+
+test.describe("avatar and scroll", () => {
+  test("recedes and hides by morph 0.5, returns on scroll up, never replays", async ({
+    page
+  }) => {
+    const phases = await recordPhases(page);
+    await page.goto("/en");
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    await page.mouse.move(200, 200);
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-motion-ready",
+      "",
+      { timeout: 10_000 }
+    );
+    const heroHeight = await page
+      .locator("#top")
+      .evaluate((el) => el.getBoundingClientRect().height);
+    await page.mouse.wheel(0, heroHeight);
+    await expect(slot(page)).toHaveAttribute("data-avatar-hidden", "", {
+      timeout: 10_000
+    });
+    await page.mouse.wheel(0, -heroHeight);
+    await expect(slot(page)).not.toHaveAttribute("data-avatar-hidden", "", {
+      timeout: 10_000
+    });
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle");
+    expect((await phases()).filter((p) => p === "walk")).toHaveLength(1);
+  });
+});

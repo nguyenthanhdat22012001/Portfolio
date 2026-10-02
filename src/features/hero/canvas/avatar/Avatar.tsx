@@ -17,13 +17,18 @@ import type { GraphPalette } from "../useGraphColors";
 import { AVATAR } from "./avatar.config";
 import { disposeAvatar, prepareAvatar, setOpacity } from "./avatar-model";
 import { AvatarBubble } from "./AvatarBubble";
-import { avatarFrame } from "./choreography";
+import { avatarFrame, scrollPose } from "./choreography";
 import { useAvatarIntro } from "./useAvatarIntro";
 import { useAvatarMixer } from "./useAvatarMixer";
 
 // three's own loader + meshopt; drei's useGLTF would bundle DRACOLoader too.
 function withMeshopt(loader: GLTFLoader) {
   loader.setMeshoptDecoder(MeshoptDecoder);
+}
+
+// Exposed for e2e: present while the 3D avatar is hidden.
+function setHidden(slot: HTMLElement, hidden: boolean) {
+  slot.toggleAttribute("data-avatar-hidden", hidden);
 }
 
 export interface AvatarProps {
@@ -45,8 +50,20 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
   const rimRef = useRef<DirectionalLight>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const paletteVersion = useRef(-1);
+  const tierRef = useRef(tier);
+  const tierOpacity = useRef(1);
 
-  useEffect(() => () => disposeAvatar(model), [model]);
+  useEffect(() => {
+    tierRef.current = tier;
+  }, [tier]);
+
+  useEffect(
+    () => () => {
+      disposeAvatar(model);
+      setHidden(slot, false);
+    },
+    [model, slot]
+  );
 
   useFrame(({ camera, size }, delta) => {
     const root = rootRef.current;
@@ -59,12 +76,23 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
     }
 
     const morph = useScrollStore.getState().heroMorph;
+    const scroll = scrollPose(morph);
     const pose = intro.advance(dt, morph);
-    const opacity = pose.opacity;
-    const visible = opacity > 0;
-    root.visible = visible;
+    // Runtime drop to Low (PerformanceMonitor): fade out; CSS shows the image.
+    if (tierRef.current === "low") {
+      tierOpacity.current = Math.max(
+        0,
+        tierOpacity.current - dt / AVATAR.tierFadeOut
+      );
+    }
+    const opacity = pose.opacity * scroll.opacity * tierOpacity.current;
+    const visible = scroll.visible && opacity > 0;
+    if (visible !== root.visible) {
+      root.visible = visible;
+      setHidden(slot, !visible);
+    }
     bubbleRef.current?.toggleAttribute("data-visible", visible && pose.bubble);
-    if (!visible) return;
+    if (!visible) return; // hidden: the mixer is paused too (spec B.7)
 
     // CameraRig fits camera z to the slot each frame; follow it (resize).
     const frame = avatarFrame(
@@ -73,7 +101,7 @@ function AvatarScene({ tier, slot, bubble, palette }: AvatarProps) {
       (camera as PerspectiveCamera).fov
     );
     root.scale.setScalar(frame.scale);
-    root.position.set(AVATAR.end.x, frame.feetY, pose.z);
+    root.position.set(AVATAR.end.x, frame.feetY, pose.z + scroll.zOffset);
     setOpacity(model.materials, opacity);
     mixer.update(dt);
   });

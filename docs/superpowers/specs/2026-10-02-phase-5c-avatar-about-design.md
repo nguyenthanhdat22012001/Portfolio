@@ -301,5 +301,15 @@ in the Hero, draw calls ≤ 6 again; leak test covers the About canvas.
   IntersectionObserver reports the real state on its first callback.
 - E2E: 5 round trips to a case study re-mount About each time and assert
   exactly 2 live contexts on Home, 0 on the case study, and stable
-  `data-gl-geometries` / `data-gl-textures`; a phone landing on `/en#about`
-  shows the idle image and never the wave.
+  `data-gl-geometries` / `data-gl-textures` per tier (under parallel
+  SwiftShader load the shared tier can step down: a fresh Medium mount holds
+  2/5, a High mount that stepped to Medium keeps 3/7); a phone landing on
+  `/en#about` shows the idle image and never the wave.
+- Measured after these fixes (gzip): initial JS 142.9 KB; Hero 3D chunk
+  249.6 KB; `about-avatar` 25.5 KB. Lighthouse mobile (3 runs): `/en` 0.90
+  (LCP render delay 3066 ms, unchanged), `/vi` 0.86, CLS 0. The deferred
+  decision didn't move `/en`: in Lantern's simulation the +~80 ms render delay
+  comes from the About slot's two fallback images (`avatar-wave.webp`,
+  `avatar-idle.webp`, 43 KB), which Chrome's lazy-load distance fetches before
+  the observed LCP on a phone. Blocking them in a one-off run gave `/en` 0.91
+  (render delay 2990 ms). Changing how they load is a design decision.

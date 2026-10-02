@@ -18,6 +18,10 @@ afterEach(() => {
 });
 
 const holding = () => section.hasAttribute("data-count-hold");
+/** Places the slot: bottom < 0 is above the viewport. */
+const placeSlot = (top: number, bottom: number) => {
+  slot.getBoundingClientRect = () => ({ top, bottom }) as DOMRect;
+};
 const stage = () => slot.dataset.avatarStage;
 
 describe("AvatarSignals", () => {
@@ -29,17 +33,38 @@ describe("AvatarSignals", () => {
     expect(slot.hasAttribute("data-avatar-inview")).toBe(true);
   });
 
-  it("ready while off screen: swap to 3D at once; already past if triggered", () => {
+  it("ready while off screen: swap to 3D at once; already past if triggered and above", () => {
     const s = createAvatarSignals(slot, section);
     s.setTriggered();
     s.setInView(false);
+    placeSlot(-900, -400);
     expect(s.ready()).toEqual({ alreadyPast: true });
     expect(stage()).toBe("3d");
   });
 
+  // M3 (spec §5.3): past means the slot is above the viewport. Scrolling back
+  // up over About after the trigger leaves it below: the intro still plays.
+  it("triggered but scrolled back up above About: not past", () => {
+    const s = createAvatarSignals(slot, section);
+    s.setTriggered();
+    s.setInView(false);
+    placeSlot(1200, 1700);
+    expect(s.ready()).toEqual({ alreadyPast: false });
+    expect(stage()).toBe("3d"); // off screen: the swap is still invisible
+  });
+
+  it("above the viewport but never triggered: not past", () => {
+    const s = createAvatarSignals(slot, section);
+    s.setInView(false);
+    placeSlot(-900, -400);
+    expect(s.ready()).toEqual({ alreadyPast: false });
+  });
+
   it("ready while on screen: keep the image until the intro starts", () => {
     const s = createAvatarSignals(slot, section);
+    s.setTriggered();
     s.setInView(true);
+    placeSlot(200, 700);
     expect(s.ready()).toEqual({ alreadyPast: false });
     expect(stage()).toBeUndefined();
     s.started();

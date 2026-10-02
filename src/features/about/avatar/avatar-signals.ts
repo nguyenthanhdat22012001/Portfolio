@@ -15,7 +15,10 @@ export interface AvatarSignals {
   readonly triggered: boolean;
   /** The slot intersects the viewport right now. */
   readonly inView: boolean;
-  /** The model is mounted. alreadyPast: the visitor went past About meanwhile. */
+  /**
+   * The model is mounted. alreadyPast: the slot crossed the 70 % line and is
+   * now above the viewport (spec §5.3) — the visitor went past About meanwhile.
+   */
   ready(): { alreadyPast: boolean };
   /** First frame of the intro. */
   started(): void;
@@ -89,7 +92,11 @@ export function createAvatarSignals(
     ready() {
       // Off screen nobody sees the swap; on screen it waits for the intro.
       if (!lost && !inView) setStage(true);
-      return { alreadyPast: triggered && !inView };
+      // Above the viewport, not merely off screen: scrolling back up over
+      // About after the trigger leaves the slot below, and the intro plays.
+      return {
+        alreadyPast: triggered && slot.getBoundingClientRect().bottom < 0
+      };
     },
     started() {
       if (lost) return;

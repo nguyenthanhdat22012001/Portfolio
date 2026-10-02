@@ -27,12 +27,13 @@ export interface AboutAvatarCanvasProps {
 }
 
 // Renders only while the slot is on screen (design D1): leaving pauses the
-// intro clock, coming back resumes it.
+// intro clock, coming back resumes it. Starts paused: the observer reports
+// the real state on its first callback, so an off-screen mount renders nothing.
 function useInView(el: Element): boolean {
-  const [inView, setInView] = useState(true);
+  const [inView, setInView] = useState(false);
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) =>
-      setInView(entry?.isIntersecting ?? true)
+      setInView(entry?.isIntersecting ?? false)
     );
     observer.observe(el);
     return () => observer.disconnect();

@@ -12,7 +12,7 @@ import {
 import { readGateEnv } from "@/shared/three/decide-gate";
 import { readTierEnv } from "@/shared/three/detect-tier";
 import { qualityStore } from "@/shared/three/quality-store";
-import { decideAvatarPath } from "./avatar-path";
+import { decideAvatarPath, isBelowViewport } from "./avatar-path";
 import {
   MOUNT_MARGIN,
   START_MARGIN,
@@ -31,7 +31,12 @@ const SLOT_ID = "about-avatar-slot";
 // Matches the image's fade back in (.about-avatar-fallback transition, globals.css).
 const FADE_OUT_MS = 400;
 // What a visitor does to scroll: wheel, touch, keys, or the scrollbar.
-const INTENT_EVENTS = ["wheel", "touchstart", "keydown", "pointerdown"] as const;
+const INTENT_EVENTS = [
+  "wheel",
+  "touchstart",
+  "keydown",
+  "pointerdown"
+] as const;
 
 class CanvasBoundary extends Component<
   { onError: () => void; children: ReactNode },
@@ -82,7 +87,7 @@ export function AboutAvatarGate({ bubble }: { bubble: string }) {
     if (!slot) return;
     const signals = createAvatarSignals(slot, slot.closest("section"));
     const tier = qualityStore.getState().init(readTierEnv());
-    const path = decideAvatarPath(readGateEnv(), tier);
+    const path = decideAvatarPath(readGateEnv(), tier, isBelowViewport(slot));
 
     if (path === "fallback") {
       slot.dataset.gate = "fallback";
@@ -117,9 +122,11 @@ export function AboutAvatarGate({ bubble }: { bubble: string }) {
         ([entry]) => {
           if (!entry?.isIntersecting) return;
           mount?.disconnect();
-          // The Hero canvas may have stepped the shared tier down meanwhile.
+          // The Hero canvas may have stepped the shared tier down meanwhile:
+          // the Low image path, unless the image is already on screen.
           if (qualityStore.getState().level === "low") {
-            slot.dataset.tier = "low";
+            if (isBelowViewport(slot)) slot.dataset.tier = "low";
+            else slot.dataset.gate = "fallback";
             signals.lost();
             return;
           }

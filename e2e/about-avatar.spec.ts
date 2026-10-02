@@ -532,6 +532,48 @@ test.describe("About avatar on mobile (Low)", () => {
   });
 });
 
+test.describe("About avatar on mobile, landing on #about", () => {
+  test.use({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true
+  });
+
+  // Final review M1: the Low path's wave → idle swap would change a picture
+  // already on screen. The slot stays on its static idle image.
+  test("shows the idle image and never the wave image", async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as { __waveSeen: boolean };
+      w.__waveSeen = false;
+      const check = () => {
+        const wave = document.querySelector(
+          '#about-avatar-slot [data-avatar-pose="wave"]'
+        );
+        if (wave && getComputedStyle(wave).visibility === "visible") {
+          w.__waveSeen = true;
+        }
+        requestAnimationFrame(check);
+      };
+      requestAnimationFrame(check);
+    });
+    const glb = trackGlb(page);
+    await page.goto("/en#about");
+    await expect(slot(page)).toHaveAttribute("data-gate", "fallback", {
+      timeout: 10_000
+    });
+    await expect(slot(page)).not.toHaveAttribute("data-tier", "low");
+    await expect(pose(page, "idle")).toBeInViewport();
+    await expect(pose(page, "idle")).toBeVisible();
+    await expect(pose(page, "wave")).toBeHidden();
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { __waveSeen: boolean }).__waveSeen
+      )
+    ).toBe(false);
+    expect(glb).toEqual([]);
+  });
+});
+
 test.describe("About avatar with reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
 

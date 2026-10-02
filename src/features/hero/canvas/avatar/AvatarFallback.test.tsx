@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { CAMERA_FOV, fitCameraZ } from "../graph-frame";
 import { AVATAR } from "./avatar.config";
 import { AvatarFallback } from "./AvatarFallback";
 import { avatarFrame } from "./choreography";
@@ -36,7 +37,7 @@ describe("AvatarFallback", () => {
   it("stands where the 3D avatar would, using the shared placement math", () => {
     const style = render().style;
     const left = (aspect: number) =>
-      `${avatarFrame(aspect).leftPct.toFixed(2)}%`;
+      `${avatarFrame(aspect, fitCameraZ(aspect), CAMERA_FOV).leftPct.toFixed(2)}%`;
     expect(style.getPropertyValue("--avatar-left-sm")).toBe(
       left(AVATAR.slotAspect.sm)
     );

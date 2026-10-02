@@ -1,10 +1,13 @@
 /* eslint-disable @next/next/no-img-element -- spec B.8: plain <img> with fixed size and fetchpriority low; next/image would add srcset and a loader for a 22 KB decorative WebP. */
 import type { CSSProperties } from "react";
+import { CAMERA_FOV, fitCameraZ } from "../graph-frame";
 import { AVATAR } from "./avatar.config";
 import { avatarFrame } from "./choreography";
 
 const pct = (fraction: number) => `${(fraction * 100).toFixed(2)}%`;
 const POSES = ["wave", "idle"] as const;
+const leftFor = (aspect: number) =>
+  pct(avatarFrame(aspect, fitCameraZ(aspect), CAMERA_FOV).leftPct / 100);
 
 // Server-rendered stand-in for the 3D avatar (no JS, reduced motion, Low/Off
 // tiers, failed 3D load). Decorative: the name is the h1. globals.css picks
@@ -12,8 +15,8 @@ const POSES = ["wave", "idle"] as const;
 export function AvatarFallback() {
   const { fallback } = AVATAR;
   const style = {
-    "--avatar-left-sm": pct(avatarFrame(AVATAR.slotAspect.sm).leftPct / 100),
-    "--avatar-left-md": pct(avatarFrame(AVATAR.slotAspect.md).leftPct / 100),
+    "--avatar-left-sm": leftFor(AVATAR.slotAspect.sm),
+    "--avatar-left-md": leftFor(AVATAR.slotAspect.md),
     "--avatar-bottom": pct(AVATAR.feetFromBottom),
     "--avatar-h-sm": pct(fallback.heightSm),
     "--avatar-h-md": pct(AVATAR.screenHeight),

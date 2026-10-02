@@ -33,6 +33,7 @@ export interface HeroCanvasProps {
   onLive: () => void;
   onFallback: () => void;
   onTier: (level: RenderTier) => void;
+  avatarBubble: string;
 }
 
 function useInView(el: Element): boolean {
@@ -67,7 +68,8 @@ export default function HeroCanvas({
   slot,
   onLive,
   onFallback,
-  onTier
+  onTier,
+  avatarBubble
 }: HeroCanvasProps) {
   const [initial] = useState(() => detectTier(readTierEnv(slot)));
   const tier = useQualityTier(initial);
@@ -121,7 +123,7 @@ export default function HeroCanvas({
         bounds={(refreshrate) => monitorBounds(tier.level, refreshrate)}
         onDecline={onDecline}
       />
-      <HeroScene tier={tier.level} slot={slot} />
+      <HeroScene tier={tier.level} slot={slot} avatarBubble={avatarBubble} />
       <GlStats />
     </Canvas>
   );

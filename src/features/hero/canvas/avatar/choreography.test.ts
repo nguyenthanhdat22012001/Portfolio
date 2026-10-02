@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CAMERA_FOV, fitCameraZ } from "../graph-frame";
 import { AVATAR } from "./avatar.config";
 import {
   CRUISE_SPEED,
@@ -12,6 +13,8 @@ import {
 } from "./choreography";
 
 const deg = (d: number) => (d * Math.PI) / 180;
+const frameFor = (aspect: number) =>
+  avatarFrame(aspect, fitCameraZ(aspect), CAMERA_FOV);
 
 describe("poseAt (full intro)", () => {
   it("walks, waves, then idles", () => {
@@ -174,14 +177,14 @@ describe("look-at", () => {
 describe("avatarFrame", () => {
   // Hand-computed: GRAPH_WIDTH = 7.17, tan(22.5°) = 0.414214, FIT_FRACTION 0.85.
   it("mobile slot (4/3)", () => {
-    const frame = avatarFrame(4 / 3);
+    const frame = frameFor(4 / 3);
     expect(frame.scale).toBeCloseTo(2.0592, 3);
     expect(frame.feetY).toBeCloseTo(-1.7503, 3);
     expect(frame.leftPct).toBeCloseTo(59.0, 1);
   });
 
   it("desktop slot (7/8)", () => {
-    const frame = avatarFrame(7 / 8);
+    const frame = frameFor(7 / 8);
     expect(frame.scale).toBeCloseTo(3.4238, 3);
     expect(frame.leftPct).toBeCloseTo(58.25, 1);
   });

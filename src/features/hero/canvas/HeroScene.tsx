@@ -1,19 +1,22 @@
 import { tierFeatures, type RenderTier } from "../quality/detect-tier";
+import { AvatarMount } from "./avatar/AvatarMount";
 import { CameraRig } from "./CameraRig";
 import { Graph } from "./Graph";
 
 export function HeroScene({
   tier,
-  slot
+  slot,
+  avatarBubble
 }: {
   tier: RenderTier;
   slot: HTMLElement;
+  avatarBubble: string;
 }) {
   return (
     <>
       <CameraRig parallax={tierFeatures(tier).parallax} slot={slot} />
       <Graph tier={tier} slot={slot} />
-      {/* Phase 5B: <Avatar tier={tier} /> goes here, same Canvas, same lights. */}
+      <AvatarMount tier={tier} slot={slot} bubble={avatarBubble} />
     </>
   );
 }

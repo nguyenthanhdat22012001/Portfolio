@@ -69,9 +69,18 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
 
 - Initial JS (gzip) < 150 KB.
 - Lazy-loaded 3D chunk ≤ 250 KB gzip, enforced by `e2e/hero-3d.spec.ts`, which
-  also checks initial JS ≤ 150 KB gzip. It measures 249.8 KB after Phase 5
-  (≈ 0.2 KB headroom), so the Phase 5B avatar's loader and model code must go
-  in its own lazy chunk (a separate `dynamic()` import), not the canvas chunk.
+  also checks initial JS ≤ 150 KB gzip. It measures 255,954 B after Phase 5B
+  (46 B headroom). Anything new for the canvas goes in its own lazy chunk.
+  Code in another chunk must not import the canvas chunk's own modules
+  (`graph-frame`, `layouts`, `useGraphColors`, `@/shared/lib/math`, …): a
+  module shared across chunks is no longer scope-hoisted into the canvas
+  chunk, which cost ~0.7 KB gzip in Phase 5B. Pass values in as props instead.
+- Lazy avatar chunk (`hero-avatar` + the vendor chunk webpack splits from it:
+  avatar code, `GLTFLoader`, meshopt decoder, `SkeletonUtils`,
+  `ContactShadows`) ≤ 26 KB gzip (measured 22.8 KB + 3 KB), enforced by
+  `e2e/hero-avatar.spec.ts` and excluded from the 3D chunk check. Load the
+  GLB with three's `GLTFLoader` through R3F `useLoader`, not drei's `useGLTF`
+  (which bundles `DRACOLoader`).
 - `.glb` models < 500 KB (except the Phase 5B avatar, budgeted separately at
   ≤ 1.5 MB).
 - Flag budget-relevant changes during implementation rather than waiting for

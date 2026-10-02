@@ -1,9 +1,15 @@
-import { clamp } from "@/shared/lib/math";
-import { CAMERA_FOV, fitCameraZ } from "../graph-frame";
 import { AVATAR } from "./avatar.config";
 
 // Pure model of the avatar's motion (spec B.5/B.6/B.7). No three.js: the
 // frame loop in Avatar.tsx evaluates it and applies the result.
+//
+// Imports nothing from the canvas chunk's modules (graph-frame, shared math):
+// a module shared with another chunk can no longer be scope-hoisted there,
+// which cost the canvas chunk ~0.7 KB gzip it doesn't have (CLAUDE.md).
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
 export type ClipName = keyof typeof AVATAR.CLIPS;
 export type AvatarPhase = "enter" | "walk" | "wave" | "idle";
@@ -177,9 +183,14 @@ export interface AvatarFrame {
   leftPct: number;
 }
 
-export function avatarFrame(aspect: number): AvatarFrame {
-  const depth = fitCameraZ(aspect) - AVATAR.end.z;
-  const visibleH = 2 * depth * Math.tan(toRad(CAMERA_FOV / 2));
+/** cameraZ/fovDeg: the hero camera (CameraRig fits z to the slot aspect). */
+export function avatarFrame(
+  aspect: number,
+  cameraZ: number,
+  fovDeg: number
+): AvatarFrame {
+  const depth = cameraZ - AVATAR.end.z;
+  const visibleH = 2 * depth * Math.tan(toRad(fovDeg / 2));
   return {
     scale: (AVATAR.screenHeight * visibleH) / AVATAR.height,
     feetY: visibleH * (AVATAR.feetFromBottom - 0.5),

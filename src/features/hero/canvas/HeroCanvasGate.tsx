@@ -128,6 +128,7 @@ export function HeroCanvasGate() {
         onLive={onLive}
         onFallback={toFallback}
         onTier={onTier}
+        avatarBubble=""
       />
     </CanvasBoundary>
   );

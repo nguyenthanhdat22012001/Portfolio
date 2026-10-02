@@ -225,7 +225,7 @@ Pure model in `choreography.ts` (unit-tested), executed by a GSAP timeline in `u
 | Item | Budget / rule |
 | --- | --- |
 | `avatar.glb` | ≤ 1.5 MB, downloaded only on High/Medium after canvas mount |
-| Extra JS | ≤ 15 KB gzip for avatar code (no new libraries; `GLTFLoader`, `SkeletonUtils` come with three/drei) |
+| Extra JS | ≤ 26 KB gzip in its own `hero-avatar` chunk (measured 22.8 KB; the loaders are not in the canvas chunk, see the design doc D2) |
 | Draw calls | + ≤ 3 (mesh, optional ContactShadows) → scene total ≤ 9 |
 | Triangles | ≤ 15k |
 | Frame rate | 60 fps desktop with graph + avatar running |

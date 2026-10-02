@@ -62,12 +62,15 @@ export function setWalkSpeed(actions: AvatarActions, timeScale: number) {
 export function useAvatarMixer(root: Object3D, clips: AnimationClip[]) {
   const mixer = useMemo(() => new AnimationMixer(root), [root]);
   const actions = useMemo(() => createActions(mixer, clips), [mixer, clips]);
+  // Stop only. uncacheRoot would leave the memoized actions unusable after
+  // StrictMode's dev unmount/remount (three throws on _cacheIndex), and it
+  // frees nothing here: the mixer and the cloned root are per mount and
+  // become unreachable together.
   useEffect(
     () => () => {
       mixer.stopAllAction();
-      mixer.uncacheRoot(root);
     },
-    [mixer, root]
+    [mixer]
   );
   return { mixer, actions };
 }

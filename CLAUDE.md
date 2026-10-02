@@ -92,8 +92,8 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
 - Lazy About avatar chunk (`about-avatar`: everything loaded by scrolling to
   About after the Hero is live — canvas, avatar code, `GLTFLoader`, meshopt
   decoder, `SkeletonUtils`, `ContactShadows`, drei `Html`) ≤ 26 KB gzip,
-  excluding the three/R3F chunks the Hero already loaded (measured 25.5 KB after Phase 5C), enforced by `e2e/about-avatar.spec.ts`.
-  It mounts only after the first scroll. Load the GLB with three's
+  excluding the three/R3F chunks the Hero already loaded (measured 25.5 KB
+  after Phase 5C), enforced by `e2e/about-avatar.spec.ts`. It mounts only after the first scroll. Load the GLB with three's
   `GLTFLoader` through R3F `useLoader`, not drei's `useGLTF` (which bundles
   `DRACOLoader`).
 - `.glb` models < 500 KB (except the avatar, budgeted separately at

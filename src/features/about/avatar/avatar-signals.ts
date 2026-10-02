@@ -67,7 +67,13 @@ export function createAvatarSignals(
       return inView;
     },
     hold() {
-      if (!lost) section?.setAttribute(HOLD, "");
+      if (!lost) {
+        section?.setAttribute(HOLD, "");
+        // Arm grace timer if hold() is called after setTriggered()
+        if (triggered && !started && grace === undefined) {
+          grace = clock.setTimeout(release, GLB_GRACE_MS);
+        }
+      }
     },
     setTriggered() {
       if (triggered) return;
@@ -82,10 +88,11 @@ export function createAvatarSignals(
     },
     ready() {
       // Off screen nobody sees the swap; on screen it waits for the intro.
-      if (!inView) setStage(true);
+      if (!lost && !inView) setStage(true);
       return { alreadyPast: triggered && !inView };
     },
     started() {
+      if (lost) return;
       started = true;
       stopGrace();
       setStage(true);
@@ -97,6 +104,7 @@ export function createAvatarSignals(
       release();
     },
     dispose() {
+      lost = true;
       release();
       setStage(false);
       slot.removeAttribute("data-avatar-inview");

@@ -90,4 +90,47 @@ describe("AvatarSignals", () => {
     expect(stage()).toBeUndefined();
     expect(slot.hasAttribute("data-avatar-inview")).toBe(false);
   });
+
+  it("arms the grace timer when hold() is called after setTriggered()", () => {
+    const s = createAvatarSignals(slot, section);
+    s.setTriggered();
+    s.hold();
+    expect(holding()).toBe(true);
+    vi.advanceTimersByTime(GLB_GRACE_MS - 1);
+    expect(holding()).toBe(true);
+    vi.advanceTimersByTime(1);
+    expect(holding()).toBe(false);
+  });
+
+  it("lost then started leaves no stage", () => {
+    const s = createAvatarSignals(slot, section);
+    s.lost();
+    s.started();
+    expect(stage()).toBeUndefined();
+  });
+
+  it("lost then ready while off screen leaves no stage", () => {
+    const s = createAvatarSignals(slot, section);
+    s.setTriggered();
+    s.setInView(false);
+    s.lost();
+    s.ready();
+    expect(stage()).toBeUndefined();
+  });
+
+  it("dispose then setTriggered leaves no timer firing", () => {
+    const s = createAvatarSignals(slot, section);
+    s.hold();
+    s.dispose();
+    s.setTriggered();
+    vi.advanceTimersByTime(GLB_GRACE_MS);
+    expect(holding()).toBe(false);
+  });
+
+  it("dispose then hold does nothing", () => {
+    const s = createAvatarSignals(slot, section);
+    s.dispose();
+    s.hold();
+    expect(holding()).toBe(false);
+  });
 });

@@ -177,6 +177,28 @@ page view.
   `data-avatar-inview`. Images stay `loading="lazy"`, `decoding="async"`,
   fixed size, `alt=""`. Mobile image ≈ 260px tall.
 
+### D8 — Amendments while planning
+
+- **Mount waits for the first scroll.** On a 1280×720 desktop the About slot
+  starts ~280px below the fold, inside the 400px mount margin, so a plain
+  IntersectionObserver would load the about chunk and `avatar.glb` on initial
+  load (spec §9/§10 forbid that). The mount observer is armed on the first
+  `scroll` event; the 70 % start observer runs from hydration.
+- **Start observer also fires for a slot above the viewport**
+  (`boundingClientRect.top < 0` on its first callback), so landing on
+  `/en#contact` counts as "already past".
+- **Trigger margins live in `avatar-signals.ts`** (`MOUNT_MARGIN`,
+  `START_MARGIN`, `GLB_GRACE_MS`), not `avatar.config.ts`: the gate is in the
+  initial bundle and must not pull in the whole config object.
+- **Framing is aspect-independent.** The camera looks straight ahead from
+  `aboutFrame(fov)`; with a fixed vertical fov the avatar is `screenHeight` of
+  the slot at every size, so nothing is recomputed on resize. Model at scale 1.
+- **Any loss of the 3D avatar** (GLB error, context loss, perf Off, runtime
+  drop to Low) goes through one path: the gate sets `data-gate="fallback"`
+  (static idle image), releases the counters and unmounts the canvas.
+- `--radius-lg` doesn't exist; the slot uses `rounded-card` (`--radius`).
+  `PlaceholderSlot` loses its last user and is deleted.
+
 ## Removed from the Hero
 
 `AvatarMount` and the avatar folder from `canvas/`; `AvatarFallback` and the

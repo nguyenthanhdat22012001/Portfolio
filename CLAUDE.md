@@ -57,8 +57,11 @@ two planning docs in `docs/`: the project plan and the Phase 5B avatar spec.
   past when they start (`isAtOrAboveViewport`), and nothing starts at
   `opacity: 0` in HTML or CSS. The only exceptions: the inactive half of the
   hero graph's two-state SVG/caption toggle (`[data-graph-state]` /
-  `[data-caption-line]`), hidden with `opacity: 0; visibility: hidden`, and
-  `.hero-graph-canvas`, which JS creates only after the gate mounts it.
+  `[data-caption-line]`) and of the avatar fallback's wave/idle pair
+  (`[data-avatar-pose]`), hidden with `opacity: 0; visibility: hidden`;
+  `.hero-graph-canvas` and `.hero-avatar-bubble`, which JS creates; and
+  `.hero-avatar-fallback`, which is `display: none` on desktop because the 3D
+  avatar stands in its place.
 - Page transitions use React `<ViewTransition>` (`shared/ui/PageTransition.tsx`
   in each `page.tsx`, never a layout) with `transitionTypes` on links.
 

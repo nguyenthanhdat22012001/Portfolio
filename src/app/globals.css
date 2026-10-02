@@ -232,6 +232,122 @@
   transition-duration: 0.3s;
 }
 
+/* Hero avatar fallback (features/hero/canvas/avatar/AvatarFallback). Inline
+   custom properties carry the placement from avatar.config. CSS alone picks
+   the pose: idle by default (no JS, reduced motion, gate fallback, failed 3D
+   load, 3D already greeted); wave → idle on Low; display: none on desktop,
+   where the 3D avatar stands in the same spot. The inactive pose is hidden
+   with opacity 0 + visibility hidden (CLAUDE.md exception). */
+.hero-avatar-fallback {
+  position: absolute;
+  left: var(--avatar-left-sm);
+  bottom: var(--avatar-bottom);
+  height: var(--avatar-h-sm);
+  pointer-events: none;
+}
+
+.hero-avatar-fallback img {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  max-width: none;
+}
+
+.hero-avatar-fallback [data-avatar-pose="idle"] {
+  height: 100%;
+  translate: calc(-100% * var(--avatar-idle-anchor)) 0;
+}
+
+.hero-avatar-fallback [data-avatar-pose="wave"] {
+  height: calc(100% * var(--avatar-wave-scale));
+  translate: calc(-100% * var(--avatar-wave-anchor)) 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (min-width: 768px) {
+  .hero-avatar-fallback {
+    left: var(--avatar-left-md);
+    height: var(--avatar-h-md);
+  }
+}
+
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .hero-avatar-fallback {
+    animation: hero-avatar-bob 4s ease-in-out var(--avatar-swap) infinite;
+  }
+
+  .hero-avatar-fallback [data-avatar-pose="wave"] {
+    opacity: 1;
+    visibility: visible;
+    animation: hero-avatar-pose-out 0s var(--avatar-swap) forwards;
+  }
+
+  .hero-avatar-fallback [data-avatar-pose="idle"] {
+    opacity: 0;
+    visibility: hidden;
+    animation: hero-avatar-pose-in 0s var(--avatar-swap) forwards;
+  }
+}
+
+/* Same as DESKTOP_QUERY (shared/animation/media.ts): the 3D avatar takes the
+   spot unless the canvas runs at Low. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) and (min-width: 768px) and (hover: hover) and (pointer: fine) {
+  [data-hero-graph]:not([data-tier="low"]) .hero-avatar-fallback {
+    display: none;
+  }
+}
+
+/* Static idle. Must stay after the rules above (equal specificity). */
+[data-hero-graph][data-gate="fallback"] .hero-avatar-fallback,
+#hero-canvas-slot[data-avatar-failed] .hero-avatar-fallback {
+  display: block;
+}
+
+[data-hero-graph][data-gate="fallback"] .hero-avatar-fallback,
+#hero-canvas-slot[data-avatar-failed] .hero-avatar-fallback,
+#hero-canvas-slot[data-avatar-phase] .hero-avatar-fallback,
+[data-hero-graph][data-gate="fallback"] .hero-avatar-fallback img,
+#hero-canvas-slot[data-avatar-failed] .hero-avatar-fallback img,
+#hero-canvas-slot[data-avatar-phase] .hero-avatar-fallback img {
+  animation: none;
+}
+
+[data-hero-graph][data-gate="fallback"] [data-avatar-pose="wave"],
+#hero-canvas-slot[data-avatar-failed] [data-avatar-pose="wave"],
+#hero-canvas-slot[data-avatar-phase] [data-avatar-pose="wave"] {
+  opacity: 0;
+  visibility: hidden;
+}
+
+[data-hero-graph][data-gate="fallback"] [data-avatar-pose="idle"],
+#hero-canvas-slot[data-avatar-failed] [data-avatar-pose="idle"],
+#hero-canvas-slot[data-avatar-phase] [data-avatar-pose="idle"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+@keyframes hero-avatar-pose-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes hero-avatar-pose-in {
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@keyframes hero-avatar-bob {
+  50% {
+    translate: 0 -2px;
+  }
+}
+
 /* View transitions (Next 16 guide): directional slides for typed
    navigations, a morph for the shared chapter title, an anchored header. */
 ::view-transition {

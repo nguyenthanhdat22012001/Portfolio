@@ -62,7 +62,7 @@ export const AVATAR = {
       src: "/images/avatar-wave.webp",
       width: 363,
       height: 600,
-      anchorX: 0.56,
+      anchorX: 0.59, // feet centre, checked against the idle image at 390 px
       scale: 1.1
     },
     idle: {

@@ -5,6 +5,7 @@ import { ButtonLink } from "@/shared/ui/ButtonLink";
 import { Container } from "@/shared/ui/Container";
 import { Eyebrow } from "@/shared/ui/Eyebrow";
 import { StackedLines } from "@/shared/ui/StackedLines";
+import { AvatarFallback } from "./canvas/avatar/AvatarFallback";
 import { HeroCanvasGate } from "./canvas/HeroCanvasGate";
 import { HeroGraphCaption } from "./graph/HeroGraphCaption";
 import { HeroGraphStatic } from "./graph/HeroGraphStatic";
@@ -62,6 +63,7 @@ export async function HeroSection() {
           >
             <HeroGraphStatic state="chaos" />
             <HeroGraphStatic state="layered" />
+            <AvatarFallback />
             <HeroCanvasGate />
           </div>
           <HeroGraphCaption

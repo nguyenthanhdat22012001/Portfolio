@@ -370,7 +370,9 @@ These supersede the matching lines above.
   and the extra faces are never fetched. Copy and markup stay as they are;
   the glyphs look slightly different per platform.
 - **Header links don't prefetch on load (Dat, 2026-10-05).** `prefetch={false}`
-  on the `SiteHeader` links to Home. Next 16 still prefetches on hover. This
+  on the `SiteHeader` links to Home and on the `ArticleLayout` back link
+  (controller ruling: the header alone left case studies over budget). Next 16
+  still prefetches on hover. This
   keeps case studies under the Lighthouse script-size limit (the home chunk,
   4.7 KB, was prefetched after hydration).
 - **No hreflang `Link` header from next-intl.** `alternateLinks: false`

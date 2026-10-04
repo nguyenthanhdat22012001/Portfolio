@@ -5,36 +5,101 @@ on:
   push:
     branches: [main, master]
 
+env:
+  # Builds the Umami markup e2e and Lighthouse see; data-domains never
+  # matches outside a Vercel production build, so nothing is sent.
+  NEXT_PUBLIC_UMAMI_ID: ci-dummy
+
 jobs:
-  build:
+  checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
         with:
           version: 11
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
       - run: pnpm check:claims
+      - run: pnpm check:bundles
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: |
+            .next
+            !.next/cache
+          include-hidden-files: true
+          retention-days: 1
 
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm exec playwright test e2e/motion.spec.ts e2e/hero-3d.spec.ts e2e/hero-3d-no-webgl.spec.ts e2e/about-avatar.spec.ts
+  e2e:
+    name: e2e (${{ matrix.project }})
+    needs: checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { project: chromium, browser: chromium }
+          - { project: chromium-no-webgl, browser: chromium }
+          - { project: firefox, browser: firefox }
+          - { project: webkit, browser: webkit }
+          - { project: iphone-13, browser: webkit }
+          - { project: pixel-7, browser: chromium }
+          - { project: chromium-reduced-motion, browser: chromium }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
+      - run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
+      - run: pnpm exec playwright test --project=${{ matrix.project }}
+        env:
+          CI: true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-${{ matrix.project }}
+          path: test-results/
+          if-no-files-found: ignore
 
+  lhci:
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
       - run: pnpm lhci
-
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: lighthouse-report
           path: .lighthouseci/
+          include-hidden-files: true
           if-no-files-found: ignore

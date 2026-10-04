@@ -1,8 +1,12 @@
+import { linkTarget, trackAttrs } from "@/shared/analytics/events";
+import type { LinkKey } from "@/shared/content/links";
 import { cx } from "@/shared/lib/cx";
 
 export interface ExternalLink {
   href: string;
   label: string;
+  // The frontmatter link key; tags the click for analytics.
+  kind?: LinkKey;
 }
 
 export function ExternalLinks({
@@ -20,12 +24,15 @@ export function ExternalLinks({
 
   return (
     <ul lang={lang} className={cx("flex flex-wrap gap-x-6 gap-y-2", className)}>
-      {links.map(({ href, label }) => (
+      {links.map(({ href, label, kind }) => (
         <li key={href}>
           <a
             href={href}
             target="_blank"
             rel="noopener noreferrer"
+            {...(kind
+              ? trackAttrs("outbound_click", { target: linkTarget[kind] })
+              : {})}
             className="text-fg-muted hover:text-fg"
           >
             {label}

@@ -4,6 +4,7 @@ import { track } from "./track";
 describe("track", () => {
   afterEach(() => {
     delete window.umami;
+    delete window.__umamiQueue;
   });
 
   it("forwards to umami.track", () => {
@@ -15,8 +16,13 @@ describe("track", () => {
     expect(spy).toHaveBeenNthCalledWith(2, "locale_switch", { to: "vi" });
   });
 
-  it("does nothing when Umami is missing or blocked", () => {
+  it("queues the event while Umami is missing, and never throws", () => {
     expect(() => track("avatar_wave_click")).not.toThrow();
+    track("locale_switch", { to: "vi" });
+    expect(window.__umamiQueue).toEqual([
+      ["avatar_wave_click", undefined],
+      ["locale_switch", { to: "vi" }]
+    ]);
   });
 
   it("swallows errors thrown by Umami", () => {

@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { getTranslations } from "next-intl/server";
+import { trackAttrs } from "@/shared/analytics/events";
 import { motion } from "@/shared/animation/motion";
 import { site } from "@/shared/lib/site";
 import { Container } from "@/shared/ui/Container";
@@ -27,6 +28,7 @@ export async function SiteFooter() {
           {t("builtWith")} ·{" "}
           <a
             href={site.repo}
+            {...trackAttrs("outbound_click", { target: "repo" })}
             className="hover:text-fg underline underline-offset-4"
           >
             {t("source")}

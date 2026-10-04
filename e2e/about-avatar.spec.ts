@@ -5,6 +5,7 @@ import {
   gzipBytes,
   trackScripts
 } from "./helpers/scripts";
+import { stubUmami, umamiCalls } from "./helpers/umami";
 
 // Same cap as the Phase 5B avatar chunk (design D3); measured 25.5 KB after Phase 5C.
 const AVATAR_BUDGET_BYTES = 26 * 1024;
@@ -304,6 +305,7 @@ test.describe("About avatar on desktop", () => {
   test("hover sets the avatar cursor; a click in idle waves again", async ({
     page
   }) => {
+    await stubUmami(page.context());
     const phases = await recordPhases(page);
     await page.goto("/en");
     await heroLive(page);
@@ -326,6 +328,7 @@ test.describe("About avatar on desktop", () => {
       timeout: 6_000
     });
     expect((await phases()).slice(before)).toEqual(["wave", "idle"]);
+    expect(await umamiCalls(page)).toContainEqual(["avatar_wave_click", null]);
   });
 
   test("≤ 3 draw calls in About and ≤ 2 live WebGL contexts", async ({

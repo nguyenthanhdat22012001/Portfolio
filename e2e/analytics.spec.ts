@@ -1,4 +1,5 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+import { stubUmami, umamiCalls, waitForUmami, UMAMI_SCRIPT } from "./helpers/umami";
 
 test("Umami loads on the first input, never before (Lighthouse sees none)", async ({
   page
@@ -35,4 +36,144 @@ test("Speed Insights is not loaded off Vercel", async ({ page }) => {
   await page.goto("/en");
   await page.waitForLoadState("networkidle");
   expect(vercel).toEqual([]);
+});
+
+const EXTERNAL = /linkedin\.com|github\.com|apps\.shopify\.com|youtu\.be/;
+
+test.describe("events", () => {
+  test.beforeEach(async ({ context }) => {
+    await stubUmami(context);
+    // Outbound links open in new tabs; never hit the real sites.
+    await context.route(EXTERNAL, (route) =>
+      route.fulfill({ contentType: "text/html", body: "<title>stub</title>" })
+    );
+  });
+
+  async function home(page: Page, path = "/en") {
+    await page.goto(path);
+    await waitForUmami(page);
+  }
+
+  test("View work: cta_view_work, and it still scrolls to Work", async ({ page }) => {
+    await home(page);
+    await page.locator('#top a[data-track="cta_view_work"]').click();
+    await expect(page.locator("#work")).toBeInViewport();
+    expect(await umamiCalls(page)).toContainEqual(["cta_view_work", null]);
+  });
+
+  for (const location of ["hero", "contact"] as const) {
+    test(`${location} CV: cv_download and the file still downloads`, async ({ page }) => {
+      await home(page);
+      const link = page.locator(
+        `a[data-track="cv_download"][data-track-location="${location}"]`
+      );
+      const download = page.waitForEvent("download");
+      await link.click();
+      expect((await download).suggestedFilename()).toBe("cv.pdf");
+      expect(await umamiCalls(page)).toContainEqual(["cv_download", { location }]);
+    });
+  }
+
+  test("copy email: email_copy", async ({ page }) => {
+    await home(page);
+    await page.locator('button[data-track="email_copy"]').click();
+    expect(await umamiCalls(page)).toContainEqual(["email_copy", null]);
+  });
+
+  test("case study link: case_study_open, navigating client-side", async ({ page }) => {
+    await home(page);
+    await page.evaluate(() => {
+      (window as { __noReload?: boolean }).__noReload = true;
+    });
+    await page
+      .locator('a[data-track="case_study_open"][data-track-slug="swift-performance"]')
+      .click();
+    await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+    expect(
+      await page.evaluate(() => (window as { __noReload?: boolean }).__noReload)
+    ).toBe(true);
+    expect(await umamiCalls(page)).toContainEqual([
+      "case_study_open",
+      { slug: "swift-performance" }
+    ]);
+  });
+
+  for (const target of ["linkedin", "github", "repo"] as const) {
+    test(`${target} link: outbound_click`, async ({ page }) => {
+      await home(page);
+      const link = page.locator(
+        `a[data-track="outbound_click"][data-track-target="${target}"]`
+      );
+      await expect(link).toHaveCount(1);
+      if ((await link.getAttribute("target")) === "_blank") {
+        const popup = page.waitForEvent("popup");
+        await link.click();
+        await (await popup).close();
+      } else {
+        await link.click();
+        await page.waitForURL(EXTERNAL);
+        await page.goBack();
+      }
+      expect(await umamiCalls(page)).toContainEqual(["outbound_click", { target }]);
+    });
+  }
+
+  test("case study links carry their kind; App Store sends outbound_click", async ({
+    page
+  }) => {
+    await home(page, "/en/work/safebulk-bulk-editor");
+    const header = page.locator("main");
+    for (const target of ["appStore", "source", "demo"]) {
+      await expect(
+        header.locator(`a[data-track="outbound_click"][data-track-target="${target}"]`).first()
+      ).toBeAttached();
+    }
+    const popup = page.waitForEvent("popup");
+    await header
+      .locator('a[data-track="outbound_click"][data-track-target="appStore"]')
+      .first()
+      .click();
+    await (await popup).close();
+    expect(await umamiCalls(page)).toContainEqual([
+      "outbound_click",
+      { target: "appStore" }
+    ]);
+  });
+
+  test("locale switch: locale_switch survives the page load", async ({ page }) => {
+    await home(page);
+    const nav = page.getByRole("navigation", { name: "Language" });
+    await expect(nav.locator('a[aria-current="true"]')).not.toHaveAttribute(
+      "data-track",
+      /.*/
+    );
+    await nav.locator('a[data-track="locale_switch"][data-track-to="vi"]').click();
+    await expect(page).toHaveURL(/\/vi$/);
+    expect(await umamiCalls(page)).toContainEqual(["locale_switch", { to: "vi" }]);
+  });
+});
+
+test("with Umami blocked, tracked controls still work and nothing throws", async ({
+  page,
+  context
+}) => {
+  await context.route(UMAMI_SCRIPT, (route) => route.abort());
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/en");
+  await page.waitForLoadState("networkidle");
+  const download = page.waitForEvent("download");
+  await page.locator('a[data-track="cv_download"][data-track-location="hero"]').click();
+  await download;
+  await page.locator('button[data-track="email_copy"]').click();
+  expect(errors).toEqual([]);
+});
+
+test("no cookies are set", async ({ page, context }) => {
+  await stubUmami(context);
+  await page.goto("/en");
+  await waitForUmami(page);
+  await page.locator('button[data-track="email_copy"]').click();
+  await page.goto("/en/work/swift-performance");
+  expect(await context.cookies()).toEqual([]);
 });

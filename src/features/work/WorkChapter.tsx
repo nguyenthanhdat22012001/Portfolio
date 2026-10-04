@@ -1,4 +1,5 @@
 import { ViewTransition, type ReactNode } from "react";
+import { trackAttrs } from "@/shared/analytics/events";
 import { motion, type MotionName } from "@/shared/animation/motion";
 import { Link } from "@/shared/i18n/navigation";
 import { cx } from "@/shared/lib/cx";
@@ -78,6 +79,7 @@ export function WorkChapter({
             href={`/work/${slug}`}
             transitionTypes={["nav-forward"]}
             className="text-accent hover:underline"
+            {...trackAttrs("case_study_open", { slug })}
           >
             {readLabel}
             <span className="sr-only" lang={contentLang}>

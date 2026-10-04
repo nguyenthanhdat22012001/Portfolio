@@ -15,8 +15,12 @@ export function track<N extends AnalyticsEvent>(
 ): void {
   try {
     const props = args[0] as Record<string, string> | undefined;
-    if (props) window.umami?.track(name, props);
-    else window.umami?.track(name);
+    const umami = window.umami;
+    if (!umami || typeof umami.track !== "function") {
+      // Umami loads on the first input; umami-loader.ts flushes this queue.
+      (window.__umamiQueue ??= []).push([name, props]);
+    } else if (props) umami.track(name, props);
+    else umami.track(name);
   } catch {
     // Analytics must never break the page.
   }

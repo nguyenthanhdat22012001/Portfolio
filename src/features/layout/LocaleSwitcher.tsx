@@ -1,5 +1,6 @@
 "use client";
 
+import { trackAttrs } from "@/shared/analytics/events";
 import { getPathname, usePathname } from "@/shared/i18n/navigation";
 import { routing, type Locale } from "@/shared/i18n/routing";
 import { cx } from "@/shared/lib/cx";
@@ -34,6 +35,9 @@ export function LocaleSwitcher({
               href={getPathname({ href: pathname, locale })}
               hrefLang={locale}
               aria-current={locale === current ? "true" : undefined}
+              {...(locale === current
+                ? {}
+                : trackAttrs("locale_switch", { to: locale }))}
               className={cx(
                 "py-1",
                 locale === current

@@ -470,6 +470,28 @@
   }
 }
 
+/* 404 page (app/[locale]/not-found.tsx): the layered graph is always shown
+   here (the hero rules above hide it outside [data-hero-graph]), and one app
+   node drifts out of its layer. */
+.not-found-graph [data-graph-state="layered"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .not-found-graph [data-drift] {
+    animation: node-drift 6s ease-in-out infinite alternate;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+@keyframes node-drift {
+  to {
+    transform: translate(28px, -22px);
+  }
+}
+
 /* cls-demo skeleton shimmer: transform only, so it stays composited. */
 @keyframes shimmer {
   from {

@@ -222,7 +222,7 @@
     "back": "Quay lại blog"
   },
   "notFound": {
-    "title": "Không tìm thấy trang",
-    "description": "Trang bạn đang tìm không tồn tại."
+    "title": "Trang này đã lạc khỏi sơ đồ.",
+    "backHome": "Về trang chủ"
   }
 }

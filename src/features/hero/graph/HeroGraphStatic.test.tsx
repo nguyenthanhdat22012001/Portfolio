@@ -54,4 +54,16 @@ describe("HeroGraphStatic", () => {
     expect(svg.querySelector(".fill-silver")?.children).toHaveLength(6);
     expect(svg.querySelector(".fill-earth")?.children).toHaveLength(5);
   });
+
+  it("marks only the requested node as drifting", () => {
+    const markup = renderToStaticMarkup(
+      <HeroGraphStatic state="layered" driftNodeId="admin" />
+    );
+    const host = document.createElement("div");
+    host.innerHTML = markup;
+    expect(host.querySelectorAll("[data-drift]")).toHaveLength(1);
+    expect(
+      render("layered").svg.querySelectorAll("[data-drift]")
+    ).toHaveLength(0);
+  });
 });

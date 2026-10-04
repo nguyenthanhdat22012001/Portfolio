@@ -20,7 +20,14 @@ const NODE_CLASS: Record<Layer, string> = {
 // world scale, centre and node sizes, see STATIC_VIEW) and
 // fallback ("layered"). Both are always rendered; globals.css shows one. No
 // text inside: the DOM caption carries the meaning.
-export function HeroGraphStatic({ state }: { state: "chaos" | "layered" }) {
+export function HeroGraphStatic({
+  state,
+  driftNodeId
+}: {
+  state: "chaos" | "layered";
+  // 404 page only: this node drifts out of its layer (CSS, globals.css).
+  driftNodeId?: string;
+}) {
   const points = project2D(
     state === "chaos" ? chaosLayout(NODES) : layeredLayout(NODES),
     VIEW
@@ -65,6 +72,7 @@ export function HeroGraphStatic({ state }: { state: "chaos" | "layered" }) {
             return p ? (
               <circle
                 key={node.id}
+                data-drift={node.id === driftNodeId ? "" : undefined}
                 cx={p[0]}
                 cy={p[1]}
                 r={

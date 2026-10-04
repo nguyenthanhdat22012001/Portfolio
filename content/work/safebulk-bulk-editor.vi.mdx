@@ -1,0 +1,72 @@
+---
+slug: safebulk-bulk-editor
+title: "SafeBulk: xem trước kết quả rồi mới chỉnh hàng loạt"
+summary: "Đồng sáng lập một Shopify app chỉnh sửa sản phẩm hàng loạt và xây toàn bộ front end, ra MVP trong ~1.5 tháng với quy trình AI-first, dựa trên spec."
+description: "Cách mình đồng sáng lập một Shopify app chỉnh sửa sản phẩm hàng loạt, tự xây toàn bộ front end và ra MVP trong khoảng 1.5 tháng với quy trình AI-first."
+locale: vi
+role: "Đồng sáng lập · Front-End Developer duy nhất"
+team: "1 FE, 1 BE"
+period: { start: "2026-07" }
+stack: ["React 19", "TypeScript (strict)", "TanStack Router", "React Query", "Zustand", "Shopify Admin GraphQL API", "Docker", "Figma AI", "Claude"]
+metrics:
+  - { value: "~1.5 th", label: "từ ý tưởng đến MVP" }
+  - { value: "Live", label: "trên Shopify App Store" }
+  - { value: "3", label: "điểm yếu của đối thủ được giải quyết" }
+links:
+  appStore: "https://apps.shopify.com/safebulk-editor"
+  github: "https://github.com/nguyenthanhdat22012001/safe-bulk-shopify"
+  demo: "https://youtu.be/uaKi8VwIrKE"
+dateModified: 2026-10-04
+draft: true
+---
+
+## Bối cảnh
+
+SafeBulk là app chỉnh sửa sản phẩm hàng loạt cho merchant Shopify cần thay đổi nhiều sản phẩm cùng lúc. Mình làm app cùng một backend engineer: hai người, không có product manager, không có designer. Mình có ba lý do để bắt đầu: tự làm chủ một sản phẩm Shopify **từ đầu đến cuối**, chứ không chỉ làm tính năng trong app của người khác; có một sản phẩm thật, công khai để chứng minh kinh nghiệm Shopify của mình; và xem một quy trình **AI-first** có thể đưa cả một sản phẩm đi xa đến đâu, từ câu hỏi thị trường đến lúc lên App Store.
+
+## Vấn đề
+
+- **Còn chỗ nào trống?** Các ông lớn đã phủ phần lớn Shopify App Store. Tụi mình cần một ngách mà họ chưa chiếm.
+- **Chỉnh sửa hàng loạt rất rủi ro.** Một rule sai có thể đổi hàng trăm sản phẩm trước khi ai kịp nhận ra, và việc chỉnh sửa chạy thành job dài ở nền.
+- **Hai người, một sản phẩm.** Không có PM hay designer, mọi yêu cầu, màn hình và API contract đều do tụi mình quyết — phải đủ rõ để frontend và backend làm song song được.
+
+## Giải pháp
+
+**Tìm khoảng trống trước.** Tụi mình dùng Gemini và Claude để khảo sát các ngách Shopify mà các app lớn chưa chiếm lĩnh. Trong sáu ý tưởng tìm được, chỉnh sửa hàng loạt nổi bật: ít ông lớn, và các đối thủ hiện có đều có điểm yếu rõ ràng. Review 1–3 sao của họ (tổng hợp với sự hỗ trợ của AI) lặp đi lặp lại ba lời phàn nàn, và mỗi lời phàn nàn trở thành một tính năng:
+
+| Merchant phàn nàn điều gì | SafeBulk làm gì |
+| --- | --- |
+| **Undo hỏng giữa chừng**, để lại catalog nửa cũ nửa mới | **History log** ghi lại mọi lần chạy kèm trạng thái, và **undo** cho từng lần |
+| **Không có preview** — cấu hình rule, áp dụng mù quáng rồi cầu may | **Preview mọi thay đổi trước khi áp dụng**, mỗi dòng được gắn mức độ nghiêm trọng |
+| **UI chậm, rối** — danh sách khổng lồ và cả rừng dropdown | **Bulk Edit Wizard 3 bước** có hướng dẫn: lọc → cấu hình rule → preview |
+
+**Viết ra trước khi xây.** Mình viết spec nghiệp vụ chi tiết cho từng tính năng và thống nhất API contract với backend trước khi ai viết dòng code nào, để hai bên làm song song mà không phải làm lại. Mình phác màn hình bằng **Figma AI** để chốt layout và flow nhanh.
+
+**Xây AI-first, có rào chắn.** Mình xây toàn bộ front end với **Claude**: cùng AI lên kế hoạch tính năng, viết **project rules** mà AI phải tuân theo, và mọi tính năng đều bắt đầu từ spec làm đầu vào. MVP ra mắt trong **khoảng 1.5 tháng**:
+
+- **Bulk Edit Wizard** — lọc sản phẩm, cấu hình rule, preview với mức độ nghiêm trọng từng dòng, rồi áp dụng.
+- **Import/export CSV** — có preview kiểm tra để lỗi hiện ra trước khi bắt đầu import.
+- **History log** — mọi lần chạy kèm trạng thái, và undo.
+- **Plan gating** — các gói trả phí và hạn mức, gồm cả trường hợp chạm hạn mức khi job đang chạy.
+
+Các job chạy lâu được theo dõi bằng conditional polling của React Query, và trạng thái của chúng nằm trên URL, nên job vẫn còn sau khi refresh và có thể mở lại từ một đường link.
+
+**Ra mắt.** Mình đóng gói stage build front end bằng Dockerfile. App đã live trên Shopify App Store.
+
+## Kết quả
+
+| Chỉ số | Kết quả |
+| --- | --- |
+| Từ ý tưởng đến MVP | **~1.5 tháng**, team 2 người |
+| Trạng thái | **Live** trên Shopify App Store |
+| Điểm yếu của đối thủ được giải quyết | **3**: undo không đáng tin, không có preview, UI rối |
+| Front end | Tự xây một mình, React 19 + TypeScript strict |
+
+Code công khai trên GitHub, kèm video hướng dẫn các flow chính.
+
+## Bài học
+
+- **Thứ tự quan trọng hơn công cụ.** Nếu làm lại, mình vẫn đi đúng trình tự đó: thị trường và ngách → ý tưởng sản phẩm và danh sách tính năng → spec cho từng tính năng → mockup UI → rules cho AI → spec FE và BE riêng cho từng tính năng. Mỗi bước giúp bước sau nhanh hơn.
+- **AI tăng tốc phần việc bạn đã định nghĩa rõ.** Spec rõ ràng và project rules là thứ giúp quy trình AI-first nhanh chứ không hỗn loạn.
+- **Review xấu của đối thủ là một roadmap.** Ba lời phàn nàn lặp lại nhiều nhất quyết định ba tính năng quan trọng nhất.
+- **Làm chủ sản phẩm thay đổi câu hỏi bạn đặt ra.** Ở công ty, nhiều lựa chọn kiến trúc và thư viện đã được quyết sẵn. Ở đây mọi lựa chọn là của mình — kể cả câu hỏi thị trường đằng sau chúng.

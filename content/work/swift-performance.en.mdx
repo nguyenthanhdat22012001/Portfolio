@@ -15,7 +15,7 @@ metrics:
   - { value: "4", label: "SEO tools" }
 links:
   live: "https://apps.shopify.com/swift"
-dateModified: 2026-09-30
+dateModified: 2026-10-04
 ---
 
 ## Context
@@ -33,6 +33,8 @@ Swift is a Shopify embedded app that makes merchants' stores faster and easier t
 **1. JavaScript to TypeScript.** I co-implemented a senior-led migration of the entire codebase to TypeScript and into a Feature-Driven Architecture. Type errors moved from production to compile time, and each feature got its own folder that was easy to locate and extend.
 
 **2. A progress UI in real time.** I built the screen merchants watch while an optimization runs. Over **Pusher**, the backend streams each step — minifying CSS, minifying JS, lazy-loading images, cleaning up HTML — and the UI shows live step-by-step status with a clear success or failure for each one. Merchants can keep working in the app meanwhile. Because the backend stays the source of truth, a missed intermediate event after a reconnect is harmless: the next event brings the UI back to the right state.
+
+<Image src="/work/swift/progress.webp" width={1600} height={1000} alt="Swift's theme optimization screen showing live step-by-step progress (store name blurred)" />
 
 **3. SEO tools.** I built the interfaces for the standalone SEO tools: alt-text automation, meta tag editing, structured snippets and sitemap management.
 
@@ -53,5 +55,3 @@ Swift is a Shopify embedded app that makes merchants' stores faster and easier t
 - **Long-running work needs visible progress.** A step list with honest failure states builds more trust than a spinner that finishes silently.
 - **Types are worth the migration.** Moving to TypeScript paid off by catching mistakes at compile time instead of in front of merchants.
 - **Be clear about whose decision it was.** The migration was senior-led; my part was implementing it alongside them and owning the screens described here.
-
-{/* TODO(Dat): screenshot of the optimization progress screen (blur the store name). */}

@@ -285,3 +285,30 @@ test.describe("Swift and Oneloyalty visuals without JavaScript", () => {
     });
   }
 });
+
+test("SafeBulk renders its comparison and results tables", async ({ page }) => {
+  await page.goto("/en/work/safebulk-bulk-editor");
+  const tables = page.locator("article table");
+  await expect(tables).toHaveCount(2);
+  await expect(tables.first().locator("th").first()).toHaveText(
+    "What merchants complained about"
+  );
+});
+
+test("Swift renders its progress screenshot without layout shift", async ({
+  page
+}) => {
+  await page.goto("/en/work/swift-performance");
+  const image = page.locator('article img[src*="progress.webp"]');
+  await expect(image).toHaveAttribute("width", "1600");
+  await expect(image).toHaveAttribute("height", "1000");
+  await expect(image).toHaveAttribute("loading", "lazy");
+});
+
+test("the Oneloyalty chapter shows its frontmatter metrics", async ({ page }) => {
+  await page.goto("/en");
+  const stats = page.locator(
+    'article[data-chapter="oneloyalty-layered-architecture"] dl dd'
+  );
+  await expect(stats).toHaveText(["≤ 0.1", "2 → 1"]);
+});

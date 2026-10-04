@@ -1,0 +1,58 @@
+---
+slug: swift-performance
+title: "Swift: phản hồi trực tiếp khi tối ưu tốc độ cửa hàng"
+summary: "Cùng chuyển một Shopify app về SEO và tốc độ từ JavaScript sang TypeScript, xây UI tối ưu theo thời gian thực và giảm ~20% thời gian tải ban đầu."
+description: "Cách mình cùng chuyển một Shopify app về SEO và tốc độ từ JavaScript sang TypeScript, xây UI tối ưu theo thời gian thực và giảm ~20% thời gian tải ban đầu."
+locale: vi
+role: "Front-End Engineer (vào làm khi là fresher)"
+team: "Team 9 người (2 FE)"
+company: "FireGroup"
+period: { start: "2022-10", end: "2024-06" }
+stack: ["React", "TypeScript", "Redux Toolkit", "Formik + Yup", "Pusher", "Shopify Polaris"]
+metrics:
+  - { value: "−20%", label: "thời gian tải ban đầu" }
+  - { value: "JS → TS", label: "chuyển đổi codebase" }
+  - { value: "4", label: "công cụ SEO" }
+links:
+  live: "https://apps.shopify.com/swift"
+dateModified: 2026-10-04
+draft: true
+---
+
+## Bối cảnh
+
+Swift là một Shopify embedded app giúp cửa hàng của merchant nhanh hơn và dễ được tìm thấy hơn. App áp dụng các tối ưu tốc độ lên theme của storefront — minify JS/CSS, lazy-load ảnh, dọn dẹp HTML — và có thêm các công cụ SEO riêng. Mình vào team năm 2022 khi còn là fresher, team có chín người, hai người làm front end, và mình xây các màn hình admin mà merchant dùng để chạy những công cụ đó.
+
+## Vấn đề
+
+- **Codebase viết bằng JavaScript thuần.** Lỗi kiểu dữ liệu chỉ lộ ra lúc runtime, và tính năng thì khó tìm, khó mở rộng.
+- **Tối ưu chạy lâu và tác động thẳng lên cửa hàng đang hoạt động.** Minify và viết lại theme là một job dài ở backend. Không có phản hồi, merchant chỉ biết nhìn spinner, không rõ storefront đã đổi chưa, đang đổi hay đã lỗi.
+- **App tốc độ mà lại tải chậm.** Màn hình đầu tiên của chính app hiện ra quá lâu — không ổn cho một sản phẩm bán về tốc độ.
+
+## Giải pháp
+
+**1. Từ JavaScript sang TypeScript.** Mình cùng triển khai đợt chuyển toàn bộ codebase sang TypeScript và sang Feature-Driven Architecture, do senior dẫn dắt. Lỗi kiểu dữ liệu chuyển từ production về compile time, và mỗi tính năng có thư mục riêng, dễ tìm và dễ mở rộng.
+
+**2. UI tiến trình theo thời gian thực.** Mình xây màn hình merchant theo dõi khi một đợt tối ưu đang chạy. Qua **Pusher**, backend gửi từng bước — minify CSS, minify JS, lazy-load ảnh, dọn HTML — và UI hiện trạng thái từng bước trực tiếp, kèm kết quả thành công hay thất bại rõ ràng cho mỗi bước. Trong lúc đó merchant vẫn dùng app bình thường. Vì backend luôn là nguồn dữ liệu chuẩn, lỡ mất một event trung gian sau khi kết nối lại cũng không sao: event kế tiếp sẽ đưa UI về đúng trạng thái.
+
+<Image src="/work/swift/progress.webp" width={1600} height={1000} alt="Màn hình tối ưu theme của Swift hiển thị tiến trình từng bước trực tiếp (tên cửa hàng đã làm mờ)" />
+
+**3. Công cụ SEO.** Mình xây giao diện cho các công cụ SEO riêng: tự động alt text, chỉnh meta tag, structured snippets và quản lý sitemap.
+
+**4. Màn hình đầu nhanh hơn.** Nguyên nhân chậm lớn nhất hóa ra nằm ngoài front end, nhưng mình bắt đầu từ phần mình phụ trách: **code splitting** theo route (`React.lazy` + `Suspense`) để màn hình đầu không phải chờ cả app, và chuyển ảnh sang **WebP** đã tối ưu. Hai việc này giúp giảm khoảng **20%** thời gian tải trang ban đầu.
+
+## Kết quả
+
+| Chỉ số | Kết quả |
+| --- | --- |
+| Tải trang ban đầu | **Nhanh hơn ~20%** (code splitting + WebP) |
+| Codebase | **JavaScript → TypeScript**, Feature-Driven Architecture |
+| Phản hồi khi tối ưu | Trạng thái trực tiếp từng bước, có thành công/thất bại cho mỗi bước |
+| Công cụ SEO đã ra mắt | **4**: alt text, meta tag, structured snippets, sitemap |
+
+## Bài học
+
+- **Cải thiện phần mình kiểm soát được trong lúc điều tra.** Nguyên nhân gốc của việc khởi động chậm không nằm trong code của mình, nhưng code splitting vẫn giúp app nhanh hơn cho merchant trong lúc chờ.
+- **Việc chạy lâu cần thấy được tiến trình.** Một danh sách bước có trạng thái lỗi trung thực tạo nhiều niềm tin hơn một spinner lặng lẽ chạy xong.
+- **TypeScript đáng công chuyển đổi.** Chuyển sang TypeScript có lời vì bắt lỗi ngay lúc compile thay vì trước mặt merchant.
+- **Nói rõ quyết định là của ai.** Đợt chuyển đổi do senior dẫn dắt; phần của mình là cùng triển khai và phụ trách các màn hình kể trên.

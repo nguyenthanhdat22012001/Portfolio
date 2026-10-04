@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { cspViolations, watchCsp } from "./helpers/csp";
 import { trackLiveGl } from "./helpers/gl";
 import {
   collectConsoleProblems,
@@ -108,6 +109,22 @@ const tierStore = (page: Page, action: "read" | "drop") =>
 const dropTierToLow = (page: Page) => tierStore(page, "drop");
 
 test.describe("About avatar on desktop", () => {
+  test("no CSP violations once the avatar (meshopt WASM) has loaded", async ({
+    page
+  }) => {
+    await watchCsp(page);
+    const glb = trackGlb(page);
+    await page.goto("/en");
+    await heroLive(page);
+    await scrollSlotTo(page, 1.2);
+    await scrollSlotTo(page, 0.15);
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    expect(glb).toHaveLength(1);
+    expect(await cspViolations(page)).toEqual([]);
+  });
+
   test("initial load: no avatar code, no avatar.glb, nothing in the Hero", async ({
     page
   }) => {

@@ -2,7 +2,10 @@ import { defineRouting } from "next-intl/routing";
 
 export const routing = defineRouting({
   locales: ["en", "vi"],
-  defaultLocale: "en"
+  defaultLocale: "en",
+  // hreflang comes only from buildMetadata, which leaves fallback pages out.
+  // next-intl's Link response header would list every locale for every page.
+  alternateLinks: false
 });
 
 export type Locale = (typeof routing.locales)[number];

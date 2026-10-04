@@ -66,7 +66,10 @@ for (const slug of WORK_SLUGS) {
   test(`/vi/work/${slug}: canonical follows the VI publish state`, async ({
     page
   }) => {
-    await page.goto(`/vi/work/${slug}`);
+    const response = await page.goto(`/vi/work/${slug}`);
+    // hreflang comes only from the page's metadata; next-intl's Link header
+    // would list /vi even for a fallback page (Lighthouse SEO "canonical").
+    expect(response?.headers()["link"] ?? "").not.toContain("hreflang");
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       "href",
       viPublished(slug) ? vi : en

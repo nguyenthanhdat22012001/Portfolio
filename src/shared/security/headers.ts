@@ -39,6 +39,8 @@ export function contentSecurityPolicy(mode: SecurityEnv): string {
     [
       "connect-src",
       "'self'",
+      // GLTFLoader fetches embedded GLB textures from blob: URLs.
+      "blob:",
       // HMR websocket; Safari doesn't treat ws: as 'self'.
       ...(dev ? ["ws:"] : []),
       UMAMI,

@@ -47,6 +47,7 @@ describe("contentSecurityPolicy", () => {
     expect(csp).toMatch(
       /script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'.* https:\/\/cloud\.umami\.is https:\/\/va\.vercel-scripts\.com/
     );
+    expect(csp).toContain("connect-src 'self' blob:");
     expect(csp).toContain("https://api-gateway.umami.dev");
     expect(csp).toContain("https://vitals.vercel-insights.com");
   });

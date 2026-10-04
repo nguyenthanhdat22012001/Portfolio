@@ -342,3 +342,15 @@ These supersede the matching lines above.
   `resource-summary:script:size ≤ 150 KB` assertion, and measured once in
   the plan with a forced build. Both helpers live in
   `src/shared/analytics/config.ts` (not `umami-config.ts`).
+- **Umami loads on first input (Dat's decision, 2026-10-04).** Lighthouse's
+  `resource-summary:script:size ≤ 150 KB` counts third-party scripts, and
+  Umami's `script.js` (+2.3 KB) pushed `/en` over it. Like the motion chunk,
+  the Umami script is now injected by an inline loader on the first
+  `scroll` / `pointermove` / `keydown` / `touchstart`, so Lighthouse never
+  loads it and no threshold changes. The click listener queues events fired
+  before Umami arrives, and the loader flushes them once the script loads.
+  Cost: a visit with no input at all records no pageview. The script is a
+  plain server-rendered tag, not `next/script`, which ships a client runtime
+  (+1.6 KB initial JS).
+- **CSP `connect-src` includes `blob:`.** GLTFLoader fetches the avatar's
+  embedded GLB textures from `blob:` URLs.

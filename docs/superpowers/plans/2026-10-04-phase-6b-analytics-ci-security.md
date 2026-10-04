@@ -1072,7 +1072,10 @@ export async function stubUmami(context: BrowserContext) {
   );
 }
 
+// Umami loads on the first input (scroll, pointermove, keydown,
+// touchstart); a synthetic scroll on window triggers it in every engine.
 export async function waitForUmami(page: Page) {
+  await page.evaluate(() => window.dispatchEvent(new Event("scroll")));
   await page.waitForFunction(
     () => typeof (window as { umami?: { track?: unknown } }).umami?.track === "function"
   );

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   contentSecurityPolicy,
   securityEnv,
+  securityHeaderRules,
   securityHeaders,
   type SecurityEnv
 } from "./headers";
@@ -102,4 +103,19 @@ describe("securityHeaders", () => {
     expect(header("preview", "Strict-Transport-Security")).toBeUndefined();
     expect(header("development", "Strict-Transport-Security")).toBeUndefined();
   });
+});
+
+describe("securityHeaderRules", () => {
+  it.each(["development", "preview", "production"] as SecurityEnv[])(
+    "%s: full headers on documents, only nosniff on static assets",
+    (mode) => {
+      const rules = securityHeaderRules(mode);
+      expect(rules).toHaveLength(2);
+      expect(rules[0]!.headers).toEqual(securityHeaders(mode));
+      expect(rules[1]!.source).toBe("/_next/static/:path*");
+      expect(rules[1]!.headers).toEqual([
+        { key: "X-Content-Type-Options", value: "nosniff" }
+      ]);
+    }
+  );
 });

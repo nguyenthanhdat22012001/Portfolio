@@ -83,3 +83,18 @@ export function securityHeaders(
       : [])
   ];
 }
+
+// Lighthouse's resource-summary counts response headers in a script's
+// transfer size, and CSP/frame/permissions headers do nothing on a JS file.
+// Hashed assets under /_next/static/ therefore get only nosniff.
+export function securityHeaderRules(
+  mode: SecurityEnv
+): { source: string; headers: { key: string; value: string }[] }[] {
+  return [
+    { source: "/:path((?!_next/static/).*)", headers: securityHeaders(mode) },
+    {
+      source: "/_next/static/:path*",
+      headers: [{ key: "X-Content-Type-Options", value: "nosniff" }]
+    }
+  ];
+}

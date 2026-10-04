@@ -378,3 +378,17 @@ These supersede the matching lines above.
 - **No hreflang `Link` header from next-intl.** `alternateLinks: false`
   (`src/shared/i18n/routing.ts`); hreflang comes only from `buildMetadata`,
   so VI fallback pages no longer advertise a `/vi` alternate.
+- **Final-review fixes (2026-10-05).** These supersede the matching lines above.
+  - `connect-src` also allows `https://gateway.umami.is`, the live tracker's
+    default send host. An e2e test runs a vendored copy of the real tracker
+    under the real CSP.
+  - The loader sets `data-exclude-hash="true"` (in-page section links push
+    hash URLs) and also triggers on `pointerdown` and `click`.
+  - `lighthouse-preview` runs on Preview `success` (audit) and on
+    `failure`/`error` (fails). Branch protection also requires Vercel's own
+    commit status.
+  - next-intl `localeCookie: false`: no cookie at all. `/` redirects by
+    Accept-Language.
+  - Accepted limitation: Next 16 serves 404s as the `__next_error__` shell,
+    so the layout's inline scripts (theme, Umami loader, listener) don't run
+    on 404 pages. This is documented in README and CLAUDE.md.

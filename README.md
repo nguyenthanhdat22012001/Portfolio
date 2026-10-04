@@ -91,6 +91,15 @@ fallback page never advertises `/vi`. next-intl's `NEXT_LOCALE` cookie is off
 too (`localeCookie: false`): the locale lives in the URL, and `/` redirects by
 `Accept-Language` on every visit.
 
+**Known limitation: 404 pages.** A `notFound()` (unknown path, case study
+or post) returns status 404 with Next's `<html id="__next_error__">` shell;
+the client renders the localized not-found page from the RSC payload. The
+layout's inline scripts (theme, Umami loader, click tracking) never run on
+that document, even after "Back home" navigates client-side, so 404 visits
+are not tracked and use the default theme until the next full page load.
+This predates Phase 6B; fixing it needs a different 404 architecture (for
+example `global-not-found`).
+
 ## Content model
 
 Case studies are `content/work/<slug>.<locale>.mdx`, validated by
@@ -220,7 +229,8 @@ Accessibility ≥ 0.95, Best Practices = 1, SEO = 1, script size ≤ 150 KB,
 TBT ≤ 200 ms, CLS ≤ 0.1, all `error`. The exception is LCP ≤ 2500 ms, which is
 a `warn`: Lighthouse's simulated mobile LCP has a floor of 2.6–2.9 s, measured
 with the ~130 KB framework runtime and nothing else loading (every font and
-image blocked); the 2.7–3.4 s above is the normal page. The observed LCP is 40–80 ms. Real-user LCP from Speed Insights is the KPI.
+image blocked); the 2.7–3.4 s above is the normal page. The observed LCP is
+40–80 ms. Real-user LCP from Speed Insights is the KPI.
 
 **Preview bypass.** Preview deployments are protected, so the workflow sends
 the `x-vercel-protection-bypass` header (secret `VERCEL_AUTOMATION_BYPASS_SECRET`)

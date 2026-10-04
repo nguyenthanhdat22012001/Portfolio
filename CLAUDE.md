@@ -42,6 +42,13 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
 - The site sets no cookies: Umami is cookieless and next-intl's
   `localeCookie` is `false`. `e2e/analytics.spec.ts` checks every document
   response for `Set-Cookie`.
+- Accepted limitation: 404s (`notFound()`, including `[...rest]`) render
+  Next's `<html id="__next_error__">` shell on the server, and the client
+  renders the localized not-found page from the RSC payload. Inline scripts
+  in the layout (theme, Umami loader, tracking listener) never run on that
+  document, even after a client navigation away from it, so 404 visits are
+  untracked and use the default theme until a full page load. A fix needs a
+  different 404 architecture (e.g. `global-not-found`), not a layout tweak.
 - `umamiConfig()` decides where Umami may send (Vercel production only, via
   `data-domains`); `speedInsightsEnabled()` renders Speed Insights only on
   Vercel. Vercel Web Analytics stays off.

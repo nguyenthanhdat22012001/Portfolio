@@ -18,6 +18,9 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/dat-nguyen-b26744277",
   github: "https://github.com/nguyenthanhdat22012001",
   cv: "/cv.pdf",
+  // Feature flags. Turning `blog` on (with at least one post in
+  // content/blog) needs no other code change.
+  features: { blog: false as boolean },
   // Lighthouse (mobile) for /en. Update from the latest LHCI report
   // (.lighthouseci/ locally, or the "lighthouse-report" CI artifact).
   lighthouse: {

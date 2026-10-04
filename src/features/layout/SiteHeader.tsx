@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { getPosts } from "@/shared/content";
+import { isBlogEnabled } from "@/shared/content";
 import { Link } from "@/shared/i18n/navigation";
 import type { Locale } from "@/shared/i18n/routing";
 import { ThemeToggle } from "@/shared/theme/ThemeToggle";
@@ -12,7 +12,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
   const t = await getTranslations("nav");
   const tLocales = await getTranslations("locales");
   const tTheme = await getTranslations("theme");
-  const hasPosts = getPosts(locale).length > 0;
+  const showBlog = isBlogEnabled();
 
   const linkClass = "text-fg-muted hover:text-fg font-mono text-sm";
 
@@ -25,7 +25,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
           </Link>
         </li>
       ))}
-      {hasPosts ? (
+      {showBlog ? (
         <li>
           <Link href="/blog" className={linkClass}>
             {t("blog")}

@@ -1,5 +1,6 @@
 import { blog, work as allWork, type Blog, type Work } from "#site/content";
 import type { Locale } from "@/shared/i18n/routing";
+import { site } from "@/shared/lib/site";
 import {
   assertDefaultLocale,
   assertUnique,
@@ -66,6 +67,12 @@ export function getPostLocales(slug: string): Locale[] {
 
 export function hasPosts(): boolean {
   return blog.length > 0;
+}
+
+// The blog shows (nav link, routes, sitemap) only when switched on AND a
+// post exists, so the site never shows an empty Blog page.
+export function isBlogEnabled(): boolean {
+  return site.features.blog && hasPosts();
 }
 
 // Every real document in every locale — the sitemap's source.

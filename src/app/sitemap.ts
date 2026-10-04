@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts, getAllWork } from "@/shared/content";
+import { getAllPosts, getAllWork, isBlogEnabled } from "@/shared/content";
 import { buildSitemap } from "@/shared/seo/sitemap";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -9,10 +9,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       locale: doc.locale,
       lastModified: doc.dateModified ?? doc.period.start
     })),
-    posts: getAllPosts().map((doc) => ({
-      slug: doc.slug,
-      locale: doc.locale,
-      lastModified: doc.dateModified ?? doc.datePublished
-    }))
+    // A hidden blog contributes nothing; buildSitemap then omits /blog.
+    posts: isBlogEnabled()
+      ? getAllPosts().map((doc) => ({
+          slug: doc.slug,
+          locale: doc.locale,
+          lastModified: doc.dateModified ?? doc.datePublished
+        }))
+      : []
   });
 }

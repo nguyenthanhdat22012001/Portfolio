@@ -82,8 +82,7 @@ for (const slug of WORK_SLUGS) {
 for (const [path, image] of [
   ["/en", "/en/opengraph-image"],
   ["/vi", "/vi/opengraph-image"],
-  ["/en/work/swift-performance", "/en/work/swift-performance/opengraph-image"],
-  ["/en/blog", "/en/opengraph-image"]
+  ["/en/work/swift-performance", "/en/work/swift-performance/opengraph-image"]
 ] as const) {
   test(`${path} has a working og:image and twitter card`, async ({
     page,
@@ -102,14 +101,6 @@ for (const [path, image] of [
     expect(response.headers()["content-type"]).toBe("image/png");
   });
 }
-
-test("the empty blog index is noindex", async ({ page }) => {
-  await page.goto("/en/blog");
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-    "content",
-    /noindex/
-  );
-});
 
 test("the home page is indexable", async ({ page }) => {
   await page.goto("/en");

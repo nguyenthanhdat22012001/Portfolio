@@ -27,6 +27,11 @@ describe("workFrontmatter", () => {
     expect(parse({})).toBe(true);
   });
 
+  it("accepts an optional boolean draft flag", () => {
+    expect(parse({ draft: true })).toBe(true);
+    expect(parse({ draft: "yes" })).toBe(false);
+  });
+
   it("accepts an open-ended period and no team or company", () => {
     expect(
       parse({ period: { start: "2026-07" }, team: undefined, company: undefined })

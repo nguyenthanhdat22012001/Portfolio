@@ -1,4 +1,4 @@
-import { blog, work, type Blog, type Work } from "#site/content";
+import { blog, work as allWork, type Blog, type Work } from "#site/content";
 import type { Locale } from "@/shared/i18n/routing";
 import {
   assertDefaultLocale,
@@ -8,10 +8,14 @@ import {
   localeParams,
   newestFirst,
   selectForLocale,
+  withoutDrafts,
   type Localized
 } from "./localize";
 
-// Fails the build loudly instead of silently shadowing a translation.
+const work = withoutDrafts(allWork, process.env.NODE_ENV !== "production");
+
+// Fails the build loudly instead of silently shadowing a translation. Runs on
+// the filtered list, so an English draft fails the production build.
 assertUnique("work", work);
 assertUnique("blog", blog);
 assertDefaultLocale("work", work);

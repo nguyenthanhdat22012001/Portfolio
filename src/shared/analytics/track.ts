@@ -2,6 +2,7 @@ import type { AnalyticsEvent, EventArgs } from "./events";
 
 declare global {
   interface Window {
+    __umamiQueue?: [string, Record<string, string> | undefined][];
     umami?: { track(name: string, data?: Record<string, string>): unknown };
   }
 }

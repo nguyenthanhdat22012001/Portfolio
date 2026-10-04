@@ -1,10 +1,21 @@
 import { expect, test } from "@playwright/test";
 
-test("the Umami script is production-shaped and never targets this host", async ({
+test("Umami loads on the first input, never before (Lighthouse sees none)", async ({
   page
 }) => {
+  const src = "https://cloud.umami.is/script.js";
+  const requests: string[] = [];
+  await page.route(src, (route) => {
+    requests.push(route.request().url());
+    return route.fulfill({ contentType: "application/javascript", body: "" });
+  });
   await page.goto("/en");
-  const script = page.locator('script[src="https://cloud.umami.is/script.js"]');
+  await page.waitForLoadState("networkidle");
+  const script = page.locator(`script[src="${src}"]`);
+  await expect(script).toHaveCount(0);
+  expect(requests).toEqual([]);
+
+  await page.evaluate(() => window.dispatchEvent(new Event("scroll")));
   await expect(script).toHaveCount(1);
   await expect(script).toHaveAttribute("data-website-id", /.+/);
   await expect(script).toHaveAttribute(

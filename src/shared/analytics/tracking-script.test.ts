@@ -16,6 +16,7 @@ describe("trackingScript", () => {
   afterEach(() => {
     document.body.innerHTML = "";
     delete window.umami;
+    delete window.__umamiQueue;
   });
 
   it("sends a click inside a data-track element with its props", () => {
@@ -30,7 +31,8 @@ describe("trackingScript", () => {
   it("sends a prop-less event with the name only", () => {
     const spy = vi.fn();
     window.umami = { track: spy };
-    document.body.innerHTML = '<a href="#work" data-track="cta_view_work">Work</a>';
+    document.body.innerHTML =
+      '<a href="#work" data-track="cta_view_work">Work</a>';
     click(document.querySelector("a")!);
     expect(spy).toHaveBeenCalledWith("cta_view_work");
     expect(spy.mock.calls[0]).toHaveLength(1);
@@ -51,14 +53,20 @@ describe("trackingScript", () => {
     expect(click(document.querySelector("a")!).defaultPrevented).toBe(false);
   });
 
-  it("does nothing without Umami and survives a throwing track", () => {
-    document.body.innerHTML = '<button data-track="email_copy">Copy</button>';
+  it("queues the click without Umami and survives a throwing track", () => {
+    document.body.innerHTML =
+      '<button data-track="email_copy">Copy</button><a href="#c" data-track="cv_download" data-track-location="hero">CV</a>';
     expect(() => click(document.querySelector("button")!)).not.toThrow();
-    window.umami = {
-      track: () => {
-        throw new Error("blocked");
-      }
-    };
+    click(document.querySelector("a")!);
+    expect(window.__umamiQueue).toEqual([
+      ["email_copy", undefined],
+      ["cv_download", { location: "hero" }]
+    ]);
+    const spy = vi.fn(() => {
+      throw new Error("blocked");
+    });
+    window.umami = { track: spy };
     expect(() => click(document.querySelector("button")!)).not.toThrow();
+    expect(spy).toHaveBeenCalled();
   });
 });

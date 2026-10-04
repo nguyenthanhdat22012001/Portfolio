@@ -1,11 +1,8 @@
 import { SiteFooter } from "@/features/layout/SiteFooter";
 import { SiteHeader } from "@/features/layout/SiteHeader";
-import {
-  UMAMI_SCRIPT_SRC,
-  speedInsightsEnabled,
-  umamiConfig
-} from "@/shared/analytics/config";
+import { speedInsightsEnabled, umamiConfig } from "@/shared/analytics/config";
 import { trackingScript } from "@/shared/analytics/tracking-script";
+import { umamiLoaderScript } from "@/shared/analytics/umami-loader";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { getSiteUrl } from "@/shared/seo/site-url";
 import { fontMono, fontSans } from "@/shared/theme/fonts";
@@ -73,11 +70,7 @@ export default async function LocaleLayout({
         {umami ? (
           <>
             <script
-              src={UMAMI_SCRIPT_SRC}
-              defer
-              data-website-id={umami.websiteId}
-              data-domains={umami.domains}
-              data-do-not-track="true"
+              dangerouslySetInnerHTML={{ __html: umamiLoaderScript(umami) }}
             />
             <script dangerouslySetInnerHTML={{ __html: trackingScript }} />
           </>

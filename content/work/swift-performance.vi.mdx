@@ -35,7 +35,7 @@ Swift là một Shopify embedded app giúp cửa hàng của merchant nhanh hơn
 
 **2. UI tiến trình theo thời gian thực.** Mình xây màn hình merchant theo dõi khi một đợt tối ưu đang chạy. Qua **Pusher**, backend gửi từng bước — minify CSS, minify JS, lazy-load ảnh, dọn HTML — và UI hiện trạng thái từng bước trực tiếp, kèm kết quả thành công hay thất bại rõ ràng cho mỗi bước. Trong lúc đó merchant vẫn dùng app bình thường. Vì backend luôn là nguồn dữ liệu chuẩn, lỡ mất một event trung gian sau khi kết nối lại cũng không sao: event kế tiếp sẽ đưa UI về đúng trạng thái.
 
-<Image src="/work/swift/progress.webp" width={1600} height={1000} alt="Màn hình tối ưu theme của Swift hiển thị tiến trình từng bước trực tiếp (tên cửa hàng đã làm mờ)" />
+<Image src="/work/swift/progress.webp" width={1600} height={822} alt="Màn hình tối ưu theme của Swift hiển thị tiến trình từng bước trực tiếp (tên cửa hàng đã làm mờ)" />
 
 **3. Công cụ SEO.** Mình xây giao diện cho các công cụ SEO riêng: tự động alt text, chỉnh meta tag, structured snippets và quản lý sitemap.
 

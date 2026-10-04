@@ -301,7 +301,7 @@ test("Swift renders its progress screenshot without layout shift", async ({
   await page.goto("/en/work/swift-performance");
   const image = page.locator('article img[src*="progress.webp"]');
   await expect(image).toHaveAttribute("width", "1600");
-  await expect(image).toHaveAttribute("height", "1000");
+  await expect(image).toHaveAttribute("height", "822");
   await expect(image).toHaveAttribute("loading", "lazy");
 });
 

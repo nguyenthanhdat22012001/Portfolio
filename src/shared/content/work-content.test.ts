@@ -100,3 +100,33 @@ describe("VI case studies mirror their EN source", () => {
     );
   });
 });
+
+// Canvas size of a VP8X WebP (24-bit little-endian, stored minus one).
+function webpSize(file: string): { width: number; height: number } {
+  const bytes = readFileSync(file);
+  if (bytes.toString("ascii", 12, 16) !== "VP8X") {
+    throw new Error(`${file}: expected an extended (VP8X) WebP`);
+  }
+  return {
+    width: bytes.readUIntLE(24, 3) + 1,
+    height: bytes.readUIntLE(27, 3) + 1
+  };
+}
+
+describe("MDX images", () => {
+  it.each(slugs.flatMap((s) => [[s, "en"], [s, "vi"]] as const))(
+    "%s.%s declares each image's real size (no layout shift)",
+    (slug, locale) => {
+      const images = read(slug, locale).matchAll(
+        /<Image\s+src="([^"]+)"\s+width=\{(\d+)\}\s+height=\{(\d+)\}/g
+      );
+      for (const [, src, width, height] of images) {
+        const file = path.join(process.cwd(), "public", src!);
+        expect([src, webpSize(file)]).toEqual([
+          src,
+          { width: Number(width), height: Number(height) }
+        ]);
+      }
+    }
+  );
+});

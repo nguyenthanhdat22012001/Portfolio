@@ -26,10 +26,12 @@ test("every page sends the security headers", async ({ page, request }) => {
   }
 
   // Hashed static assets get only nosniff (document-only headers skipped).
-  const src = await page
-    .locator('script[src*="/_next/static/"][src$=".js"]')
-    .first()
-    .getAttribute("src");
+  // Vercel may append ?dpl=… to static URLs, so match on the URL path.
+  const srcs = await page
+    .locator('script[src*="/_next/static/"]')
+    .evaluateAll((els) => els.map((el) => (el as HTMLScriptElement).src));
+  const src = srcs.find((s) => new URL(s).pathname.endsWith(".js"));
+  expect(src).toBeDefined();
   const asset = await request.get(src!);
   expect(asset.ok()).toBe(true);
   expect(asset.headers()["x-content-type-options"]).toBe("nosniff");

@@ -79,7 +79,7 @@ below hold; initial JS ≤ 150 KB gzip and lazy-chunk budgets still met.
 | `cv_download` | Hero CV link, Contact CV link | `trackAttrs` | `location`: `hero` / `contact` |
 | `email_copy` | `CopyEmailButton` | `trackAttrs` | — |
 | `case_study_open` | `WorkChapter` "Read" link | `trackAttrs` | `slug` |
-| `outbound_click` | Contact LinkedIn + GitHub, footer repo link, `ExternalLinks` | `trackAttrs` | `target`: `linkedin` / `github` / `repo` / `live` / `appStore` / `demo` |
+| `outbound_click` | Contact LinkedIn + GitHub, footer repo link, `ExternalLinks` | `trackAttrs` | `target`: `linkedin` / `github` / `repo` / `live` / `appStore` / `demo` / `source` |
 | `avatar_wave_click` | `AvatarHitProxy` `onClick` (canvas, no DOM element) | `track()` | — |
 | `locale_switch` | `LocaleSwitcher`, non-current locale link only | `trackAttrs` | `to`: `en` / `vi` |
 
@@ -295,3 +295,50 @@ Each step is one or more commits, green before the next:
   (Production only).
 - Enable Speed Insights for the project in the Vercel dashboard.
 - Apply branch protection on `master` with the README command.
+
+## Refinements made while planning
+
+These supersede the matching lines above.
+
+- **Analytics files.** `events.ts` holds the types and `trackAttrs` (server
+  code, plus `LocaleSwitcher`). `track()` lives alone in
+  `src/shared/analytics/track.ts`, so the `about-avatar` chunk imports only
+  that file and no module is shared with the initial bundle.
+  `CopyEmailButton` takes its `data-track` attributes as props from
+  `ContactSection`.
+- **Outbound targets.** `linkedin` and `github` (Contact profile links),
+  `repo` (footer), and for `ExternalLinks`: `appStore`, `live`, `demo`, and
+  `source` for the frontmatter `github` key, so a case study's source link
+  is never confused with the profile link. `ExternalLink.kind` is the
+  `LinkKey` from `shared/content/links.ts`.
+- **Preview LHCI config.** No `lighthouserc.preview.cjs`. The workflow runs
+  `lhci collect --no-lighthouserc` with the URLs and `extraHeaders` on the
+  command line, then `lhci assert --config=./lighthouserc.json`, so the
+  assertions still have one source.
+- **Bypass header scope.** Lighthouse `extraHeaders` and Playwright
+  `extraHTTPHeaders` go with every request, including the
+  `cloud.umami.is` script request. Accepted risk: the secret only opens
+  previews of a public site, and Umami never sends from a preview. The
+  README says so.
+- **Where specs run.**
+  - `@webgl` stays a tag for single tests (the motion-chunk budget).
+  - WebGL spec files (`hero-3d`, `hero-3d-visual`, `about-avatar`,
+    `about-avatar-visual`) are matched by file, as `chromium-no-webgl`
+    already is.
+  - `@motion` tests are excluded from `chromium-reduced-motion`.
+  - `@desktop` (desktop layout, mouse or wheel input) is excluded from
+    `iphone-13` and `pixel-7`.
+- **Avatar event and avatar CSP check** live in `about-avatar.spec.ts`
+  (WebGL-only, has the scroll and phase helpers), not in
+  `analytics.spec.ts` or `security.spec.ts`.
+- **Artifact upload** of `.next` sets `include-hidden-files: true`
+  (`actions/upload-artifact@v4` skips dot-directories otherwise).
+- **Speed Insights only on Vercel.** Off Vercel, `<SpeedInsights />`
+  requests `/_vercel/speed-insights/script.js`, which returns 404 under
+  `pnpm start`. That console error would break the "no console problems"
+  e2e checks and Lighthouse Best Practices = 100. The layout renders it only
+  when `speedInsightsEnabled()` is true (`VERCEL === "1"` at build time).
+  Its bundle cost is enforced on the real preview by the preview LHCI
+  `resource-summary:script:size ≤ 150 KB` assertion, and measured once in
+  the plan with a forced build. Both helpers live in
+  `src/shared/analytics/config.ts` (not `umami-config.ts`).

@@ -1,9 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { cx } from "@/shared/lib/cx";
 
-// Below md the panes size to their content; at md+ they are bounded by the
-// 16:10 frame. motion/cls-demo.ts only transforms, clips, and fades inside
-// them. The static markup is each pane's final
+// Below md the panes size to their content; at md+ each pane is at least as
+// tall as a 16:10 frame of the demo's width (62.5cqw) and grows when its
+// content needs more. An aspect-ratio on the grid would not grow in Firefox
+// or Safari, which clip the panes instead. motion/cls-demo.ts only
+// transforms, clips, and fades inside them. The static markup is each pane's final
 // state, which is what mobile, reduced-motion, and no-JS visitors see.
 function Pane({
   layer,
@@ -19,7 +21,7 @@ function Pane({
     <div
       aria-hidden="true"
       data-layer={layer}
-      className="rounded-card border-border bg-bg relative flex flex-col gap-3 overflow-hidden border p-4"
+      className="rounded-card border-border bg-bg relative flex flex-col gap-3 overflow-hidden border p-4 md:min-h-[62.5cqw]"
     >
       <span
         className={cx(
@@ -78,10 +80,7 @@ export async function ClsDemo({ cls }: { cls: string }) {
   const t = await getTranslations("work.oneloyalty.cls");
 
   return (
-    <div
-      data-cls-demo=""
-      className="grid gap-4 md:aspect-[16/10] md:grid-cols-2"
-    >
+    <div data-cls-demo="" className="@container grid gap-4 md:grid-cols-2">
       <p className="sr-only">{t("summary", { cls })}</p>
       <Pane layer="before" label={t("before")} shiftLabel={t("shift")} />
       <Pane layer="after" label={t("after", { cls })} />

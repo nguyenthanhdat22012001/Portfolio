@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { motion } from "@/shared/animation/motion";
 import { site } from "@/shared/lib/site";
 import { Container } from "@/shared/ui/Container";
+import { lighthouseToShow } from "./lighthouse";
 
 const categories = [
   "performance",
@@ -13,6 +14,7 @@ const categories = [
 
 export async function SiteFooter() {
   const t = await getTranslations("footer");
+  const scores = lighthouseToShow(site.lighthouse, new Date());
 
   return (
     <footer className="border-border border-t" {...motion("footer-reveal")}>
@@ -22,20 +24,30 @@ export async function SiteFooter() {
       >
         <p>
           {t("copyright", { year: new Date().getFullYear() })} ·{" "}
-          {t("builtWith")}
+          {t("builtWith")} ·{" "}
+          <a
+            href={site.repo}
+            className="hover:text-fg underline underline-offset-4"
+          >
+            {t("source")}
+          </a>
         </p>
-        <p>
-          {t("lighthouse.title")}{" "}
-          {categories.map((category, index) => (
-            <Fragment key={category}>
-              {index > 0 ? <span aria-hidden="true"> · </span> : null}
-              <span>
-                <span className="sr-only">{t(`lighthouse.${category}`)} </span>
-                {site.lighthouse[category]}
-              </span>
-            </Fragment>
-          ))}
-        </p>
+        {scores ? (
+          <p>
+            {t("lighthouse.title")}{" "}
+            {categories.map((category, index) => (
+              <Fragment key={category}>
+                {index > 0 ? <span aria-hidden="true"> · </span> : null}
+                <span>
+                  <span className="sr-only">
+                    {t(`lighthouse.${category}`)}{" "}
+                  </span>
+                  {scores[category]}
+                </span>
+              </Fragment>
+            ))}
+          </p>
+        ) : null}
       </Container>
     </footer>
   );

@@ -202,6 +202,7 @@
   "footer": {
     "copyright": "© {year} Nguyen Thanh Dat",
     "builtWith": "Built with Next.js, GSAP, Three.js",
+    "source": "Source on GitHub",
     "lighthouse": {
       "title": "Lighthouse",
       "performance": "Performance",

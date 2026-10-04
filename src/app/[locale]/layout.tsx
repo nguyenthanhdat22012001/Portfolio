@@ -1,9 +1,16 @@
 import { SiteFooter } from "@/features/layout/SiteFooter";
 import { SiteHeader } from "@/features/layout/SiteHeader";
+import {
+  UMAMI_SCRIPT_SRC,
+  speedInsightsEnabled,
+  umamiConfig
+} from "@/shared/analytics/config";
+import { trackingScript } from "@/shared/analytics/tracking-script";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { getSiteUrl } from "@/shared/seo/site-url";
 import { fontMono, fontSans } from "@/shared/theme/fonts";
 import { themeScript } from "@/shared/theme/theme-script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
@@ -40,6 +47,8 @@ export default async function LocaleLayout({
     notFound();
   }
 
+  const umami = umamiConfig();
+
   return (
     <html
       lang={locale}
@@ -61,6 +70,19 @@ export default async function LocaleLayout({
           <SiteFooter />
           <MotionRoot />
         </NextIntlClientProvider>
+        {umami ? (
+          <>
+            <script
+              src={UMAMI_SCRIPT_SRC}
+              defer
+              data-website-id={umami.websiteId}
+              data-domains={umami.domains}
+              data-do-not-track="true"
+            />
+            <script dangerouslySetInnerHTML={{ __html: trackingScript }} />
+          </>
+        ) : null}
+        {speedInsightsEnabled() ? <SpeedInsights /> : null}
       </body>
     </html>
   );

@@ -144,6 +144,7 @@
           "Zustand",
           "Redux Toolkit",
           "REST",
+          "GraphQL",
           "WebSockets (Pusher)"
         ]
       },

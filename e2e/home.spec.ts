@@ -144,17 +144,30 @@ for (const locale of ["en", "vi"] as const) {
   });
 }
 
-test("Skills shows the nine CV v2 groups without GraphQL", async ({ page }) => {
+test("Skills shows the nine CV v2 groups, GraphQL under State & Data", async ({ page }) => {
   await page.goto("/en");
   const skills = page.locator("section#skills");
   await expect(skills.locator("h2")).toHaveText("Toolbox");
   await expect(skills.locator("h3")).toHaveCount(9);
   await expect(skills.locator("h3").first()).toHaveText("Languages & Core");
   await expect(skills.locator("h3").last()).toHaveText("Also working with");
-  await expect(skills).not.toContainText("GraphQL");
+  await expect(
+    skills.locator("h3", { hasText: "State & Data" }).locator("..")
+  ).toContainText("GraphQL");
   await expect(
     skills.locator("li", { hasText: "Next.js (App Router, SSR)" })
   ).toContainText("— this site");
+});
+
+test("Vietnamese Skills lists GraphQL under State & dữ liệu", async ({
+  page
+}) => {
+  await page.goto("/vi");
+  await expect(
+    page
+      .locator("section#skills h3", { hasText: "State & dữ liệu" })
+      .locator("..")
+  ).toContainText("GraphQL");
 });
 
 test("Skills group names are translated, tag names are not", async ({

@@ -354,3 +354,25 @@ These supersede the matching lines above.
   (+1.6 KB initial JS).
 - **CSP `connect-src` includes `blob:`.** GLTFLoader fetches the avatar's
   embedded GLB textures from `blob:` URLs.
+- **LCP is a Lighthouse warning; real users decide (Dat, 2026-10-05).**
+  Lantern's simulated mobile LCP stays at 2.6–2.9 s on this stack even with
+  every font and image blocked (the ~130 KB React/Next runtime is in its
+  LCP graph); observed LCP is 40–80 ms. `largest-contentful-paint ≤ 2500`
+  is asserted at `warn` level in `lighthouserc.json`, so both Lighthouse runs
+  report it without blocking. The launch KPI (LCP < 2.5 s) is checked with
+  real-user data from Speed Insights after launch. Every other assertion,
+  including performance ≥ 0.9 and TBT ≤ 200, stays `error`.
+- **Symbol glyphs use a local system font (Dat, 2026-10-05).** → ↗ ↓ ← ≤ −
+  in the copy pulled Open Sans and Google Sans Code "math"/"symbols" faces
+  (65–150 KB per page) into the LCP graph. A narrow `@font-face` with
+  `local()` sources and a `unicode-range` limited to those code points goes
+  first in the font stacks, so those characters render with a system font
+  and the extra faces are never fetched. Copy and markup stay as they are;
+  the glyphs look slightly different per platform.
+- **Header links don't prefetch on load (Dat, 2026-10-05).** `prefetch={false}`
+  on the `SiteHeader` links to Home. Next 16 still prefetches on hover. This
+  keeps case studies under the Lighthouse script-size limit (the home chunk,
+  4.7 KB, was prefetched after hydration).
+- **No hreflang `Link` header from next-intl.** `alternateLinks: false`
+  (`src/shared/i18n/routing.ts`); hreflang comes only from `buildMetadata`,
+  so VI fallback pages no longer advertise a `/vi` alternate.

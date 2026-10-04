@@ -13,6 +13,7 @@ const eslintConfig = [
       "test-results/**",
       ".velite/**",
       ".lighthouseci/**",
+      "e2e/fixtures/**",
       "next-env.d.ts"
     ]
   },

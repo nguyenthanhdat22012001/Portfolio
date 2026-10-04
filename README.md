@@ -133,13 +133,16 @@ To launch the blog, set it to `true` and add posts as
 
 ## Analytics
 
-- **Umami Cloud**, cookieless, with `data-do-not-track`. It sends only from
-  the Vercel production build (`data-domains` is the site host; previews and
-  local builds get a never-matching domain). It is injected by an inline loader
-  on the first `scroll`, `pointermove`, `keydown` or `touchstart`, like the
-  motion chunk, so Lighthouse never loads it. Clicks before it arrives are
-  queued on `window.__umamiQueue` and flushed once it loads. Cost: a visit with
-  no input at all records no pageview. It is not `next/script`, which adds
+- **Umami Cloud**, with `data-do-not-track` and `data-exclude-hash` (in-page
+  anchors push their hash, which Umami would otherwise count as pageviews). It
+  sends only from the Vercel production build (`data-domains` is the site
+  host; previews and local builds get a never-matching domain), to
+  `gateway.umami.is/api/send`. It is injected by an inline loader on the first
+  `scroll`, `pointermove`, `pointerdown`, `keydown`, `touchstart` or `click`
+  (a screen reader's virtual cursor may only click), like the motion chunk, so
+  Lighthouse never loads it. Clicks before it arrives are queued on
+  `window.__umamiQueue` and flushed once it loads. Cost: a visit with no input
+  at all records no pageview. It is not `next/script`, which adds
   1.6 KB to the initial JS.
 - **Vercel Speed Insights** renders only on Vercel (`VERCEL=1`); elsewhere its
   script URL returns 404. Its client component still adds about 1.25 KB gzip
@@ -169,7 +172,11 @@ Built per environment in `src/shared/security/headers.ts` and applied by
 `Strict-Transport-Security` in production only. The CSP is static (no nonces,
 so pages stay static). Development adds `'unsafe-eval'` and `ws:`; production
 adds HSTS and `upgrade-insecure-requests`. `connect-src` includes `blob:`
-because `GLTFLoader` fetches the avatar's embedded textures from blob URLs.
+because `GLTFLoader` fetches the avatar's embedded textures from blob URLs,
+and `https://gateway.umami.is`, where the Umami Cloud tracker sends events.
+An e2e test runs a vendored copy of the real tracker
+(`e2e/fixtures/umami-script.js`, MIT) against the CSP; refresh it when Umami
+changes its script.
 
 Everything except `nosniff` is skipped for `/_next/static/*`: Lighthouse counts
 response headers in script transfer size, and those headers do nothing on a JS

@@ -3,7 +3,14 @@ import { UMAMI_SCRIPT_SRC } from "./config";
 import { umamiLoaderScript } from "./umami-loader";
 
 const config = { websiteId: "abc-123", domains: "example.com" };
-const EVENTS = ["scroll", "pointermove", "keydown", "touchstart"];
+const EVENTS = [
+  "scroll",
+  "pointermove",
+  "pointerdown",
+  "keydown",
+  "touchstart",
+  "click"
+];
 
 function umamiScripts() {
   return document.querySelectorAll(`script[src="${UMAMI_SCRIPT_SRC}"]`);
@@ -29,7 +36,16 @@ describe("umamiLoaderScript", () => {
     expect(script.getAttribute("data-website-id")).toBe("abc-123");
     expect(script.getAttribute("data-domains")).toBe("example.com");
     expect(script.getAttribute("data-do-not-track")).toBe("true");
+    // In-page anchors pushState their hash; Umami must not count them.
+    expect(script.getAttribute("data-exclude-hash")).toBe("true");
     window.dispatchEvent(new Event("keydown"));
+    expect(umamiScripts()).toHaveLength(1);
+  });
+
+  it.each(EVENTS)("loads on a first %s", (type) => {
+    new Function(umamiLoaderScript(config))();
+    expect(umamiScripts()).toHaveLength(0);
+    window.dispatchEvent(new Event(type));
     expect(umamiScripts()).toHaveLength(1);
   });
 

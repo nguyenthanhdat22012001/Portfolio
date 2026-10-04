@@ -1,5 +1,13 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
-import { stubUmami, umamiCalls, waitForUmami, UMAMI_SCRIPT } from "./helpers/umami";
+import { cspViolations, watchCsp } from "./helpers/csp";
+import {
+  stubUmami,
+  umamiCalls,
+  waitForUmami,
+  UMAMI_SCRIPT
+} from "./helpers/umami";
 
 test("Umami loads on the first input, never before (Lighthouse sees none)", async ({
   page
@@ -24,6 +32,44 @@ test("Umami loads on the first input, never before (Lighthouse sees none)", asyn
     "tracking-disabled.invalid"
   );
   await expect(script).toHaveAttribute("data-do-not-track", "true");
+  await expect(script).toHaveAttribute("data-exclude-hash", "true");
+});
+
+// The real Cloud tracker (vendored, so the test is offline and stable) must
+// be able to send under our CSP: it posts to gateway.umami.is/api/send.
+// Outside a Vercel production build data-domains is a never-matching host,
+// so the served script first points data-domains at the test host. It runs
+// as document.currentScript before the tracker reads its attributes, which
+// keeps the page's HTML and the loader untouched.
+test("the real Umami tracker sends to its gateway without CSP violations", async ({
+  page
+}) => {
+  const tracker = readFileSync(
+    path.join(process.cwd(), "e2e/fixtures/umami-script.js"),
+    "utf8"
+  );
+  const allowHost = `document.currentScript.setAttribute("data-domains",location.hostname);\n`;
+  await page.route(UMAMI_SCRIPT, (route) =>
+    route.fulfill({
+      contentType: "application/javascript",
+      body: allowHost + tracker
+    })
+  );
+  const sends: string[] = [];
+  await page.route("https://gateway.umami.is/api/send", (route) => {
+    sends.push(route.request().postData() ?? "");
+    return route.fulfill({ contentType: "application/json", body: "{}" });
+  });
+  await watchCsp(page);
+  await page.goto("/en");
+  await waitForUmami(page);
+  // Wait for the pageview to be sent or blocked, then check both.
+  await expect
+    .poll(async () => sends.length + (await cspViolations(page)).length)
+    .toBeGreaterThan(0);
+  expect(await cspViolations(page)).toEqual([]);
+  expect(sends.length).toBeGreaterThan(0);
+  expect(JSON.parse(sends[0]!)).toMatchObject({ type: "event" });
 });
 
 test("Speed Insights is not loaded off Vercel", async ({ page }) => {
@@ -54,7 +100,9 @@ test.describe("events", () => {
     await waitForUmami(page);
   }
 
-  test("View work: cta_view_work, and it still scrolls to Work", async ({ page }) => {
+  test("View work: cta_view_work, and it still scrolls to Work", async ({
+    page
+  }) => {
     await home(page);
     await page.locator('#top a[data-track="cta_view_work"]').click();
     await expect(page.locator("#work")).toBeInViewport();
@@ -62,7 +110,9 @@ test.describe("events", () => {
   });
 
   for (const location of ["hero", "contact"] as const) {
-    test(`${location} CV: cv_download and the file still downloads`, async ({ page }) => {
+    test(`${location} CV: cv_download and the file still downloads`, async ({
+      page
+    }) => {
       await home(page);
       const link = page.locator(
         `a[data-track="cv_download"][data-track-location="${location}"]`
@@ -70,7 +120,10 @@ test.describe("events", () => {
       const download = page.waitForEvent("download");
       await link.click();
       expect((await download).suggestedFilename()).toBe("cv.pdf");
-      expect(await umamiCalls(page)).toContainEqual(["cv_download", { location }]);
+      expect(await umamiCalls(page)).toContainEqual([
+        "cv_download",
+        { location }
+      ]);
     });
   }
 
@@ -80,13 +133,17 @@ test.describe("events", () => {
     expect(await umamiCalls(page)).toContainEqual(["email_copy", null]);
   });
 
-  test("case study link: case_study_open, navigating client-side", async ({ page }) => {
+  test("case study link: case_study_open, navigating client-side", async ({
+    page
+  }) => {
     await home(page);
     await page.evaluate(() => {
       (window as { __noReload?: boolean }).__noReload = true;
     });
     await page
-      .locator('a[data-track="case_study_open"][data-track-slug="swift-performance"]')
+      .locator(
+        'a[data-track="case_study_open"][data-track-slug="swift-performance"]'
+      )
       .click();
     await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
     expect(
@@ -114,7 +171,10 @@ test.describe("events", () => {
         await page.waitForURL(EXTERNAL);
         await page.goBack();
       }
-      expect(await umamiCalls(page)).toContainEqual(["outbound_click", { target }]);
+      expect(await umamiCalls(page)).toContainEqual([
+        "outbound_click",
+        { target }
+      ]);
     });
   }
 
@@ -125,7 +185,11 @@ test.describe("events", () => {
     const header = page.locator("main");
     for (const target of ["appStore", "source", "demo"]) {
       await expect(
-        header.locator(`a[data-track="outbound_click"][data-track-target="${target}"]`).first()
+        header
+          .locator(
+            `a[data-track="outbound_click"][data-track-target="${target}"]`
+          )
+          .first()
       ).toBeAttached();
     }
     const popup = page.waitForEvent("popup");
@@ -140,16 +204,23 @@ test.describe("events", () => {
     ]);
   });
 
-  test("locale switch: locale_switch survives the page load", async ({ page }) => {
+  test("locale switch: locale_switch survives the page load", async ({
+    page
+  }) => {
     await home(page);
     const nav = page.getByRole("navigation", { name: "Language" });
     await expect(nav.locator('a[aria-current="true"]')).not.toHaveAttribute(
       "data-track",
       /.*/
     );
-    await nav.locator('a[data-track="locale_switch"][data-track-to="vi"]').click();
+    await nav
+      .locator('a[data-track="locale_switch"][data-track-to="vi"]')
+      .click();
     await expect(page).toHaveURL(/\/vi$/);
-    expect(await umamiCalls(page)).toContainEqual(["locale_switch", { to: "vi" }]);
+    expect(await umamiCalls(page)).toContainEqual([
+      "locale_switch",
+      { to: "vi" }
+    ]);
   });
 });
 
@@ -163,7 +234,9 @@ test("with Umami blocked, tracked controls still work and nothing throws", async
   await page.goto("/en");
   await page.waitForLoadState("networkidle");
   const download = page.waitForEvent("download");
-  await page.locator('a[data-track="cv_download"][data-track-location="hero"]').click();
+  await page
+    .locator('a[data-track="cv_download"][data-track-location="hero"]')
+    .click();
   await download;
   await page.locator('button[data-track="email_copy"]').click();
   expect(errors).toEqual([]);

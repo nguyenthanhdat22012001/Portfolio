@@ -14,6 +14,9 @@ export function securityEnv(env: Env = process.env): SecurityEnv {
 // deployment shows it unused; never add a wildcard.
 const UMAMI = "https://cloud.umami.is";
 const UMAMI_API = "https://api-gateway.umami.dev";
+// Where the Cloud tracker posts events: `${data-host-url ||
+// "https://gateway.umami.is"}/api/send` (e2e/fixtures/umami-script.js).
+const UMAMI_GATEWAY = "https://gateway.umami.is";
 const VERCEL_SCRIPTS = "https://va.vercel-scripts.com";
 const VERCEL_VITALS = "https://vitals.vercel-insights.com";
 
@@ -44,6 +47,7 @@ export function contentSecurityPolicy(mode: SecurityEnv): string {
       // HMR websocket; Safari doesn't treat ws: as 'self'.
       ...(dev ? ["ws:"] : []),
       UMAMI,
+      UMAMI_GATEWAY,
       UMAMI_API,
       VERCEL_VITALS
     ],

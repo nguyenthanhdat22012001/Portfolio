@@ -33,10 +33,12 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   calls `track()` from `shared/analytics/track.ts`, its own file so lazy chunks
   share no module with the initial bundle.
 - Umami is injected by an inline loader on the first
-  scroll/pointermove/keydown/touchstart (`umami-loader.ts`), not `next/script`
-  (+1.6 KB) and not on load: Lighthouse counts its script size. Clicks and
-  `track()` calls before it arrives queue on `window.__umamiQueue`. A visit with
-  no input records no pageview; that is accepted.
+  scroll/pointermove/pointerdown/keydown/touchstart/click (`umami-loader.ts`),
+  not `next/script` (+1.6 KB) and not on load: Lighthouse counts its script
+  size. Clicks and `track()` calls before it arrives queue on
+  `window.__umamiQueue`. A visit with no input records no pageview; that is
+  accepted. The script carries `data-exclude-hash` because hash links
+  `pushState` their hash.
 - `umamiConfig()` decides where Umami may send (Vercel production only, via
   `data-domains`); `speedInsightsEnabled()` renders Speed Insights only on
   Vercel. Vercel Web Analytics stays off.
@@ -49,8 +51,10 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   X-Frame-Options, HSTS) are not sent on `/_next/static/*`, only `nosniff`:
   Lighthouse counts response headers in script transfer size. Production adds
   HSTS and `upgrade-insecure-requests`; development adds `'unsafe-eval'` and
-  `ws:`. `connect-src` includes `blob:` for GLTFLoader textures. No
-  `interest-cohort` (Best Practices penalty).
+  `ws:`. `connect-src` includes `blob:` for GLTFLoader textures and
+  `https://gateway.umami.is`, where the Cloud tracker posts events (checked
+  by an e2e test running the vendored tracker, `e2e/fixtures/umami-script.js`).
+  No `interest-cohort` (Best Practices penalty).
 - Change a CSP host only with a network capture from a real deployment. Never
   add `'unsafe-eval'` outside development, or a wildcard host.
 

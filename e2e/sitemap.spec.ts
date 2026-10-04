@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { WORK_SLUGS, viPublished } from "./helpers/content";
 
 const origin = "http://localhost:3000";
 
@@ -9,18 +10,20 @@ test("sitemap.xml lists real pages with hreflang alternates", async ({
   expect(response.status()).toBe(200);
   const xml = await response.text();
 
-  for (const path of [
-    "/en",
-    "/vi",
-    "/en/work/swift-performance",
-    "/en/work/oneloyalty-layered-architecture",
-    "/en/work/safebulk-bulk-editor"
-  ]) {
+  for (const path of ["/en", "/vi", ...WORK_SLUGS.map((s) => `/en/work/${s}`)]) {
     expect(xml).toContain(`<loc>${origin}${path}</loc>`);
   }
   expect(xml).toContain(`hreflang="vi" href="${origin}/vi"`);
-  // Fallback versions and the empty blog are not listed.
-  expect(xml).not.toContain(`${origin}/vi/work/`);
+  // Draft (fallback) translations and the hidden blog are not listed.
+  for (const slug of WORK_SLUGS) {
+    const vi = `<loc>${origin}/vi/work/${slug}</loc>`;
+    if (viPublished(slug)) {
+      expect(xml).toContain(vi);
+      expect(xml).toContain(`hreflang="vi" href="${origin}/vi/work/${slug}"`);
+    } else {
+      expect(xml).not.toContain(vi);
+    }
+  }
   expect(xml).not.toContain("/blog");
 });
 

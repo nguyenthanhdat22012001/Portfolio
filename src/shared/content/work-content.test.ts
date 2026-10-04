@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { work as allWork } from "#site/content";
 import { getWorkBySlug } from "@/shared/content";
 
 const dir = path.join(process.cwd(), "content/work");
@@ -70,5 +71,32 @@ describe("content files", () => {
     for (const slug of slugs) {
       expect(read(slug, "en")).not.toMatch(/^draft: true$/m);
     }
+  });
+});
+
+describe("VI case studies mirror their EN source", () => {
+  const translatable = new Set([
+    "title", "summary", "description", "role", "team", "draft", "content",
+    "locale", "metrics"
+  ]);
+  const find = (slug: string, locale: "en" | "vi") => {
+    const doc = allWork.find((d) => d.slug === slug && d.locale === locale);
+    if (!doc) throw new Error(`missing ${locale}/${slug}`);
+    return doc;
+  };
+  const fixed = (doc: object) =>
+    Object.fromEntries(
+      Object.entries(doc).filter(([key]) => !translatable.has(key))
+    );
+
+  it.each(slugs)("%s keeps every non-translatable field identical", (slug) => {
+    expect(fixed(find(slug, "vi"))).toEqual(fixed(find(slug, "en")));
+  });
+
+  it.each(slugs)("%s keeps metric values (a unit word may be localized)", (slug) => {
+    const localizedUnit: Record<string, string> = { "~1.5 mo": "~1.5 th" };
+    expect(find(slug, "vi").metrics.map((m) => m.value)).toEqual(
+      find(slug, "en").metrics.map((m) => localizedUnit[m.value] ?? m.value)
+    );
   });
 });

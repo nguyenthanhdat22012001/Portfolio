@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { WORK_SLUGS, viPublished } from "./helpers/content";
 
 const origin = "http://localhost:3000";
 
@@ -40,39 +41,48 @@ test("/vi: self canonical", async ({ page }) => {
   );
 });
 
-test("an English case study lists only its real locales", async ({ page }) => {
-  await page.goto("/en/work/swift-performance");
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-    "href",
-    `${origin}/en/work/swift-performance`
-  );
-  expect(await hreflangs(page)).toEqual({
-    en: `${origin}/en/work/swift-performance`,
-    "x-default": `${origin}/en/work/swift-performance`
-  });
-  const description = await page
-    .locator('meta[name="description"]')
-    .getAttribute("content");
-  expect(description?.length).toBeGreaterThanOrEqual(140);
-  expect(description?.length).toBeLessThanOrEqual(160);
-});
+for (const slug of WORK_SLUGS) {
+  const en = `${origin}/en/work/${slug}`;
+  const vi = `${origin}/vi/work/${slug}`;
 
-test("a Vietnamese fallback case study is canonicalised to English", async ({
-  page
-}) => {
-  await page.goto("/vi/work/swift-performance");
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-    "href",
-    `${origin}/en/work/swift-performance`
-  );
-  await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
-});
+  test(`/en/work/${slug}: hreflang matches its published locales`, async ({
+    page
+  }) => {
+    await page.goto(`/en/work/${slug}`);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      en
+    );
+    expect(await hreflangs(page)).toEqual(
+      viPublished(slug) ? { en, vi, "x-default": en } : { en, "x-default": en }
+    );
+    const description = await page
+      .locator('meta[name="description"]')
+      .getAttribute("content");
+    expect(description?.length).toBeGreaterThanOrEqual(140);
+    expect(description?.length).toBeLessThanOrEqual(160);
+  });
+
+  test(`/vi/work/${slug}: canonical follows the VI publish state`, async ({
+    page
+  }) => {
+    await page.goto(`/vi/work/${slug}`);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      viPublished(slug) ? vi : en
+    );
+    if (!viPublished(slug)) {
+      await expect(
+        page.locator('link[rel="alternate"][hreflang]')
+      ).toHaveCount(0);
+    }
+  });
+}
 
 for (const [path, image] of [
   ["/en", "/en/opengraph-image"],
   ["/vi", "/vi/opengraph-image"],
-  ["/en/work/swift-performance", "/en/work/swift-performance/opengraph-image"],
-  ["/en/blog", "/en/opengraph-image"]
+  ["/en/work/swift-performance", "/en/work/swift-performance/opengraph-image"]
 ] as const) {
   test(`${path} has a working og:image and twitter card`, async ({
     page,
@@ -91,14 +101,6 @@ for (const [path, image] of [
     expect(response.headers()["content-type"]).toBe("image/png");
   });
 }
-
-test("the empty blog index is noindex", async ({ page }) => {
-  await page.goto("/en/blog");
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute(
-    "content",
-    /noindex/
-  );
-});
 
 test("the home page is indexable", async ({ page }) => {
   await page.goto("/en");

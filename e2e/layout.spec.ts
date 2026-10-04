@@ -40,15 +40,20 @@ test("the locale switcher keeps the page and changes language", async ({
   );
 });
 
-test("the footer credits the stack and shows four Lighthouse scores", async ({
+test("the footer credits the stack and links to the source", async ({
   page
 }) => {
   await page.goto("/en");
   const footer = page.getByRole("contentinfo");
   await expect(footer).toContainText("Built with Next.js, GSAP, Three.js");
-  await expect(footer).toContainText(
-    /Lighthouse Performance \d{1,3} · Accessibility \d{1,3} · Best practices \d{1,3} · SEO \d{1,3}/
+  await expect(
+    footer.getByRole("link", { name: "Source on GitHub" })
+  ).toHaveAttribute(
+    "href",
+    "https://github.com/nguyenthanhdat22012001/Portfolio"
   );
+  // No production Lighthouse run is recorded yet (site.lighthouse = null).
+  await expect(footer).not.toContainText("Lighthouse");
 });
 
 test.describe("mobile", () => {

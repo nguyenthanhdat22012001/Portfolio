@@ -16,8 +16,7 @@ for (const [path, types] of [
   ["/en", ["ProfilePage", "WebSite"]],
   ["/vi", ["ProfilePage", "WebSite"]],
   ["/en/work/swift-performance", ["CreativeWork", "BreadcrumbList"]],
-  ["/vi/work/swift-performance", ["CreativeWork", "BreadcrumbList"]],
-  ["/en/blog", ["BreadcrumbList"]]
+  ["/vi/work/swift-performance", ["CreativeWork", "BreadcrumbList"]]
 ] as const) {
   test(`${path} has JSON-LD: ${types.join(", ")}`, async ({ page }) => {
     await page.goto(path);

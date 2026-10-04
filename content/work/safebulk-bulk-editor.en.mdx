@@ -1,0 +1,71 @@
+---
+slug: safebulk-bulk-editor
+title: "SafeBulk: bulk edits you can preview before they apply"
+summary: "Co-founded a Shopify bulk product editor and built its entire front end, shipping the MVP in ~1.5 months with an AI-first, spec-driven workflow."
+description: "How I co-founded a Shopify bulk product editor, built its entire front end solo, and shipped the MVP in about 1.5 months with an AI-first workflow."
+locale: en
+role: "Co-founder · Sole Front-End Developer"
+team: "1 FE, 1 BE"
+period: { start: "2026-07" }
+stack: ["React 19", "TypeScript (strict)", "TanStack Router", "React Query", "Zustand", "Shopify Admin GraphQL API", "Docker", "Figma AI", "Claude"]
+metrics:
+  - { value: "~1.5 mo", label: "idea to MVP" }
+  - { value: "Live", label: "on the Shopify App Store" }
+  - { value: "3", label: "competitor weaknesses targeted" }
+links:
+  appStore: "https://apps.shopify.com/safebulk-editor"
+  github: "https://github.com/nguyenthanhdat22012001/safe-bulk-shopify"
+  demo: "https://youtu.be/uaKi8VwIrKE"
+dateModified: 2026-10-04
+---
+
+## Context
+
+SafeBulk is a bulk product editor for Shopify merchants who need to change many products at once. I built it with a backend engineer: two people, no product manager and no designer. I had three reasons to start it: to own a Shopify product **end to end**, not just features inside someone else's app; to have something real and public to show for my Shopify experience; and to find out how far an **AI-first** workflow could take a whole product, from the market question to the App Store.
+
+## Problem
+
+- **Where is there room?** Large players already cover much of the Shopify App Store. We needed a niche they had not locked down.
+- **Bulk edits are risky.** One wrong rule can change hundreds of products before anyone notices, and edits run as long jobs in the background.
+- **Two people, one product.** With no PM or designer, every requirement, screen and API contract had to be decided by us — clearly enough that frontend and backend could build in parallel.
+
+## Solution
+
+**Find the gap first.** We used Gemini and Claude to map Shopify niches that the big apps had not taken over. Of the six ideas they surfaced, bulk editing stood out: few large players, and the existing competitors had clear weak spots. Their 1–3 star reviews (gathered with AI assistance) kept repeating three complaints, and each one became a feature:
+
+| What merchants complained about | What SafeBulk does |
+| --- | --- |
+| **Undo that failed halfway**, leaving the catalog half old, half new | A **history log** of every run with its status, and an **undo** for each one |
+| **No preview** — configure rules, apply blindly, hope for the best | A **preview of every change before it is applied**, each row flagged by severity |
+| **Slow, confusing UI** — huge lists and a wall of dropdowns | A guided **3-step Bulk Edit Wizard**: filter → configure rules → preview |
+
+**Write it down before building it.** I wrote a detailed business-logic spec for every feature and aligned the API contract with the backend before either of us wrote code, so we could build in parallel without rework. I sketched the screens in **Figma AI** to settle layouts and flows quickly.
+
+**Build AI-first, with guardrails.** I built the entire front end with **Claude**: we planned features together, I wrote **project rules** the AI had to follow, and every feature started from its spec as the input. The MVP shipped in **about 1.5 months**:
+
+- **Bulk Edit Wizard** — filter products, configure rules, preview with per-row severity, then apply.
+- **CSV import/export** — with a validation preview so errors surface before an import starts.
+- **History log** — every run with its status, and undo.
+- **Plan gating** — paid tiers and quotas, including the case where a quota limit is hit while a job is running.
+
+Long-running jobs are tracked with React Query conditional polling, and their state lives in the URL, so a job survives a refresh and can be reopened from a link.
+
+**Ship it.** I containerized the front-end build stage with a Dockerfile. The app is live on the Shopify App Store.
+
+## Results
+
+| Metric | Result |
+| --- | --- |
+| Idea to MVP | **~1.5 months**, 2-person team |
+| Status | **Live** on the Shopify App Store |
+| Competitor weaknesses addressed | **3**: unreliable undo, no preview, confusing UI |
+| Front end | Built solo, React 19 + strict TypeScript |
+
+The code is public on GitHub, with a video walkthrough of the main flows.
+
+## Takeaways
+
+- **Order matters more than tools.** If I started again I would follow the same sequence: market and niche → product idea and feature list → a spec per feature → UI mockups → rules for the AI → separate FE and BE specs for each feature. Each step made the next one faster.
+- **AI speeds up the work you have already defined.** Clear specs and project rules are what made an AI-first workflow fast instead of chaotic.
+- **Competitors' bad reviews are a roadmap.** The three most repeated complaints decided the three most important features.
+- **Owning the product changes the questions you ask.** At work, many architecture and library choices were made for me. Here every choice was mine — and so was the market question behind it.

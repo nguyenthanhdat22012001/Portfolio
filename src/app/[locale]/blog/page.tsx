@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { getPosts, hasPosts } from "@/shared/content";
+import { getPosts, hasPosts, isBlogEnabled } from "@/shared/content";
 import { Link } from "@/shared/i18n/navigation";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { buildMetadata } from "@/shared/seo/build-metadata";
@@ -19,7 +19,7 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { locale } = await params;
-  if (!isValidLocale(locale)) return {};
+  if (!isValidLocale(locale) || !isBlogEnabled()) return {};
   const t = await getTranslations("blog");
 
   return buildMetadata({
@@ -37,7 +37,7 @@ export async function generateMetadata({
 
 export default async function BlogIndexPage({ params }: { params: Params }) {
   const { locale } = await params;
-  if (!isValidLocale(locale)) notFound();
+  if (!isValidLocale(locale) || !isBlogEnabled()) notFound();
   const t = await getTranslations("blog");
   const format = await getFormatter();
   const posts = getPosts(locale);

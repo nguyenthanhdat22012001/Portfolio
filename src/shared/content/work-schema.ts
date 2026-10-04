@@ -25,5 +25,8 @@ export const workFrontmatter = s.object({
   links: s
     .object({ appStore: url, live: url, github: url, demo: url })
     .strict(),
-  dateModified: s.isodate().optional()
+  dateModified: s.isodate().optional(),
+  // Production builds treat a draft as missing (EN fallback); `pnpm dev`
+  // renders it so the author can review it in place.
+  draft: s.boolean().optional()
 });

@@ -1,34 +1,33 @@
 ---
 slug: oneloyalty-layered-architecture
-title: "Oneloyalty: one monorepo, steady layouts, lighter forms"
-summary: "Helped merge two Shopify app repos into one Turborepo, kept the Built for Shopify badge with CLS ≤ 0.1, and cut form/state library weight by ~55%."
-description: "Helped merge two Shopify app repos into one Turborepo, kept the Built for Shopify badge with CLS ≤ 0.1, and cut form/state library weight by ~55%."
+title: "Oneloyalty: one monorepo, steady layouts, shared i18n"
+summary: "Helped merge two Shopify app repos into one Turborepo, kept the Built for Shopify badge with CLS ≤ 0.1, and designed a shared i18n package for every app."
+description: "How I helped merge two Shopify app repos into one Turborepo, kept the Built for Shopify badge with CLS ≤ 0.1, and designed a shared i18n package for every app."
 locale: en
 role: "Middle Front-End Engineer"
 team: "Team of 9 (2 FE)"
 company: "FireGroup"
 period: { start: "2024-06", end: "2026-08" }
-stack: ["React", "TypeScript", "Turborepo", "React Query", "Zustand", "React Hook Form + Yup", "i18next", "Pusher", "Vite", "GitLab CI/CD", "Docker"]
+stack: ["React", "TypeScript", "Turborepo", "React Query", "Zustand", "React Hook Form + Yup", "i18next", "GraphQL", "Pusher", "Vite", "GitLab CI/CD", "Docker"]
 metrics:
   - { value: "≤ 0.1", label: "dashboard CLS" }
-  - { value: "−55%", label: "form/state bundle (~14 kB gzip)" }
   - { value: "2 → 1", label: "repositories" }
+  - { value: "1", label: "shared i18n core for every app" }
 links:
   live: "https://apps.shopify.com/oneloyalty"
-dateModified: 2026-09-30
+dateModified: 2026-10-04
 ---
 
 ## Context
 
-Oneloyalty is a loyalty and rewards suite for Shopify stores: points, VIP tiers, rewards, campaigns and gamification. It has two front ends — an admin app inside Shopify Admin and storefront extensions shoppers see — which started out in two separate repositories. I was one of two front-end engineers on a team of nine and owned the reward-related features, from the MVP through a large revamp.
+Oneloyalty is a loyalty and rewards suite for Shopify stores: points, VIP tiers, rewards, campaigns and gamification. It has two front ends — an admin app inside Shopify Admin and storefront extensions shoppers see — which started out in two separate repositories. I was one of two front-end engineers on a team of nine and owned the reward-related features, from the MVP through a large revamp. The project started on React Hook Form and Zustand, a choice informed by what the team had learned from Swift's Formik and Redux Toolkit setup.
 
 ## Problem
 
 - **Duplicated UI across two repos.** The admin app reused the extensions' components through a package published to GitLab Package Registry, with `npm link` during development: access tokens for everyone and a slow build → link → test → publish loop for every UI change.
 - **Features importing each other.** Code was organized by feature, but features reached into each other's hooks and types. A reward type, `TDataRewards`, lived inside the Rewards feature yet was imported by Campaign and VIP Tier. Part of that coupling was mine: during the MVP I treated two response shapes of the same reward concept as two concepts and duplicated their types.
 - **A dashboard that jumped.** Sections loaded asynchronously and pushed the rest of the page around. For a Shopify app that matters beyond polish: the **Built for Shopify** badge, which lifts App Store ranking and recommendations, requires CLS ≤ 0.1.
-- **More library than the job needed.** Forms and client state ran on Formik and Redux Toolkit, with slice/action boilerplate for state that React Query already covered on the server side.
-- **i18n set up more than once.** i18next could be initialized from more than one place, which led to duplicate-initialization bugs.
+- **i18n set up more than once.** i18next could be initialized from more than one place, which led to duplicate-initialization bugs — and the admin app and the storefront needed their translations from different sources.
 - **A pipeline that blocked releases.** Front-end deploys failed on GitLab CI, holding up releases.
 
 ## Solution
@@ -37,9 +36,7 @@ Oneloyalty is a loyalty and rewards suite for Shopify stores: points, VIP tiers,
 
 **CLS ≤ 0.1 by reserving space.** I found which async sections shifted the layout and gave each one its space up front — a fixed `height` where the final size is known, `min-height` where content length varies — so skeletons match what arrives. The dashboard reached **CLS ≤ 0.1** and kept the Built for Shopify badge.
 
-**Lighter forms and state.** I replaced Formik + Redux Toolkit with **React Hook Form + Zustand**. React Hook Form's uncontrolled inputs avoid re-rendering the whole form on each keystroke, Zustand needs no slices or actions, and existing Yup schemas carried over through a resolver. The change removed **~14 kB gzipped (~55%)** of form and state library code.
-
-**One i18n instance.** I built a shared `packages/i18n` that exposes a **single i18next instance** for every app, which ended the duplicate-initialization bugs and gave the team one way to use translations.
+**One i18n core, pluggable per app.** I designed `packages/i18n` around a **single i18next instance** shared by every app, which ended the duplicate-initialization bugs and gave the team one way to use translations. Instead of hard-coding where translations come from, the package takes a **loader injected by each app** (dependency injection), so the admin app and the storefront each plug in their own source without touching the core. Translations load at runtime from the backend, which lets support staff update copy for merchants without waiting for a deploy, and `Suspense` holds rendering until they arrive, so users never see raw keys flash on screen.
 
 **Fixing a class of bug, not one bug.** QC caught campaign start/end times displayed in server time rather than the store's timezone. I fixed it the same day, then checked every other date on screen unasked — and found point and billing history logs had shown the wrong timezone in production for months. I replaced the one-off fix with a **shared hook** for store-timezone conversion used everywhere.
 
@@ -52,10 +49,9 @@ Oneloyalty is a loyalty and rewards suite for Shopify stores: points, VIP tiers,
 | Metric | Result |
 | --- | --- |
 | Dashboard CLS | **≤ 0.1** — Built for Shopify badge retained |
-| Form + state libraries | **−14 kB gzip (~55%)**, no Redux boilerplate |
 | Repositories | **2 → 1** Turborepo, shared `packages/ui` and `packages/i18n` |
 | Architecture migration | Shipped **on schedule**, during the revamp |
-| i18n | **1** shared i18next instance, no duplicate-init bugs |
+| i18n | **1** shared i18next instance; each app injects its own translation loader |
 | Front-end releases | Pipeline fixed and owned; releases unblocked |
 
 ## Takeaways
@@ -65,5 +61,3 @@ Oneloyalty is a loyalty and rewards suite for Shopify stores: points, VIP tiers,
 - **Naming an architecture is not enforcing it.** Next time I would add boundary lint rules (such as `eslint-plugin-boundaries`) on day one.
 - **Technical debt compounds.** A small MVP shortcut grew into an architecture problem later. I now pay debt back early.
 - **When you find a bug, look for its siblings.** The worst version of the timezone bug was the one nobody reported.
-
-{/* TODO(Dat): before/after screenshots of the dashboard with reserved layout space. */}

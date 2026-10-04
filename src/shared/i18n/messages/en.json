@@ -91,9 +91,9 @@
     "oneloyalty": {
       "componentsCaption": "Shared <pkg>packages/ui</pkg>",
       "cls": {
-        "summary": "Before: an async section loads and pushes the cards down. After: space is reserved, nothing moves, CLS ≤ 0.1.",
+        "summary": "Before: an async section loads and pushes the cards down. After: space is reserved, nothing moves, CLS {cls}.",
         "before": "Before · layout shift",
-        "after": "After · space reserved · CLS ≤ 0.1",
+        "after": "After · space reserved · CLS {cls}",
         "shift": "↓ shift"
       }
     },
@@ -144,6 +144,7 @@
           "Zustand",
           "Redux Toolkit",
           "REST",
+          "GraphQL",
           "WebSockets (Pusher)"
         ]
       },
@@ -201,6 +202,7 @@
   "footer": {
     "copyright": "© {year} Nguyen Thanh Dat",
     "builtWith": "Built with Next.js, GSAP, Three.js",
+    "source": "Source on GitHub",
     "lighthouse": {
       "title": "Lighthouse",
       "performance": "Performance",
@@ -221,7 +223,7 @@
     "back": "Back to blog"
   },
   "notFound": {
-    "title": "Page not found",
-    "description": "The page you're looking for doesn't exist."
+    "title": "This page wandered off the graph.",
+    "backHome": "Back to home"
   }
 }

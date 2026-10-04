@@ -106,3 +106,12 @@ export function availableLocales(
     docs.some((doc) => doc.slug === slug && doc.locale === locale)
   );
 }
+
+// Drafts are invisible in production: a draft translation behaves exactly
+// like a missing one (EN fallback, no hreflang, no sitemap entry).
+export function withoutDrafts<T extends { draft?: boolean }>(
+  docs: readonly T[],
+  includeDrafts: boolean
+): T[] {
+  return includeDrafts ? [...docs] : docs.filter((doc) => !doc.draft);
+}

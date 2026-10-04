@@ -1,10 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { WORK_SLUGS, viPublished } from "./helpers/content";
 
-const slugs = [
-  "swift-performance",
-  "oneloyalty-layered-architecture",
-  "safebulk-bulk-editor"
-];
+const slugs = WORK_SLUGS;
 
 for (const locale of ["en", "vi"]) {
   test(`/${locale} renders the three work chapters in order`, async ({
@@ -25,6 +22,7 @@ for (const locale of ["en", "vi"]) {
 test("/vi fallback case study marks its header links as vi", async ({
   page
 }) => {
+  test.skip(viPublished("safebulk-bulk-editor"), "VI is published; no fallback to test");
   await page.goto("/vi/work/safebulk-bulk-editor");
   await expect(
     page.locator("article header ul:has(a[target=_blank])")
@@ -71,6 +69,7 @@ test("English case studies show no fallback notice", async ({ page }) => {
 });
 
 test("Vietnamese falls back to English with a notice", async ({ page }) => {
+  test.skip(viPublished("swift-performance"), "VI is published; no fallback to test");
   await page.goto("/vi/work/swift-performance");
   await expect(page.getByTestId("fallback-notice")).toHaveText(
     "Bài viết này hiện chỉ có bằng tiếng Anh."
@@ -238,6 +237,7 @@ test("Swift's header links to its live Shopify listing", async ({ page }) => {
 test("the Vietnamese home keeps English chapter content marked as English", async ({
   page
 }) => {
+  test.skip(viPublished("swift-performance"), "VI is published; no fallback to test");
   await page.goto("/vi");
   const chapter = page.locator('article[data-chapter="swift-performance"]');
   await expect(chapter.locator("h3")).toHaveAttribute("lang", "en");
@@ -285,3 +285,41 @@ test.describe("Swift and Oneloyalty visuals without JavaScript", () => {
     });
   }
 });
+
+test("SafeBulk renders its comparison and results tables", async ({ page }) => {
+  await page.goto("/en/work/safebulk-bulk-editor");
+  const tables = page.locator("article table");
+  await expect(tables).toHaveCount(2);
+  await expect(tables.first().locator("th").first()).toHaveText(
+    "What merchants complained about"
+  );
+});
+
+test("Swift renders its progress screenshot without layout shift", async ({
+  page
+}) => {
+  await page.goto("/en/work/swift-performance");
+  const image = page.locator('article img[src*="progress.webp"]');
+  await expect(image).toHaveAttribute("width", "1600");
+  await expect(image).toHaveAttribute("height", "822");
+  await expect(image).toHaveAttribute("loading", "lazy");
+});
+
+test("the Oneloyalty chapter shows its frontmatter metrics", async ({ page }) => {
+  await page.goto("/en");
+  const stats = page.locator(
+    'article[data-chapter="oneloyalty-layered-architecture"] dl dd'
+  );
+  await expect(stats).toHaveText(["≤ 0.1", "2 → 1"]);
+});
+
+for (const slug of WORK_SLUGS) {
+  test(`/vi/work/${slug} renders Vietnamese once published`, async ({
+    page
+  }) => {
+    test.skip(!viPublished(slug), "VI is still a draft");
+    await page.goto(`/vi/work/${slug}`);
+    await expect(page.getByTestId("fallback-notice")).toHaveCount(0);
+    await expect(page.locator("article")).not.toHaveAttribute("lang", "en");
+  });
+}

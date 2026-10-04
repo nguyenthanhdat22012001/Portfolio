@@ -7,7 +7,8 @@ import {
   findForLocale,
   localeParams,
   newestFirst,
-  selectForLocale
+  selectForLocale,
+  withoutDrafts
 } from "./localize";
 
 const docs = [
@@ -136,5 +137,21 @@ describe("availableLocales", () => {
       { slug: "x", locale: "en" }
     ] as const;
     expect(availableLocales(reversed, "x")).toEqual(["en", "vi"]);
+  });
+});
+
+describe("withoutDrafts", () => {
+  const all: { slug: string; draft?: boolean }[] = [
+    { slug: "a" },
+    { slug: "a", draft: true },
+    { slug: "b", draft: false }
+  ];
+
+  it("drops drafts when drafts are excluded", () => {
+    expect(withoutDrafts(all, false)).toEqual([all[0], all[2]]);
+  });
+
+  it("keeps everything when drafts are included", () => {
+    expect(withoutDrafts(all, true)).toEqual(all);
   });
 });

@@ -1,0 +1,64 @@
+---
+slug: oneloyalty-layered-architecture
+title: "Oneloyalty: một monorepo, layout ổn định, i18n dùng chung"
+summary: "Cùng gộp hai repo Shopify app thành một Turborepo, giữ huy hiệu Built for Shopify với CLS ≤ 0.1 và thiết kế package i18n dùng chung cho mọi app."
+description: "Cách mình cùng gộp hai repo Shopify app thành một Turborepo, giữ huy hiệu Built for Shopify với CLS ≤ 0.1 và thiết kế package i18n dùng chung cho mọi app."
+locale: vi
+role: "Middle Front-End Engineer"
+team: "Team 9 người (2 FE)"
+company: "FireGroup"
+period: { start: "2024-06", end: "2026-08" }
+stack: ["React", "TypeScript", "Turborepo", "React Query", "Zustand", "React Hook Form + Yup", "i18next", "GraphQL", "Pusher", "Vite", "GitLab CI/CD", "Docker"]
+metrics:
+  - { value: "≤ 0.1", label: "CLS của dashboard" }
+  - { value: "2 → 1", label: "repository" }
+  - { value: "1", label: "lõi i18n dùng chung cho mọi app" }
+links:
+  live: "https://apps.shopify.com/oneloyalty"
+dateModified: 2026-10-04
+draft: true
+---
+
+## Bối cảnh
+
+Oneloyalty là bộ công cụ loyalty và rewards cho cửa hàng Shopify: điểm thưởng, VIP tier, phần thưởng, campaign và gamification. App có hai front end — admin app chạy trong Shopify Admin và storefront extensions mà người mua nhìn thấy — ban đầu nằm ở hai repository riêng. Mình là một trong hai front-end engineer của team chín người và phụ trách các tính năng liên quan đến phần thưởng, từ MVP đến đợt revamp lớn. Dự án dùng React Hook Form và Zustand ngay từ đầu, lựa chọn dựa trên kinh nghiệm team rút ra từ setup Formik và Redux Toolkit ở Swift.
+
+## Vấn đề
+
+- **UI trùng lặp giữa hai repo.** Admin app dùng lại component của extensions qua một package publish lên GitLab Package Registry, khi dev thì dùng `npm link`: ai cũng phải có access token, và mỗi lần đổi UI là một vòng build → link → test → publish chậm chạp.
+- **Các tính năng import lẫn nhau.** Code tổ chức theo tính năng, nhưng tính năng này lại dùng hook và type của tính năng kia. Một type phần thưởng, `TDataRewards`, nằm trong tính năng Rewards nhưng được Campaign và VIP Tier import. Một phần sự phụ thuộc đó là do mình: lúc làm MVP, mình coi hai dạng response của cùng một khái niệm phần thưởng là hai khái niệm và nhân đôi type của chúng.
+- **Dashboard bị nhảy.** Các section tải bất đồng bộ và đẩy phần còn lại của trang đi. Với Shopify app, chuyện này không chỉ là thẩm mỹ: huy hiệu **Built for Shopify**, giúp tăng thứ hạng và lượt gợi ý trên App Store, yêu cầu CLS ≤ 0.1.
+- **i18n được khởi tạo nhiều lần.** i18next có thể được khởi tạo từ nhiều chỗ, gây ra lỗi khởi tạo trùng — trong khi admin app và storefront lại cần lấy bản dịch từ hai nguồn khác nhau.
+- **Pipeline chặn release.** Việc deploy front end thất bại trên GitLab CI, làm release bị treo.
+
+## Giải pháp
+
+**Một repository, một kế hoạch ai cũng chấp nhận được.** Mình triển khai đợt chuyển cả hai repo vào một monorepo **Turborepo** do senior dẫn dắt, tách các component trùng lặp ra `packages/ui` dùng chung. Giờ một thay đổi UI đến mọi app cùng lúc, không cần publish gì cả. Trong lúc chuyển code, senior đề xuất đổi luôn các tính năng từ feature-driven sang **layered architecture** để chấm dứt việc import chéo. Mình phản biện — tái cấu trúc giữa đợt revamp có thể làm trễ deadline. Hai bên tranh luận đến cùng và thống nhất một kế hoạch giải quyết cả hai nỗi lo: chuyển từng tính năng một, bắt đầu từ tính năng mà nhiều tính năng khác phụ thuộc nhất (Rewards); mỗi dev chuyển các tính năng mình phụ trách; gom UI dùng chung song song, không bao giờ chặn việc revamp. Với `TDataRewards`, mình chuyển type vào một layer dùng chung trung lập để Rewards, Campaign và VIP Tier cùng phụ thuộc vào đó thay vì phụ thuộc lẫn nhau. Khi có hotfix vào một component đang chuyển dở, mình sửa cả hai bản ngay trong ngày. Đợt chuyển đổi ra mắt đúng hạn.
+
+**CLS ≤ 0.1 nhờ giữ chỗ trước.** Mình tìm ra các section bất đồng bộ làm layout bị dịch chuyển và giữ chỗ cho từng cái ngay từ đầu — `height` cố định khi biết trước kích thước cuối, `min-height` khi độ dài nội dung thay đổi — để skeleton khớp với nội dung hiện ra. Dashboard đạt **CLS ≤ 0.1** và giữ được huy hiệu Built for Shopify.
+
+**Một lõi i18n, cắm được theo từng app.** Mình thiết kế `packages/i18n` xoay quanh **một instance i18next duy nhất** dùng chung cho mọi app, chấm dứt lỗi khởi tạo trùng và cho team một cách duy nhất để dùng bản dịch. Thay vì hard-code nguồn bản dịch, package nhận một **loader do từng app inject vào** (dependency injection), nên admin app và storefront mỗi bên tự cắm nguồn của mình mà không đụng vào lõi. Bản dịch được tải lúc runtime từ backend, nhờ đó đội support có thể sửa nội dung cho merchant mà không phải chờ deploy, và `Suspense` giữ việc render cho đến khi bản dịch về, nên người dùng không bao giờ thấy key thô nháy lên màn hình.
+
+**Sửa cả một loại lỗi, không chỉ một lỗi.** QC phát hiện thời gian bắt đầu/kết thúc campaign hiển thị theo giờ server thay vì múi giờ của cửa hàng. Mình sửa ngay trong ngày, rồi tự kiểm tra mọi ngày giờ khác trên màn hình dù không ai yêu cầu — và phát hiện log lịch sử điểm và thanh toán đã hiển thị sai múi giờ trên production suốt nhiều tháng. Mình thay bản sửa tạm bằng một **hook dùng chung** để chuyển đổi theo múi giờ cửa hàng ở mọi nơi.
+
+**Phụ trách pipeline deploy.** Mình nhận phụ trách pipeline deploy front end trên GitLab CI/CD: sửa lệch phiên bản Node giữa local và image CI, và bỏ một lần cài đặt không cần thiết của project Extensions do hook `prepare` kích hoạt trong job Admin. Release front end được gỡ chặn.
+
+**AI có rào chắn.** Mình đưa **GitHub Copilot** vào quy trình của team cùng với project rules và hướng dẫn, để code do AI sinh ra tuân theo convention của team, giúp tăng tốc việc phát triển, debug và refactor.
+
+## Kết quả
+
+| Chỉ số | Kết quả |
+| --- | --- |
+| CLS của dashboard | **≤ 0.1** — giữ được huy hiệu Built for Shopify |
+| Repository | **2 → 1** Turborepo, dùng chung `packages/ui` và `packages/i18n` |
+| Chuyển đổi kiến trúc | Ra mắt **đúng hạn**, ngay trong đợt revamp |
+| i18n | **1** instance i18next dùng chung; mỗi app inject loader bản dịch riêng |
+| Release front end | Pipeline được sửa và phụ trách; release được gỡ chặn |
+
+## Bài học
+
+- **Bất đồng tốt là tìm ra kế hoạch, không phải tìm người thắng.** Nỗi lo về thời gian của mình là đúng — đợt chuyển đổi đúng là tốn thêm công. Nỗi lo về phụ thuộc chéo cũng đúng. Kế hoạch từng bước giúp cả hai cùng đúng mà vẫn kịp deadline.
+- **Performance có thể là yêu cầu sản phẩm.** CLS ở đây không phải thứ "có thì tốt"; nó quyết định app có giữ được huy hiệu mang lại lượt cài hay không.
+- **Đặt tên kiến trúc không có nghĩa là thực thi nó.** Lần sau mình sẽ thêm lint rule kiểm soát ranh giới (như `eslint-plugin-boundaries`) ngay từ ngày đầu.
+- **Nợ kỹ thuật sinh lãi.** Một đường tắt nhỏ lúc MVP về sau thành vấn đề kiến trúc. Giờ mình trả nợ sớm.
+- **Thấy một lỗi thì tìm cả anh em của nó.** Phiên bản tệ nhất của lỗi múi giờ lại là cái không ai báo.

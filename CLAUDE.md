@@ -153,6 +153,18 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   `content/blog/*.mdx`, validated by the Zod schemas in `velite.config.ts`.
   Don't hand-write JSON for this content — add an `.mdx` file matching the
   schema.
+- Case study files are `content/work/<slug>.<locale>.mdx`. `draft: true`
+  hides a translation in production builds (it behaves like a missing one:
+  EN fallback, no hreflang, no sitemap entry) and shows it in `pnpm dev`. An
+  English file is never a draft.
+- MDX `<Image src width height alt />` maps to `next/image`
+  (`shared/mdx/MdxImage.tsx`): lazy, keeps the given size, renders nothing
+  if the file under `public/` is missing.
+- The blog is behind `site.features.blog` (`shared/lib/site.ts`); use
+  `isBlogEnabled()` from `@/shared/content` for anything blog-related.
+- `scripts/stale-claims.mjs` is the single list of banned claims; add a
+  pattern there (with a case in `stale-claims.test.ts`) when a claim is
+  retracted.
 
 ## Out of scope reminders
 

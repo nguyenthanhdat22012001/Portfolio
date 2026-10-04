@@ -1,3 +1,12 @@
+export interface LighthouseScores {
+  performance: number;
+  accessibility: number;
+  bestPractices: number;
+  seo: number;
+  // ISO date of the production run the scores come from.
+  measuredAt: string;
+}
+
 // Data, not copy: these values are identical in every locale.
 export const site = {
   name: "Nguyen Thanh Dat",
@@ -18,12 +27,12 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/dat-nguyen-b26744277",
   github: "https://github.com/nguyenthanhdat22012001",
   cv: "/cv.pdf",
-  // Lighthouse (mobile) for /en. Update from the latest LHCI report
-  // (.lighthouseci/ locally, or the "lighthouse-report" CI artifact).
-  lighthouse: {
-    performance: 98,
-    accessibility: 100,
-    bestPractices: 100,
-    seo: 100
-  }
+  repo: "https://github.com/nguyenthanhdat22012001/Portfolio",
+  // Feature flags. Turning `blog` on (with at least one post in
+  // content/blog) needs no other code change.
+  features: { blog: false as boolean },
+  // Lighthouse (mobile, production URL), updated by hand after each release
+  // from a real production run; null until the first one. The footer hides
+  // scores older than 90 days.
+  lighthouse: null as LighthouseScores | null
 } as const;

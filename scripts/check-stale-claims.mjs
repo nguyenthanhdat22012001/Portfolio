@@ -2,24 +2,10 @@
 // message catalogs. Runs in CI right after `pnpm build`.
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { BANNED } from "./stale-claims.mjs";
 
 const BUILD_ROOT = ".next/server/app";
 const ROOTS = [BUILD_ROOT, "content", "src/shared/i18n/messages"];
-const BANNED = [
-  // (?<![\d.]) avoids false positives on CSS such as "0.12s"
-  /(?<![\d.])1[23](?:[–-]13)?\s?s\b/, // 12s, 13s, 12–13s
-  /(?<![\d.])1\.8\s?s\b/,
-  /(?<![\d.])1–3\s?s\b/,
-  /(?<![\d.])8–9\s?s\b/,
-  /\b40\+/,
-  /\b12\.6k\b/,
-  /\b520\+/,
-  /\b8 (languages|ngôn ngữ)\b/i,
-  /\b2 teams?\b/i,
-  /\b5–10 (min|phút)/i,
-  /\b4 tiers\b/i,
-  /loom\.com/i
-];
 
 const walk = (dir) =>
   readdirSync(dir).flatMap((name) => {

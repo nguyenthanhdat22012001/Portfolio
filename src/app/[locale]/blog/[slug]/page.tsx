@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { getPostBySlug, getPostLocales, getPostParams } from "@/shared/content";
+import {
+  getPostBySlug,
+  getPostLocales,
+  getPostParams,
+  isBlogEnabled
+} from "@/shared/content";
 import { isValidLocale, routing } from "@/shared/i18n/routing";
 import { MdxContent } from "@/shared/mdx/MdxContent";
 import { buildMetadata } from "@/shared/seo/build-metadata";
@@ -14,7 +19,7 @@ import { ArticleLayout } from "@/shared/ui/ArticleLayout";
 type Params = Promise<{ locale: string; slug: string }>;
 
 export function generateStaticParams() {
-  return getPostParams();
+  return isBlogEnabled() ? getPostParams() : [];
 }
 
 export async function generateMetadata({
@@ -23,7 +28,7 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  if (!isValidLocale(locale)) return {};
+  if (!isValidLocale(locale) || !isBlogEnabled()) return {};
   const entry = getPostBySlug(slug, locale);
   if (!entry) return {};
 
@@ -39,7 +44,7 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: { params: Params }) {
   const { locale, slug } = await params;
-  if (!isValidLocale(locale)) notFound();
+  if (!isValidLocale(locale) || !isBlogEnabled()) notFound();
   const entry = getPostBySlug(slug, locale);
   if (!entry) notFound();
 

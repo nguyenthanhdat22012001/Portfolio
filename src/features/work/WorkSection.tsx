@@ -13,7 +13,10 @@ import { SwiftVisual } from "./chapters/SwiftVisual";
 import { yearRange } from "./period";
 import { WorkChapter } from "./WorkChapter";
 
-const visuals: Record<ChapterKey, () => Promise<JSX.Element>> = {
+const visuals: Record<
+  ChapterKey,
+  (props: { headline: string }) => Promise<JSX.Element>
+> = {
   swift: SwiftVisual,
   oneloyalty: OneloyaltyVisual,
   safebulk: SafeBulkVisual
@@ -69,7 +72,7 @@ export async function WorkSection() {
                 label: tLinks(key)
               }))}
               newTabLabel={tLinks("opensInNewTab")}
-              visual={<Visual />}
+              visual={<Visual headline={doc.metrics[0]?.value ?? ""} />}
               reversed={index % 2 === 1}
               motionName={chapterMotion[chapter.key]}
             />

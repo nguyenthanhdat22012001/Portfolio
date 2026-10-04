@@ -15,12 +15,19 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
   const showBlog = isBlogEnabled();
 
   const linkClass = "text-fg-muted hover:text-fg font-mono text-sm";
+  // Links to Home don't prefetch on sight: on a case study that would load
+  // the Home page chunk during the page load and push Lighthouse's script
+  // size over budget. Hover still prefetches.
 
   const links = (
     <ul className="flex flex-col gap-4 md:flex-row md:gap-10">
       {sections.map((id) => (
         <li key={id}>
-          <Link href={{ pathname: "/", hash: id }} className={linkClass}>
+          <Link
+            href={{ pathname: "/", hash: id }}
+            prefetch={false}
+            className={linkClass}
+          >
             {t(id)}
           </Link>
         </li>
@@ -50,6 +57,7 @@ export async function SiteHeader({ locale }: { locale: Locale }) {
         >
           <Link
             href="/"
+            prefetch={false}
             aria-label={t("homeLabel")}
             className="font-mono text-lg font-bold tracking-[-0.02em]"
           >

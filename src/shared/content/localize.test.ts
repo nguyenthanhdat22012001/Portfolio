@@ -141,11 +141,11 @@ describe("availableLocales", () => {
 });
 
 describe("withoutDrafts", () => {
-  const all = [
-    { slug: "a", locale: "en" },
-    { slug: "a", locale: "vi", draft: true },
-    { slug: "b", locale: "vi", draft: false }
-  ] as const;
+  const all: { slug: string; draft?: boolean }[] = [
+    { slug: "a" },
+    { slug: "a", draft: true },
+    { slug: "b", draft: false }
+  ];
 
   it("drops drafts when drafts are excluded", () => {
     expect(withoutDrafts(all, false)).toEqual([all[0], all[2]]);

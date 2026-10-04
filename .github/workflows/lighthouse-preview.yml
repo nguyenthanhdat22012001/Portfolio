@@ -7,12 +7,23 @@ permissions:
   contents: read
 
 jobs:
+  # A required check that is skipped counts as passing, so the job also runs
+  # (and fails) when the preview deployment failed. Only pending /
+  # in_progress / queued states are skipped; a later success or failure
+  # event for the same deployment runs it.
   lighthouse-preview:
     if: >-
-      github.event.deployment_status.state == 'success' &&
-      startsWith(github.event.deployment_status.environment, 'Preview')
+      startsWith(github.event.deployment_status.environment, 'Preview') &&
+      contains(fromJSON('["success","failure","error"]'), github.event.deployment_status.state)
     runs-on: ubuntu-latest
     steps:
+      - name: Fail when the preview deployment failed
+        if: github.event.deployment_status.state != 'success'
+        env:
+          STATE: ${{ github.event.deployment_status.state }}
+        run: |
+          echo "::error::Preview deployment failed (deployment state: $STATE). Nothing to audit."
+          exit 1
       - name: Require the Vercel protection bypass secret
         env:
           BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}

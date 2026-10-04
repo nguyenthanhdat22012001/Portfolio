@@ -230,7 +230,17 @@ risk: the header goes with every request of the audit, third-party requests
 included (the secret only opens previews of a public site, and Umami does not
 load without input).
 
-**Required checks on `master`.** Run once, as the repo admin:
+**Required checks on `master`.** GitHub counts a skipped required check as
+passing. `lighthouse-preview` therefore also runs, and fails with "Preview
+deployment failed", when the Vercel deployment fails or errors. It is still
+skipped for Vercel's `pending` / `in_progress` events, and that skipped run
+reports the check as passed until the deployment finishes, so a PR is
+mergeable while its preview is still building (or if Vercel renames the
+environment and the `Preview` filter stops matching). Requiring Vercel's own
+commit status closes that gap: it stays pending until the deployment is
+done and fails with it. Open any PR, copy the exact context name Vercel posts
+there (for example `Vercel`), and put it in `contexts` below in place of
+`<Vercel status context>`. Run once, as the repo admin:
 
 ```bash
 gh api -X PUT repos/nguyenthanhdat22012001/Portfolio/branches/master/protection --input - <<'EOF'
@@ -241,7 +251,7 @@ gh api -X PUT repos/nguyenthanhdat22012001/Portfolio/branches/master/protection 
       "checks",
       "e2e (chromium)", "e2e (chromium-no-webgl)", "e2e (firefox)", "e2e (webkit)",
       "e2e (iphone-13)", "e2e (pixel-7)", "e2e (chromium-reduced-motion)",
-      "lhci", "lighthouse-preview"
+      "lhci", "lighthouse-preview", "<Vercel status context>"
     ]
   },
   "enforce_admins": false,

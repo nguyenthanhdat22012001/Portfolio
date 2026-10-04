@@ -210,7 +210,10 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   `@webgl` (desktop Chromium only), `@desktop` (not on phones) or `@motion` (not
   under reduced motion).
 - Required checks on `master`: `checks`, every `e2e (<project>)`, `lhci`,
-  `lighthouse-preview` (the `gh api` command is in the README). Preview
+  `lighthouse-preview` and Vercel's own deployment status (the `gh api`
+  command is in the README). A skipped required check counts as passing, so
+  `lighthouse-preview` also runs, and fails, on a failed or errored preview
+  deployment. Preview
   Lighthouse sends the Vercel bypass header; its secret is scrubbed from report
   artifacts before upload, and workflows keep `permissions: contents: read`.
 

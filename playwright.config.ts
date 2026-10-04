@@ -9,7 +9,8 @@ const NOT_WEBGL = [WEBGL_SPECS, NO_WEBGL_SPEC];
 
 // Optional: run against a deployment (e.g. a Vercel preview) instead of a
 // local build. The bypass header goes with every request, third-party
-// included; the secret only opens previews of a public site.
+// included; the secret only opens previews of a public site. The toolbar
+// header keeps Vercel's preview toolbar (its own scripts and requests) out.
 const remote = process.env.PLAYWRIGHT_BASE_URL;
 const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
@@ -27,7 +28,12 @@ export default defineConfig({
   use: {
     baseURL: remote ?? "http://localhost:3000",
     ...(remote && bypass
-      ? { extraHTTPHeaders: { "x-vercel-protection-bypass": bypass } }
+      ? {
+          extraHTTPHeaders: {
+            "x-vercel-protection-bypass": bypass,
+            "x-vercel-skip-toolbar": "1"
+          }
+        }
       : {})
   },
   webServer: remote

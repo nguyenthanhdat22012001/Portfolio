@@ -15,7 +15,9 @@ const blocks: ReadonlyArray<keyof typeof blockColors> = [
   "earth", "muted", "fg", "muted", "muted", "muted"
 ];
 
-export async function OneloyaltyVisual() {
+// `headline` is the case study's metrics[0] value (the dashboard CLS), so the
+// demo never hard-codes a number.
+export async function OneloyaltyVisual({ headline }: { headline: string }) {
   const t = await getTranslations("work.oneloyalty");
 
   return (
@@ -39,7 +41,7 @@ export async function OneloyaltyVisual() {
           ))}
         </div>
       </div>
-      <ClsDemo />
+      <ClsDemo cls={headline} />
     </figure>
   );
 }

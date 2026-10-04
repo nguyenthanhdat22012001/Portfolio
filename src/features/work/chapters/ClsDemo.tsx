@@ -74,7 +74,7 @@ function Pane({
   );
 }
 
-export async function ClsDemo() {
+export async function ClsDemo({ cls }: { cls: string }) {
   const t = await getTranslations("work.oneloyalty.cls");
 
   return (
@@ -82,9 +82,9 @@ export async function ClsDemo() {
       data-cls-demo=""
       className="grid gap-4 md:aspect-[16/10] md:grid-cols-2"
     >
-      <p className="sr-only">{t("summary")}</p>
+      <p className="sr-only">{t("summary", { cls })}</p>
       <Pane layer="before" label={t("before")} shiftLabel={t("shift")} />
-      <Pane layer="after" label={t("after")} />
+      <Pane layer="after" label={t("after", { cls })} />
     </div>
   );
 }

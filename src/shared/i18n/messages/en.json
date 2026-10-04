@@ -91,9 +91,9 @@
     "oneloyalty": {
       "componentsCaption": "Shared <pkg>packages/ui</pkg>",
       "cls": {
-        "summary": "Before: an async section loads and pushes the cards down. After: space is reserved, nothing moves, CLS ≤ 0.1.",
+        "summary": "Before: an async section loads and pushes the cards down. After: space is reserved, nothing moves, CLS {cls}.",
         "before": "Before · layout shift",
-        "after": "After · space reserved · CLS ≤ 0.1",
+        "after": "After · space reserved · CLS {cls}",
         "shift": "↓ shift"
       }
     },

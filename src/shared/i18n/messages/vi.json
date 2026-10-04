@@ -91,9 +91,9 @@
     "oneloyalty": {
       "componentsCaption": "<pkg>packages/ui</pkg> dùng chung",
       "cls": {
-        "summary": "Trước: một phần tải bất đồng bộ đẩy các thẻ xuống. Sau: chừa sẵn chỗ, không gì dịch chuyển, CLS ≤ 0.1.",
+        "summary": "Trước: một phần tải bất đồng bộ đẩy các thẻ xuống. Sau: chừa sẵn chỗ, không gì dịch chuyển, CLS {cls}.",
         "before": "Trước · layout shift",
-        "after": "Sau · chừa sẵn chỗ · CLS ≤ 0.1",
+        "after": "Sau · chừa sẵn chỗ · CLS {cls}",
         "shift": "↓ dịch chuyển"
       }
     },

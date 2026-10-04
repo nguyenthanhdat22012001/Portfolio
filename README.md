@@ -142,9 +142,10 @@ To launch the blog, set it to `true` and add posts as
   no input at all records no pageview. It is not `next/script`, which adds
   1.6 KB to the initial JS.
 - **Vercel Speed Insights** renders only on Vercel (`VERCEL=1`); elsewhere its
-  script URL returns 404. Initial JS went from about 142 KB to 143.1 KB gzip
-  with Umami's loader and Speed Insights together. Vercel Web Analytics is
-  deliberately off.
+  script URL returns 404. Its client component still adds about 1.25 KB gzip
+  to the layout chunk on every deployment, even where it doesn't render
+  (measured in Lighthouse's script-size context: removing it took `/en` from
+  155,039 B to 153,798 B). Vercel Web Analytics is deliberately off.
 - **Events.** Mark an element with `trackAttrs()` (`src/shared/analytics/events.ts`);
   code with no DOM element calls `track()` (`track.ts`). Never use
   `data-umami-event`: it cancels same-tab clicks.
@@ -206,9 +207,9 @@ Lazy-chunk budgets are enforced by e2e: 3D chunk ≤ 250 KB gzip, About chunk
 Lighthouse thresholds (`lighthouserc.json`, mobile, 3 runs): Performance ≥ 0.9,
 Accessibility ≥ 0.95, Best Practices = 1, SEO = 1, script size ≤ 150 KB,
 TBT ≤ 200 ms, CLS ≤ 0.1, all `error`. The exception is LCP ≤ 2500 ms, which is
-a `warn`: Lighthouse's simulated mobile LCP stays at 2.6–2.9 s with the ~130 KB
-framework runtime even with every font and image blocked, while the observed
-LCP is 40–80 ms. Real-user LCP from Speed Insights is the KPI.
+a `warn`: Lighthouse's simulated mobile LCP has a floor of 2.6–2.9 s, measured
+with the ~130 KB framework runtime and nothing else loading (every font and
+image blocked); the 2.7–3.4 s above is the normal page. The observed LCP is 40–80 ms. Real-user LCP from Speed Insights is the KPI.
 
 **Preview bypass.** Preview deployments are protected, so the workflow sends
 the `x-vercel-protection-bypass` header (secret `VERCEL_AUTOMATION_BYPASS_SECRET`)

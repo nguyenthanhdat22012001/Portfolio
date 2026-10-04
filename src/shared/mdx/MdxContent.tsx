@@ -2,6 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 import * as runtime from "react/jsx-runtime";
 import { Link } from "@/shared/i18n/navigation";
 import { linkKind, slugify, textContent } from "./mdx-utils";
+import { MdxImage } from "./MdxImage";
 
 const linkClass = "text-accent underline underline-offset-4";
 
@@ -90,7 +91,8 @@ const components = {
   td: (props: ComponentProps<"td">) => (
     <td className="border-border border px-3 py-2 align-top" {...props} />
   ),
-  hr: () => <hr className="border-border my-10" />
+  hr: () => <hr className="border-border my-10" />,
+  Image: MdxImage
 };
 
 // Velite compiles MDX to a function body that expects the JSX runtime as its

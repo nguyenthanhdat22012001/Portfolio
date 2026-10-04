@@ -3,6 +3,9 @@ name: Lighthouse (preview)
 on:
   deployment_status:
 
+permissions:
+  contents: read
+
 jobs:
   lighthouse-preview:
     if: >-
@@ -30,6 +33,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Collect (mobile, 3 runs per URL)
+        id: collect
         env:
           BASE: ${{ github.event.deployment_status.target_url }}
           BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
@@ -41,13 +45,32 @@ jobs:
             --url="$BASE/en/work/oneloyalty-layered-architecture" \
             --url="$BASE/vi/work/safebulk-bulk-editor" \
             --numberOfRuns=3 \
-            --settings.extraHeaders="{\"x-vercel-protection-bypass\":\"$BYPASS\"}"
+            --settings.extraHeaders="{\"x-vercel-protection-bypass\":\"$BYPASS\",\"x-vercel-skip-toolbar\":\"1\"}"
       - name: Assert (same thresholds as the local run)
         run: pnpm exec lhci assert --config=./lighthouserc.json
-      - if: always()
+      - if: always() && steps.collect.outcome != 'skipped'
         run: pnpm exec lhci upload --target=filesystem --outputDir=.lighthouseci
+      # Lighthouse keeps configSettings.extraHeaders, bypass secret included,
+      # in every LHR (.json and the JSON embedded in .html). Scrub it before
+      # anything leaves the runner; the artifact uploads only if this passed.
+      - name: Scrub the bypass secret from the reports
+        id: scrub
+        if: always() && steps.collect.outcome != 'skipped'
+        env:
+          BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          if [ -z "$BYPASS" ]; then
+            echo "::error::No bypass secret to scrub."
+            exit 1
+          fi
+          mkdir -p .lighthouseci
+          find .lighthouseci -type f -exec perl -pi -e 's/\Q$ENV{BYPASS}\E/[redacted]/g' {} +
+          if grep -rqF -- "$BYPASS" .lighthouseci; then
+            echo "::error::The bypass secret is still in .lighthouseci; not uploading."
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.scrub.outcome == 'success'
         with:
           name: lighthouse-preview-report
           path: .lighthouseci/

@@ -4,8 +4,8 @@ import { startHashLinks } from "./hash-links";
 
 let stop: (() => void) | undefined;
 
-function setup(href: string) {
-  document.body.innerHTML = `<a href="${href}">About</a><section id="about"></section>`;
+function setup(href: string, targetAttrs = "") {
+  document.body.innerHTML = `<a href="${href}">About</a><section id="about" ${targetAttrs}></section>`;
   const lenis = { scrollTo: vi.fn() };
   stop = startHashLinks({
     gsap: {} as never,
@@ -58,6 +58,23 @@ describe("startHashLinks", () => {
     const event = click(link, { detail: 0 });
     expect(event.defaultPrevented).toBe(false);
     expect(lenis.scrollTo).not.toHaveBeenCalled();
+  });
+
+  // Firefox reports a keyboard-activated link click with detail 1, so it
+  // reaches the Lenis path; focus must still move like a native jump.
+  it("moves focus to a focusable target without scrolling natively", () => {
+    const { link, target } = setup("#about", 'tabindex="-1"');
+    const focus = vi.spyOn(target as HTMLElement, "focus");
+    click(link);
+    expect(document.activeElement).toBe(target);
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+  });
+
+  it("leaves focus alone when the target is not focusable", () => {
+    const { link } = setup("#about");
+    link.focus();
+    click(link);
+    expect(document.activeElement).toBe(link);
   });
 
   it("ignores modified clicks", () => {

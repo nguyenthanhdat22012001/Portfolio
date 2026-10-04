@@ -242,11 +242,31 @@ test("with Umami blocked, tracked controls still work and nothing throws", async
   expect(errors).toEqual([]);
 });
 
-test("no cookies are set", async ({ page, context }) => {
+// next-intl sets NEXT_LOCALE only when the URL's locale differs from the
+// one Accept-Language would pick, so visiting /en alone in an en-US browser
+// never showed it. Check every document response, both locales.
+test("no cookies are set", async ({ page, context, request }) => {
   await stubUmami(context);
+  const root = await request.get("/", {
+    maxRedirects: 0,
+    headers: { "accept-language": "vi" }
+  });
+  expect(root.status()).toBe(307);
+  expect(root.headers()["location"]).toMatch(/\/vi$/);
+  expect(root.headers()["set-cookie"]).toBeUndefined();
+
+  for (const path of [
+    "/en",
+    "/vi",
+    "/en/work/swift-performance",
+    "/vi/work/safebulk-bulk-editor"
+  ]) {
+    const response = await page.goto(path);
+    expect(await response!.headerValue("set-cookie"), path).toBeNull();
+    await waitForUmami(page);
+  }
   await page.goto("/en");
   await waitForUmami(page);
   await page.locator('button[data-track="email_copy"]').click();
-  await page.goto("/en/work/swift-performance");
   expect(await context.cookies()).toEqual([]);
 });

@@ -39,6 +39,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   `window.__umamiQueue`. A visit with no input records no pageview; that is
   accepted. The script carries `data-exclude-hash` because hash links
   `pushState` their hash.
+- The site sets no cookies: Umami is cookieless and next-intl's
+  `localeCookie` is `false`. `e2e/analytics.spec.ts` checks every document
+  response for `Set-Cookie`.
 - `umamiConfig()` decides where Umami may send (Vercel production only, via
   `data-domains`); `speedInsightsEnabled()` renders Speed Insights only on
   Vercel. Vercel Web Analytics stays off.
@@ -174,6 +177,8 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   server actions can't read root params, so pass `locale` explicitly there.
 - next-intl's `alternateLinks` is `false` in `shared/i18n/routing.ts`: hreflang
   comes only from `buildMetadata`, so fallback pages never advertise `/vi`.
+  `localeCookie` is `false` too: no `NEXT_LOCALE` cookie (the site sets no
+  cookies); `/` redirects by `Accept-Language` on every visit.
 - Locale routing lives in `src/proxy.ts` (Next 16's rename of
   `middleware.ts`).
 

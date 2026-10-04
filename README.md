@@ -87,7 +87,9 @@ key trees and placeholders identical. A case study without a published
 Vietnamese version falls back to English with a notice; that page is
 canonicalised to `/en` and left out of hreflang and the sitemap. hreflang
 comes only from `buildMetadata` (next-intl's `alternateLinks` is off), so a
-fallback page never advertises `/vi`.
+fallback page never advertises `/vi`. next-intl's `NEXT_LOCALE` cookie is off
+too (`localeCookie: false`): the locale lives in the URL, and `/` redirects by
+`Accept-Language` on every visit.
 
 ## Content model
 
@@ -133,6 +135,8 @@ To launch the blog, set it to `true` and add posts as
 
 ## Analytics
 
+- **No cookies at all.** Umami is cookieless, and next-intl's locale cookie is
+  off. e2e checks every document response for `Set-Cookie`.
 - **Umami Cloud**, with `data-do-not-track` and `data-exclude-hash` (in-page
   anchors push their hash, which Umami would otherwise count as pageviews). It
   sends only from the Vercel production build (`data-domains` is the site

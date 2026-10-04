@@ -40,6 +40,9 @@ pnpm check:claims` and the Playwright suite pass; the done-when lists of 6.0,
   - Remove `cover`, `order`, `featured`.
   - VI files keep `draft: true`.
 - Body text is used as delivered, except any MDX syntax fixes needed to compile.
+- The delivered SafeBulk titles exceed the 60-char limit (EN 66, VI 65); they
+  are shortened to "SafeBulk: bulk edits you can preview before they apply" /
+  "SafeBulk: xem trước kết quả rồi mới chỉnh hàng loạt" and flagged for Dat.
 
 ### Schema and draft filtering
 
@@ -128,8 +131,8 @@ pnpm check:claims` and the Playwright suite pass; the done-when lists of 6.0,
     when enabled.
   - `app/[locale]/blog/page.tsx` and `blog/[slug]/page.tsx`: `notFound()` when
     disabled; `generateStaticParams` returns `[]`.
-  - `buildSitemap` takes a `blog: boolean` input; when false, no `/blog`
-    entries at all.
+  - `app/sitemap.ts` passes no posts when disabled; `buildSitemap` already
+    emits no `/blog` entry for an empty post list.
 - There is no RSS route or `<link>` and no blog post today, so nothing to
   remove there. `BlogPosting` JSON-LD code stays.
 - Tests: `e2e/blog.spec.ts` rewritten — `/en/blog` and `/vi/blog` return 404,

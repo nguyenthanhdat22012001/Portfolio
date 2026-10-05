@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { TrackAttrs } from "@/shared/analytics/events";
 
 // Client-only because the Clipboard API needs a click handler. The mailto
 // link rendered beside it is the fallback without JS or clipboard access.
@@ -8,12 +9,14 @@ export function CopyEmailButton({
   email,
   label,
   copiedLabel,
-  className
+  className,
+  trackAttrs
 }: {
   email: string;
   label: string;
   copiedLabel: string;
   className?: string;
+  trackAttrs?: TrackAttrs;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -34,7 +37,7 @@ export function CopyEmailButton({
 
   return (
     <>
-      <button type="button" onClick={copy} className={className}>
+      <button type="button" onClick={copy} className={className} {...trackAttrs}>
         {copied ? copiedLabel : label}
       </button>
       <span aria-live="polite" className="sr-only">

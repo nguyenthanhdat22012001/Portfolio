@@ -6,7 +6,8 @@
       "url": [
         "http://localhost:3000/en",
         "http://localhost:3000/vi",
-        "http://localhost:3000/en/work/swift-performance"
+        "http://localhost:3000/en/work/swift-performance",
+        "http://localhost:3000/vi/work/safebulk-bulk-editor"
       ],
       "numberOfRuns": 3
     },
@@ -31,6 +32,14 @@
         "resource-summary:script:size": [
           "error",
           { "maxNumericValue": 153600, "aggregationMethod": "median" }
+        ],
+        "largest-contentful-paint": [
+          "warn",
+          { "maxNumericValue": 2500, "aggregationMethod": "median-run" }
+        ],
+        "total-blocking-time": [
+          "error",
+          { "maxNumericValue": 200, "aggregationMethod": "median-run" }
         ],
         "cumulative-layout-shift": [
           "error",

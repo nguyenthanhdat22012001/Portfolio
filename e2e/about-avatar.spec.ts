@@ -1,10 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
+import { cspViolations, watchCsp } from "./helpers/csp";
 import { trackLiveGl } from "./helpers/gl";
 import {
   collectConsoleProblems,
   gzipBytes,
   trackScripts
 } from "./helpers/scripts";
+import { stubUmami, umamiCalls } from "./helpers/umami";
 
 // Same cap as the Phase 5B avatar chunk (design D3); measured 25.5 KB after Phase 5C.
 const AVATAR_BUDGET_BYTES = 26 * 1024;
@@ -107,6 +109,22 @@ const tierStore = (page: Page, action: "read" | "drop") =>
 const dropTierToLow = (page: Page) => tierStore(page, "drop");
 
 test.describe("About avatar on desktop", () => {
+  test("no CSP violations once the avatar (meshopt WASM) has loaded", async ({
+    page
+  }) => {
+    await watchCsp(page);
+    const glb = trackGlb(page);
+    await page.goto("/en");
+    await heroLive(page);
+    await scrollSlotTo(page, 1.2);
+    await scrollSlotTo(page, 0.15);
+    await expect(slot(page)).toHaveAttribute("data-avatar-phase", "idle", {
+      timeout: 20_000
+    });
+    expect(glb).toHaveLength(1);
+    expect(await cspViolations(page)).toEqual([]);
+  });
+
   test("initial load: no avatar code, no avatar.glb, nothing in the Hero", async ({
     page
   }) => {
@@ -304,6 +322,7 @@ test.describe("About avatar on desktop", () => {
   test("hover sets the avatar cursor; a click in idle waves again", async ({
     page
   }) => {
+    await stubUmami(page.context());
     const phases = await recordPhases(page);
     await page.goto("/en");
     await heroLive(page);
@@ -326,6 +345,7 @@ test.describe("About avatar on desktop", () => {
       timeout: 6_000
     });
     expect((await phases()).slice(before)).toEqual(["wave", "idle"]);
+    expect(await umamiCalls(page)).toContainEqual(["avatar_wave_click", null]);
   });
 
   test("≤ 3 draw calls in About and ≤ 2 live WebGL contexts", async ({

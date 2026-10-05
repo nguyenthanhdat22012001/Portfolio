@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { trackAttrs } from "@/shared/analytics/events";
 import { magnetic, motion } from "@/shared/animation/motion";
 import { site } from "@/shared/lib/site";
 import { ButtonLink } from "@/shared/ui/ButtonLink";
@@ -34,7 +35,7 @@ export async function HeroSection() {
             <p className="text-fg-muted font-mono text-sm">{t("subline")}</p>
           </div>
           <div className="mt-2 flex flex-wrap gap-3">
-            <ButtonLink href="#work" {...magnetic()}>
+            <ButtonLink href="#work" {...magnetic()} {...trackAttrs("cta_view_work")}>
               {t("ctaWork")}
             </ButtonLink>
             <ButtonLink
@@ -42,6 +43,7 @@ export async function HeroSection() {
               download
               variant="secondary"
               {...magnetic()}
+              {...trackAttrs("cv_download", { location: "hero" })}
             >
               {t("ctaCv")}
             </ButtonLink>

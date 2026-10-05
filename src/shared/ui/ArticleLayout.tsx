@@ -37,8 +37,12 @@ export function ArticleLayout({
 }) {
   return (
     <Container size="narrow" className="py-12 sm:py-16">
+      {/* No prefetch on sight (hover still prefetches): the back link is in
+          view on load, and prefetching Home's page chunk pushes Lighthouse's
+          script size over budget. */}
       <Link
         href={backHref}
+        prefetch={false}
         transitionTypes={["nav-back"]}
         className="text-accent font-mono text-sm hover:underline"
       >

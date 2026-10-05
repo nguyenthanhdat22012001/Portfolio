@@ -8,6 +8,7 @@
     "prebuild": "velite build --strict",
     "build": "next build --webpack",
     "check:claims": "node scripts/check-stale-claims.mjs",
+    "check:bundles": "node scripts/check-bundles.mjs",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "velite build --strict && tsc --noEmit",
@@ -21,6 +22,7 @@
   "dependencies": {
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.1",
+    "@vercel/speed-insights": "^2.0.0",
     "gsap": "^3.15.0",
     "lenis": "^1.3.26",
     "next": "^16.3.6",

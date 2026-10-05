@@ -144,7 +144,9 @@ for (const locale of ["en", "vi"] as const) {
   });
 }
 
-test("Skills shows the nine CV v2 groups, GraphQL under State & Data", async ({ page }) => {
+test("Skills shows the nine CV v2 groups, GraphQL under State & Data", async ({
+  page
+}) => {
   await page.goto("/en");
   const skills = page.locator("section#skills");
   await expect(skills.locator("h2")).toHaveText("Toolbox");
@@ -216,8 +218,13 @@ test("the contact section links to LinkedIn, GitHub, and the CV", async ({
 
 test("the copy button puts the email on the clipboard", async ({
   page,
-  context
+  context,
+  browserName
 }) => {
+  test.skip(
+    browserName !== "chromium",
+    "clipboard permission is Chromium-only in Playwright"
+  );
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/en");
   await page

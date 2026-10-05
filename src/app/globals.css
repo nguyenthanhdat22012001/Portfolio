@@ -50,6 +50,34 @@
   }
 }
 
+/* Arrows and math signs in the copy (← → ↓ ↗ − ≤) come from a system font.
+   Open Sans and Google Sans Code keep most of them only in their "math" and
+   "symbols" faces, which cost ~65–90 KB of extra font per page and delayed
+   Lighthouse's LCP. Each face lists fonts that carry every glyph in its range:
+   macOS (Apple Symbols), iOS (Menlo), Windows (Segoe UI Symbol), Linux
+   (DejaVu Sans, FreeSans), Android (Noto Sans Symbols 2 / Roboto). If none is
+   installed, the stack falls through to the web fonts as before.
+   symbol-glyphs.test.ts keeps the ranges and the copy in step. */
+@font-face {
+  font-family: "Symbols Local";
+  src:
+    local("Apple Symbols"), local("AppleSymbols"), local("Segoe UI Symbol"),
+    local("SegoeUISymbol"), local("DejaVu Sans"), local("DejaVuSans"),
+    local("FreeSans"), local("Menlo Regular"), local("Menlo-Regular"),
+    local("Noto Sans Symbols 2"), local("NotoSansSymbols2-Regular");
+  unicode-range: U+2190, U+2192-2193, U+2197;
+}
+
+@font-face {
+  font-family: "Symbols Local";
+  src:
+    local("Apple Symbols"), local("AppleSymbols"), local("Segoe UI Symbol"),
+    local("SegoeUISymbol"), local("DejaVu Sans"), local("DejaVuSans"),
+    local("FreeSans"), local("Menlo Regular"), local("Menlo-Regular"),
+    local("Roboto"), local("Roboto-Regular");
+  unicode-range: U+2212, U+2264;
+}
+
 /* --bg-muted, --earth and --silver are decorative fills only, never text colors. */
 @theme inline {
   --color-bg: var(--bg);
@@ -64,8 +92,10 @@
   --color-border: var(--border);
   --radius-card: var(--radius);
   --spacing-section: var(--space-section);
-  --font-sans: var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-google-sans-code), ui-monospace, monospace;
+  --font-sans:
+    "Symbols Local", var(--font-open-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    "Symbols Local", var(--font-google-sans-code), ui-monospace, monospace;
 }
 
 @layer base {

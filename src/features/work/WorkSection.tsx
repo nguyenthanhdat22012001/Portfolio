@@ -69,7 +69,8 @@ export async function WorkSection() {
               readLabel={t("readCaseStudy")}
               links={pickLinks(doc.links, homeLinks).map(({ key, href }) => ({
                 href,
-                label: tLinks(key)
+                label: tLinks(key),
+                kind: key
               }))}
               newTabLabel={tLinks("opensInNewTab")}
               visual={<Visual headline={doc.metrics[0]?.value ?? ""} />}

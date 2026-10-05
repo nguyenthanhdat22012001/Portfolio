@@ -23,6 +23,51 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   Pass translated labels to client components as props instead of shipping
   message catalogs to the client.
 
+## Analytics
+
+- Mark elements with `trackAttrs()` from `shared/analytics/events.ts`
+  (server-rendered `data-track*` attributes, sent by the inline listener in
+  `tracking-script.ts`). Never use Umami's `data-umami-event`: it cancels
+  same-tab clicks. The listener is on `window` in the capture phase because
+  motion's hash links stop propagation. Code with no DOM element (the canvas)
+  calls `track()` from `shared/analytics/track.ts`, its own file so lazy chunks
+  share no module with the initial bundle.
+- Umami is injected by an inline loader on the first
+  scroll/pointermove/pointerdown/keydown/touchstart/click (`umami-loader.ts`),
+  not `next/script` (+1.6 KB) and not on load: Lighthouse counts its script
+  size. Clicks and `track()` calls before it arrives queue on
+  `window.__umamiQueue`. A visit with no input records no pageview; that is
+  accepted. The script carries `data-exclude-hash` because hash links
+  `pushState` their hash.
+- The site sets no cookies: Umami is cookieless and next-intl's
+  `localeCookie` is `false`. `e2e/analytics.spec.ts` checks every document
+  response for `Set-Cookie`.
+- Accepted limitation: 404s (`notFound()`, including `[...rest]`) render
+  Next's `<html id="__next_error__">` shell on the server, and the client
+  renders the localized not-found page from the RSC payload. Inline scripts
+  in the layout (theme, Umami loader, tracking listener) never run on that
+  document, even after a client navigation away from it, so 404 visits are
+  untracked and use the default theme until a full page load. A fix needs a
+  different 404 architecture (e.g. `global-not-found`), not a layout tweak.
+- `umamiConfig()` decides where Umami may send (Vercel production only, via
+  `data-domains`); `speedInsightsEnabled()` renders Speed Insights only on
+  Vercel. Vercel Web Analytics stays off.
+
+## Security headers
+
+- `shared/security/headers.ts` builds the static headers and CSP per
+  environment; `next.config.ts` applies them (`securityHeaderRules`).
+  Document-only headers (CSP, Referrer-Policy, Permissions-Policy,
+  X-Frame-Options, HSTS) are not sent on `/_next/static/*`, only `nosniff`:
+  Lighthouse counts response headers in script transfer size. Production adds
+  HSTS and `upgrade-insecure-requests`; development adds `'unsafe-eval'` and
+  `ws:`. `connect-src` includes `blob:` for GLTFLoader textures and
+  `https://gateway.umami.is`, where the Cloud tracker posts events (checked
+  by an e2e test running the vendored tracker, `e2e/fixtures/umami-script.js`).
+  No `interest-cohort` (Best Practices penalty).
+- Change a CSP host only with a network capture from a real deployment. Never
+  add `'unsafe-eval'` outside development, or a wildcard host.
+
 ## 3D and animation conventions (apply once those phases start)
 
 - Any 3D canvas import goes through
@@ -107,6 +152,22 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   on Next 16.3.6, Turbopack's home-page script output was 152 KB versus
   webpack's ~142 KB, and only webpack stays under the 150 KB budget above.
   Re-check this when upgrading Next.
+- `pnpm check:bundles` (`scripts/check-bundles.mjs`) enforces initial JS
+  ≤ 150 KB gzip for `/en` and `/vi` from the build output in CI, and that no
+  initial chunk contains three.js; lazy chunks stay in the e2e specs.
+- Lighthouse `largest-contentful-paint ≤ 2500` is `warn`, deliberately: Lantern's
+  simulated mobile LCP cannot reach 2.5 s with the ~130 KB framework runtime
+  (observed LCP is 40–80 ms). Real-user LCP from Speed Insights is the KPI. Do
+  not change it to `error`, and do not treat `warn` as an allowed way to loosen
+  any other threshold: all other assertions are `error`.
+- Symbol glyphs (← → ↓ ↗ − ≤) render from a local system font: a narrow
+  `unicode-range` `@font-face` with `local()` sources in `globals.css`, first in
+  both font stacks, avoids 65–150 KB of math/symbol web-font faces per page.
+  Don't add a new symbol character to copy without adding it to that range (and
+  to the test that checks it).
+- The `SiteHeader` Home links and the `ArticleLayout` back link use
+  `prefetch={false}` (hover still prefetches); prefetching the home chunk on
+  load pushed case studies over the Lighthouse script-size limit.
 - Lazy motion chunk (GSAP + ScrollTrigger + SplitText + Lenis + effects)
   ≤ 70 KB gzip, enforced by `e2e/motion.spec.ts` in CI.
 - CLS ≤ 0.1 (Lighthouse CI).
@@ -121,6 +182,10 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   `generateStaticParams` in `app/[locale]/layout.tsx` — pages without their
   own (home, blog index) rely on it to stay static. Route handlers and
   server actions can't read root params, so pass `locale` explicitly there.
+- next-intl's `alternateLinks` is `false` in `shared/i18n/routing.ts`: hreflang
+  comes only from `buildMetadata`, so fallback pages never advertise `/vi`.
+  `localeCookie` is `false` too: no `NEXT_LOCALE` cookie (the site sets no
+  cookies); `/` redirects by `Accept-Language` on every visit.
 - Locale routing lives in `src/proxy.ts` (Next 16's rename of
   `middleware.ts`).
 
@@ -146,6 +211,18 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   (e2e) test alongside feature code, not as an afterthought.
 - `pnpm lint && pnpm typecheck && pnpm test && pnpm build` must all pass
   before a change is considered done.
+- Playwright projects: `chromium` (all, incl. WebGL specs), `chromium-no-webgl`,
+  `firefox`, `webkit`, `iphone-13`, `pixel-7`, `chromium-reduced-motion`; WebGL
+  spec files are matched by file name in `playwright.config.ts`. Tag a test
+  `@webgl` (desktop Chromium only), `@desktop` (not on phones) or `@motion` (not
+  under reduced motion).
+- Required checks on `master`: `checks`, every `e2e (<project>)`, `lhci`,
+  `lighthouse-preview` and Vercel's own deployment status (the `gh api`
+  command is in the README). A skipped required check counts as passing, so
+  `lighthouse-preview` also runs, and fails, on a failed or errored preview
+  deployment. Preview
+  Lighthouse sends the Vercel bypass header; its secret is scrubbed from report
+  artifacts before upload, and workflows keep `permissions: contents: read`.
 
 ## Content
 

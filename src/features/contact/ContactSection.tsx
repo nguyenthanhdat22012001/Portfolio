@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { trackAttrs } from "@/shared/analytics/events";
 import { magnetic } from "@/shared/animation/motion";
 import { site } from "@/shared/lib/site";
 import { ButtonLink } from "@/shared/ui/ButtonLink";
@@ -33,6 +34,7 @@ export async function ContactSection() {
             email={site.email}
             label={t("copyEmail")}
             copiedLabel={t("copied")}
+            trackAttrs={trackAttrs("email_copy")}
             className="border-accent-fg/20 focus-visible:outline-accent-fg flex min-h-14 items-center border-t px-5 text-sm hover:opacity-90 focus-visible:-outline-offset-4 sm:border-t-0 sm:border-l sm:text-base"
           />
         </div>
@@ -42,6 +44,7 @@ export async function ContactSection() {
           size="lg"
           {...external}
           {...magnetic()}
+          {...trackAttrs("outbound_click", { target: "linkedin" })}
         >
           {t("linkedin")}
           <span aria-hidden="true">&nbsp;↗</span>
@@ -52,6 +55,7 @@ export async function ContactSection() {
           size="lg"
           {...external}
           {...magnetic()}
+          {...trackAttrs("outbound_click", { target: "github" })}
         >
           {t("github")}
           <span aria-hidden="true">&nbsp;↗</span>
@@ -62,6 +66,7 @@ export async function ContactSection() {
           variant="secondary"
           size="lg"
           {...magnetic()}
+          {...trackAttrs("cv_download", { location: "contact" })}
         >
           {t("cv")}
         </ButtonLink>

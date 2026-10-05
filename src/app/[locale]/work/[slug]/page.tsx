@@ -93,7 +93,8 @@ export default async function WorkCaseStudyPage({
           byline={[doc.role, doc.team].filter(Boolean).join(" · ")}
           links={pickLinks(doc.links).map(({ key, href }) => ({
             href,
-            label: tLinks(key)
+            label: tLinks(key),
+            kind: key
           }))}
           newTabLabel={tLinks("opensInNewTab")}
           notice={isFallback ? t("fallbackNotice") : undefined}

@@ -22,7 +22,10 @@ for (const locale of ["en", "vi"]) {
 test("/vi fallback case study marks its header links as vi", async ({
   page
 }) => {
-  test.skip(viPublished("safebulk-bulk-editor"), "VI is published; no fallback to test");
+  test.skip(
+    viPublished("safebulk-bulk-editor"),
+    "VI is published; no fallback to test"
+  );
   await page.goto("/vi/work/safebulk-bulk-editor");
   await expect(
     page.locator("article header ul:has(a[target=_blank])")
@@ -69,7 +72,10 @@ test("English case studies show no fallback notice", async ({ page }) => {
 });
 
 test("Vietnamese falls back to English with a notice", async ({ page }) => {
-  test.skip(viPublished("swift-performance"), "VI is published; no fallback to test");
+  test.skip(
+    viPublished("swift-performance"),
+    "VI is published; no fallback to test"
+  );
   await page.goto("/vi/work/swift-performance");
   await expect(page.getByTestId("fallback-notice")).toHaveText(
     "Bài viết này hiện chỉ có bằng tiếng Anh."
@@ -89,17 +95,19 @@ test("the locale switcher keeps the case study slug", async ({ page }) => {
   await expect(page).toHaveURL(/\/vi\/work\/swift-performance$/);
 });
 
-test("header section links from a case study go to the home section", async ({
-  page
-}) => {
-  await page.goto("/en/work/swift-performance");
-  await page
-    .getByRole("navigation", { name: "Primary" })
-    .getByRole("link", { name: "About" })
-    .click();
-  await expect(page).toHaveURL(/\/en\/?#about$/);
-  await expect(page.locator("section#about h2")).toBeVisible();
-});
+test(
+  "header section links from a case study go to the home section",
+  { tag: "@desktop" },
+  async ({ page }) => {
+    await page.goto("/en/work/swift-performance");
+    await page
+      .getByRole("navigation", { name: "Primary" })
+      .getByRole("link", { name: "About" })
+      .click();
+    await expect(page).toHaveURL(/\/en\/?#about$/);
+    await expect(page.locator("section#about h2")).toBeVisible();
+  }
+);
 
 test("external MDX links open in a new tab", async ({ page }) => {
   await page.goto("/en/work/safebulk-bulk-editor");
@@ -237,7 +245,10 @@ test("Swift's header links to its live Shopify listing", async ({ page }) => {
 test("the Vietnamese home keeps English chapter content marked as English", async ({
   page
 }) => {
-  test.skip(viPublished("swift-performance"), "VI is published; no fallback to test");
+  test.skip(
+    viPublished("swift-performance"),
+    "VI is published; no fallback to test"
+  );
   await page.goto("/vi");
   const chapter = page.locator('article[data-chapter="swift-performance"]');
   await expect(chapter.locator("h3")).toHaveAttribute("lang", "en");
@@ -305,7 +316,9 @@ test("Swift renders its progress screenshot without layout shift", async ({
   await expect(image).toHaveAttribute("loading", "lazy");
 });
 
-test("the Oneloyalty chapter shows its frontmatter metrics", async ({ page }) => {
+test("the Oneloyalty chapter shows its frontmatter metrics", async ({
+  page
+}) => {
   await page.goto("/en");
   const stats = page.locator(
     'article[data-chapter="oneloyalty-layered-architecture"] dl dd'

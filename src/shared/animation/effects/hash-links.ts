@@ -2,8 +2,10 @@ import type { DesktopHandler } from "../types";
 
 // Mouse clicks on same-page #hash links scroll through Lenis so the motion
 // matches wheel scrolling. Keyboard activation (detail === 0) is left to the
-// browser so focus moves to the target. Runs in the capture phase so it
-// handles the click before Next's <Link>.
+// browser so focus moves to the target. Firefox reports keyboard clicks with
+// detail 1, so the Lenis path also focuses a focusable target (the skip
+// link's main[tabindex="-1"]), as a native fragment jump would. Runs in the
+// capture phase so it handles the click before Next's <Link>.
 export const startHashLinks: DesktopHandler = ({ lenis }) => {
   const onClick = (event: MouseEvent) => {
     if (
@@ -38,6 +40,7 @@ export const startHashLinks: DesktopHandler = ({ lenis }) => {
     event.stopPropagation();
     const margin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
     lenis.scrollTo(target, { offset: -margin });
+    if (target.hasAttribute("tabindex")) target.focus({ preventScroll: true });
     // Clicking the same hash link again re-scrolls to the same target; it
     // shouldn't push a second, identical history entry that Back would then
     // have to skip past.

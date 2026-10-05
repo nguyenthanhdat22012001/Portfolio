@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { track } from "@/shared/analytics/track";
 import { AVATAR } from "./avatar.config";
 
 // The slot is an external DOM node; the cursor effect reads this attribute.
@@ -32,7 +33,9 @@ export function AvatarHitProxy({
       onPointerOut={() => setAvatarHover(slot, false)}
       onClick={(event) => {
         event.stopPropagation();
-        if (active()) onWave();
+        if (!active()) return;
+        track("avatar_wave_click");
+        onWave();
       }}
     >
       <capsuleGeometry args={[radius, AVATAR.height - 2 * radius, 4, 8]} />

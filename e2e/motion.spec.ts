@@ -23,58 +23,63 @@ test.describe("motion loading", () => {
     await loadMotion(page);
   });
 
-  test("the lazily loaded motion code stays under 70 KB gzip", async ({
-    page
-  }) => {
-    const lazyScripts: Response[] = [];
-    let armed = false;
-    page.on("response", (response) => {
-      if (
-        armed &&
-        response.request().resourceType() === "script" &&
-        response.url().includes("/_next/static/")
-      ) {
-        lazyScripts.push(response);
-      }
-    });
+  test(
+    "the lazily loaded motion code stays under 70 KB gzip",
+    { tag: "@webgl" },
+    async ({ page }) => {
+      const lazyScripts: Response[] = [];
+      let armed = false;
+      page.on("response", (response) => {
+        if (
+          armed &&
+          response.request().resourceType() === "script" &&
+          response.url().includes("/_next/static/")
+        ) {
+          lazyScripts.push(response);
+        }
+      });
 
+      await page.goto("/en");
+      await page.waitForLoadState("networkidle");
+      // The desktop hero canvas loads on idle; let it finish so its chunk
+      // isn't counted as motion code.
+      await expect(page.locator("[data-hero-graph]")).toHaveAttribute(
+        "data-gate",
+        "live",
+        { timeout: 15_000 }
+      );
+      armed = true;
+      await loadMotion(page);
+
+      const bodies = await Promise.all(lazyScripts.map((r) => r.body()));
+      const gzipBytes = bodies.reduce(
+        (sum, body) => sum + gzipSync(body).length,
+        0
+      );
+      console.log(`motion chunk: ${(gzipBytes / 1024).toFixed(1)} KB gzip`);
+      expect(lazyScripts.length).toBeGreaterThan(0);
+      expect(gzipBytes).toBeLessThanOrEqual(MOTION_BUDGET_BYTES);
+    }
+  );
+});
+
+test(
+  "header links smooth-scroll to their section on desktop",
+  { tag: "@desktop" },
+  async ({ page }) => {
     await page.goto("/en");
-    await page.waitForLoadState("networkidle");
-    // The desktop hero canvas loads on idle; let it finish so its chunk
-    // isn't counted as motion code.
-    await expect(page.locator("[data-hero-graph]")).toHaveAttribute(
-      "data-gate",
-      "live",
-      { timeout: 15_000 }
-    );
-    armed = true;
     await loadMotion(page);
+    await page
+      .getByRole("navigation", { name: "Primary" })
+      .getByRole("link", { name: "Work" })
+      .click();
+    await expect(page).toHaveURL(/#work$/);
+    await expect(page.locator("#work h2")).toBeInViewport();
+  }
+);
 
-    const bodies = await Promise.all(lazyScripts.map((r) => r.body()));
-    const gzipBytes = bodies.reduce(
-      (sum, body) => sum + gzipSync(body).length,
-      0
-    );
-    console.log(`motion chunk: ${(gzipBytes / 1024).toFixed(1)} KB gzip`);
-    expect(lazyScripts.length).toBeGreaterThan(0);
-    expect(gzipBytes).toBeLessThanOrEqual(MOTION_BUDGET_BYTES);
-  });
-});
-
-test("header links smooth-scroll to their section on desktop", async ({
-  page
-}) => {
-  await page.goto("/en");
-  await loadMotion(page);
-  await page
-    .getByRole("navigation", { name: "Primary" })
-    .getByRole("link", { name: "Work" })
-    .click();
-  await expect(page).toHaveURL(/#work$/);
-  await expect(page.locator("#work h2")).toBeInViewport();
-});
-
-test.describe("navigation", () => {
+// Pinned chapters exist only on desktop with motion allowed.
+test.describe("navigation", { tag: ["@desktop", "@motion"] }, () => {
   test("home → case study → back re-creates the pinned chapters", async ({
     page
   }) => {
@@ -165,52 +170,58 @@ test.describe("navigation", () => {
   });
 });
 
-test.describe("Lenis momentum vs. navigation scroll reset", () => {
-  test.use({ viewport: { width: 1280, height: 800 } });
+test.describe(
+  "Lenis momentum vs. navigation scroll reset",
+  { tag: ["@desktop", "@motion"] },
+  () => {
+    test.use({ viewport: { width: 1280, height: 800 } });
 
-  test("wheel momentum doesn't override the scroll reset when navigating into a case study", async ({
-    page
-  }) => {
-    await page.goto("/en");
-    await loadMotion(page);
+    test("wheel momentum doesn't override the scroll reset when navigating into a case study", async ({
+      page
+    }) => {
+      await page.goto("/en");
+      await loadMotion(page);
 
-    await page.mouse.wheel(0, 1200);
-    // force: true skips Playwright's default actionability wait (which
-    // scrolls the target into view and waits for its position to stop
-    // moving) — that wait happens to outlast Lenis's momentum tail, which
-    // would hide the regression under test. A real click can land mid-tail.
-    await page
-      .locator('[data-chapter="swift-performance"]')
-      .getByRole("link", { name: /Read case study/ })
-      .click({ force: true });
+      await page.mouse.wheel(0, 1200);
+      // dispatchEvent skips Playwright's actionability wait (which scrolls the
+      // target into view and waits for its position to stop moving) — that
+      // wait happens to outlast Lenis's momentum tail, which would hide the
+      // regression under test. A real click can land mid-tail. A coordinate
+      // click (even forced) misses in Firefox and WebKit, where Lenis pulls
+      // the link away after Playwright scrolls it into view.
+      await page
+        .locator('[data-chapter="swift-performance"]')
+        .getByRole("link", { name: /Read case study/ })
+        .dispatchEvent("click");
 
-    await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
-    await expect
-      .poll(() => page.evaluate(() => window.scrollY), { timeout: 10_000 })
-      .toBeLessThan(50);
-    await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
-  });
-
-  test("wheel momentum doesn't override the scroll reset when using the back link", async ({
-    page
-  }) => {
-    await page.goto("/en");
-    await loadMotion(page);
-    await page
-      .locator('[data-chapter="swift-performance"]')
-      .getByRole("link", { name: /Read case study/ })
-      .click();
-    await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
-
-    await page.mouse.wheel(0, 300);
-    await page.getByRole("link", { name: /←/ }).click();
-
-    await expect(page).toHaveURL(/\/en#work$/);
-    await expect(page.locator("#work h2")).toBeInViewport({
-      timeout: 10_000
+      await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+      await expect
+        .poll(() => page.evaluate(() => window.scrollY), { timeout: 10_000 })
+        .toBeLessThan(50);
+      await expect(page.getByRole("heading", { level: 1 })).toBeInViewport();
     });
-  });
-});
+
+    test("wheel momentum doesn't override the scroll reset when using the back link", async ({
+      page
+    }) => {
+      await page.goto("/en");
+      await loadMotion(page);
+      await page
+        .locator('[data-chapter="swift-performance"]')
+        .getByRole("link", { name: /Read case study/ })
+        .click();
+      await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+
+      await page.mouse.wheel(0, 300);
+      await page.getByRole("link", { name: /←/ }).click();
+
+      await expect(page).toHaveURL(/\/en#work$/);
+      await expect(page.locator("#work h2")).toBeInViewport({
+        timeout: 10_000
+      });
+    });
+  }
+);
 
 test.describe("without JavaScript", () => {
   test.use({ javaScriptEnabled: false });
@@ -296,76 +307,94 @@ test("content scrolled past before motion loads stays visible", async ({
   await page.evaluate(() =>
     document.querySelector("#skills")?.scrollIntoView()
   );
-  // The scroll above is the first interaction; wait for the engine.
-  await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+  // The scroll above is the first interaction; wait for the engine. Under
+  // load WebKit can scroll before hydration adds the listener, so repeat a
+  // scroll event in place (no movement) until motion loads.
+  await expect(async () => {
+    await page.evaluate(() => window.dispatchEvent(new Event("scroll")));
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-motion-ready",
+      "",
+      { timeout: 500 }
+    );
+  }).toPass({ timeout: 10_000 });
   await expect(page.locator("#about h2")).toHaveCSS("opacity", "1");
   await expect(page.locator("#skills li").first()).toHaveCSS("opacity", "1");
 });
 
-test("shrinking a desktop window to mobile removes pins", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto("/en");
-  await loadMotion(page);
-  await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
+test(
+  "shrinking a desktop window to mobile removes pins",
+  { tag: ["@desktop", "@motion"] },
+  async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/en");
+    await loadMotion(page);
+    await expect(page.locator(".pin-spacer")).not.toHaveCount(0);
 
-  await page.setViewportSize({ width: 390, height: 844 });
-  await expect(page.locator(".pin-spacer")).toHaveCount(0);
-  await page
-    .locator('[data-chapter="swift-performance"]')
-    .scrollIntoViewIfNeeded();
-  await expect(
-    page.locator('[data-chapter="swift-performance"] h3')
-  ).toBeVisible();
-});
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.locator(".pin-spacer")).toHaveCount(0);
+    await page
+      .locator('[data-chapter="swift-performance"]')
+      .scrollIntoViewIfNeeded();
+    await expect(
+      page.locator('[data-chapter="swift-performance"] h3')
+    ).toBeVisible();
+  }
+);
 
 test.describe("layout stability", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("Home keeps CLS under 0.1 while scrolling to the bottom", async ({
-    page
-  }) => {
-    // Session-window CLS, as Core Web Vitals defines it: shifts less than
-    // 1 s apart and within 5 s form a window; CLS is the worst window.
-    await page.addInitScript(() => {
-      const state = { cls: 0, current: 0, first: 0, last: 0 };
-      (window as unknown as { __cls: typeof state }).__cls = state;
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries() as unknown as Array<{
-          value: number;
-          startTime: number;
-          hadRecentInput: boolean;
-        }>) {
-          if (entry.hadRecentInput) continue;
-          const continues =
-            state.current > 0 &&
-            entry.startTime - state.last < 1000 &&
-            entry.startTime - state.first < 5000;
-          state.current = continues ? state.current + entry.value : entry.value;
-          if (!continues) state.first = entry.startTime;
-          state.last = entry.startTime;
-          state.cls = Math.max(state.cls, state.current);
-        }
-      }).observe({ type: "layout-shift", buffered: true });
-    });
+  // Scrolls with the mouse wheel, which mobile WebKit doesn't have.
+  test(
+    "Home keeps CLS under 0.1 while scrolling to the bottom",
+    { tag: "@desktop" },
+    async ({ page }) => {
+      // Session-window CLS, as Core Web Vitals defines it: shifts less than
+      // 1 s apart and within 5 s form a window; CLS is the worst window.
+      await page.addInitScript(() => {
+        const state = { cls: 0, current: 0, first: 0, last: 0 };
+        (window as unknown as { __cls: typeof state }).__cls = state;
+        new PerformanceObserver((list) => {
+          for (const entry of list.getEntries() as unknown as Array<{
+            value: number;
+            startTime: number;
+            hadRecentInput: boolean;
+          }>) {
+            if (entry.hadRecentInput) continue;
+            const continues =
+              state.current > 0 &&
+              entry.startTime - state.last < 1000 &&
+              entry.startTime - state.first < 5000;
+            state.current = continues
+              ? state.current + entry.value
+              : entry.value;
+            if (!continues) state.first = entry.startTime;
+            state.last = entry.startTime;
+            state.cls = Math.max(state.cls, state.current);
+          }
+        }).observe({ type: "layout-shift", buffered: true });
+      });
 
-    await page.goto("/en");
-    await loadMotion(page);
-    await expect(async () => {
-      await page.mouse.wheel(0, 600);
-      const atBottom = await page.evaluate(
-        () =>
-          window.scrollY + window.innerHeight >=
-          document.documentElement.scrollHeight - 2
+      await page.goto("/en");
+      await loadMotion(page);
+      await expect(async () => {
+        await page.mouse.wheel(0, 600);
+        const atBottom = await page.evaluate(
+          () =>
+            window.scrollY + window.innerHeight >=
+            document.documentElement.scrollHeight - 2
+        );
+        expect(atBottom).toBe(true);
+      }).toPass({ timeout: 30_000 });
+
+      const cls = await page.evaluate(
+        () => (window as unknown as { __cls: { cls: number } }).__cls.cls
       );
-      expect(atBottom).toBe(true);
-    }).toPass({ timeout: 30_000 });
-
-    const cls = await page.evaluate(
-      () => (window as unknown as { __cls: { cls: number } }).__cls.cls
-    );
-    console.log(`home CLS after scrolling: ${cls.toFixed(4)}`);
-    expect(cls).toBeLessThan(0.1);
-  });
+      console.log(`home CLS after scrolling: ${cls.toFixed(4)}`);
+      expect(cls).toBeLessThan(0.1);
+    }
+  );
 
   test("round trips to a case study don't leak ScrollTrigger triggers", async ({
     page

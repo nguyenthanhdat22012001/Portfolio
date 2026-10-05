@@ -1,23 +1,29 @@
 import { expect, test } from "@playwright/test";
 
 test("the skip link is the first focusable element and focuses main", async ({
-  page
+  page,
+  browserName
 }) => {
   await page.goto("/en");
-  await page.keyboard.press("Tab");
+  // WebKit's Tab skips links unless Option is held (Safari's default).
+  await page.keyboard.press(browserName === "webkit" ? "Alt+Tab" : "Tab");
   const skip = page.getByRole("link", { name: "Skip to content" });
   await expect(skip).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.locator("main#main")).toBeFocused();
 });
 
-test("the header lists section links", async ({ page }) => {
-  await page.goto("/en");
-  const nav = page.getByRole("navigation", { name: "Primary" });
-  for (const name of ["About", "Work", "Skills", "Contact"]) {
-    await expect(nav.getByRole("link", { name })).toBeVisible();
+test(
+  "the header lists section links",
+  { tag: "@desktop" },
+  async ({ page }) => {
+    await page.goto("/en");
+    const nav = page.getByRole("navigation", { name: "Primary" });
+    for (const name of ["About", "Work", "Skills", "Contact"]) {
+      await expect(nav.getByRole("link", { name })).toBeVisible();
+    }
   }
-});
+);
 
 test("the brand reads dat.nguyen and links home by name", async ({ page }) => {
   await page.goto("/en/work/swift-performance");

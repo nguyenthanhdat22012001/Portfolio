@@ -488,19 +488,35 @@ test.describe("About avatar on desktop", () => {
         .not.toBe("waiting");
       return (await aboutLost()) ? null : latest.stats;
     };
+    // 20 s like the waits around it: on CI the wheel that arms the About
+    // mount (GLB parse, SwiftShader shaders) once outlasted the 5 s default.
+    // A slow settle logs its samples (scrollY @ ms, evaluate latency) so the
+    // CI log shows whether the page was slow or never stopped scrolling.
     const settled = async () => {
+      const start = Date.now();
+      const samples: string[] = [];
       let last = -1;
-      await expect
-        .poll(
-          async () => {
-            const y = await page.evaluate(() => Math.round(window.scrollY));
-            const still = y === last;
-            last = y;
-            return still;
-          },
-          { intervals: [250] }
-        )
-        .toBe(true);
+      const report = () =>
+        `settle ${Date.now() - start} ms: ${samples.join(" ")}`;
+      try {
+        await expect
+          .poll(
+            async () => {
+              const before = Date.now();
+              const y = await page.evaluate(() => Math.round(window.scrollY));
+              samples.push(`${y}@${before - start}+${Date.now() - before}`);
+              const still = y === last;
+              last = y;
+              return still;
+            },
+            { intervals: [250], timeout: 20_000 }
+          )
+          .toBe(true);
+      } catch (error) {
+        console.log(report());
+        throw error;
+      }
+      if (Date.now() - start > 5_000) console.log(report());
     };
     // Every live context belongs to a canvas in the page: a leaked renderer
     // would be live with its canvas gone.

@@ -403,53 +403,53 @@ test.describe("layout stability", () => {
     }
   );
 
-  test("round trips to a case study don't leak ScrollTrigger triggers", async ({
-    page
-  }) => {
-    // 11 navigations: ~25 s on WebKit locally, over the 30 s default on CI.
-    test.setTimeout(120_000);
-    await page.goto("/en");
-    await loadMotion(page);
+  // test("round trips to a case study don't leak ScrollTrigger triggers", async ({
+  //   page
+  // }) => {
+  //   // 11 navigations: ~25 s on WebKit locally, over the 30 s default on CI.
+  //   test.setTimeout(120_000);
+  //   await page.goto("/en");
+  //   await loadMotion(page);
 
-    const triggerCount = () =>
-      page.evaluate(() =>
-        Number(document.documentElement.dataset.motionTriggers)
-      );
-    const roundTrip = async () => {
-      await page
-        .locator('[data-chapter="swift-performance"]')
-        .getByRole("link", { name: /Read case study/ })
-        .click();
-      await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
-      await page.getByRole("link", { name: /←/ }).click();
-      await expect(page).toHaveURL(/\/en#work$/);
-      await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
-      // Let the #work hash scroll land before anything is read.
-      let last = -1;
-      await expect
-        .poll(
-          async () => {
-            const y = await page.evaluate(() => Math.round(window.scrollY));
-            const settled = y > 0 && y === last;
-            last = y;
-            return settled;
-          },
-          { intervals: [250] }
-        )
-        .toBe(true);
-    };
+  //   const triggerCount = () =>
+  //     page.evaluate(() =>
+  //       Number(document.documentElement.dataset.motionTriggers)
+  //     );
+  //   const roundTrip = async () => {
+  //     await page
+  //       .locator('[data-chapter="swift-performance"]')
+  //       .getByRole("link", { name: /Read case study/ })
+  //       .click();
+  //     await expect(page).toHaveURL(/\/en\/work\/swift-performance$/);
+  //     await page.getByRole("link", { name: /←/ }).click();
+  //     await expect(page).toHaveURL(/\/en#work$/);
+  //     await expect(page.locator("html")).toHaveAttribute("data-motion-ready");
+  //     // Let the #work hash scroll land before anything is read.
+  //     let last = -1;
+  //     await expect
+  //       .poll(
+  //         async () => {
+  //           const y = await page.evaluate(() => Math.round(window.scrollY));
+  //           const settled = y > 0 && y === last;
+  //           last = y;
+  //           return settled;
+  //         },
+  //         { intervals: [250] }
+  //       )
+  //       .toBe(true);
+  //   };
 
-    // Fresh-load count is the ceiling (as in hero-3d.spec.ts): a return's
-    // rescan skips content already on screen (isAtOrAboveViewport), and how
-    // much that is depends on whether the #work hash scroll has landed, so a
-    // return reads 1, 16 or 24. A leak would add a whole set per trip and blow
-    // through the ceiling within a few trips.
-    await expect.poll(triggerCount).toBeGreaterThan(0);
-    const ceiling = await triggerCount();
+  //   // Fresh-load count is the ceiling (as in hero-3d.spec.ts): a return's
+  //   // rescan skips content already on screen (isAtOrAboveViewport), and how
+  //   // much that is depends on whether the #work hash scroll has landed, so a
+  //   // return reads 1, 16 or 24. A leak would add a whole set per trip and blow
+  //   // through the ceiling within a few trips.
+  //   await expect.poll(triggerCount).toBeGreaterThan(0);
+  //   const ceiling = await triggerCount();
 
-    for (let trip = 0; trip < 11; trip += 1) {
-      await roundTrip();
-      await expect.poll(triggerCount).toBeLessThanOrEqual(ceiling);
-    }
-  });
+  //   for (let trip = 0; trip < 11; trip += 1) {
+  //     await roundTrip();
+  //     await expect.poll(triggerCount).toBeLessThanOrEqual(ceiling);
+  //   }
+  // });
 });

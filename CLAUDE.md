@@ -211,7 +211,9 @@ two planning docs in `docs/`: the project plan and the Phase 5B/5C avatar specs.
   (e2e) test alongside feature code, not as an afterthought.
 - `pnpm lint && pnpm typecheck && pnpm test && pnpm build` must all pass
   before a change is considered done.
-- Playwright projects: `chromium` (all, incl. WebGL specs), `chromium-no-webgl`,
+- Playwright projects: `chromium` (all but `hero-3d`/`about-avatar`),
+  `chromium-webgl` (those two, `workers: 1`, run by the `e2e (chromium)` CI
+  job: parallel SwiftShader starves the CPU), `chromium-no-webgl`,
   `firefox`, `webkit`, `iphone-13`, `pixel-7`, `chromium-reduced-motion`; WebGL
   spec files are matched by file name in `playwright.config.ts`. Tag a test
   `@webgl` (desktop Chromium only), `@desktop` (not on phones) or `@motion` (not

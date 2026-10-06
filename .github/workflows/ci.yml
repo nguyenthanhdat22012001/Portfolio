@@ -49,7 +49,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { project: chromium, browser: chromium }
+          # Also runs chromium-webgl (the serial WebGL specs) in this job.
+          - { project: chromium, browser: chromium, also: chromium-webgl }
           - { project: chromium-no-webgl, browser: chromium }
           - { project: firefox, browser: firefox }
           - { project: webkit, browser: webkit }
@@ -71,7 +72,7 @@ jobs:
           name: next-build
           path: .next
       - run: pnpm exec playwright install --with-deps ${{ matrix.browser }}
-      - run: pnpm exec playwright test --project=${{ matrix.project }}
+      - run: pnpm exec playwright test --project=${{ matrix.project }} ${{ matrix.also && format('--project={0}', matrix.also) || '' }}
         env:
           CI: true
       - uses: actions/upload-artifact@v4

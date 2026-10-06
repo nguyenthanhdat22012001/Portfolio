@@ -210,16 +210,20 @@ CI (`.github/workflows/ci.yml`) runs on every pull request:
 
 Playwright projects (`playwright.config.ts`):
 
-| Project                   | Runs                                       | Excludes                               |
-| ------------------------- | ------------------------------------------ | -------------------------------------- |
-| `chromium`                | everything else, including the WebGL specs | `hero-3d-no-webgl`                     |
-| `chromium-no-webgl`       | `hero-3d-no-webgl` only                    | the rest                               |
-| `firefox`, `webkit`       | non-WebGL specs                            | WebGL spec files, `@webgl`             |
-| `iphone-13`, `pixel-7`    | non-WebGL specs                            | WebGL spec files, `@webgl`, `@desktop` |
-| `chromium-reduced-motion` | non-WebGL specs                            | WebGL spec files, `@webgl`, `@motion`  |
+| Project                   | Runs                                     | Excludes                                                          |
+| ------------------------- | ---------------------------------------- | ----------------------------------------------------------------- |
+| `chromium`                | everything else, incl. the visual specs  | `hero-3d-no-webgl`, `hero-3d`, `about-avatar`; visual specs on CI |
+| `chromium-webgl`          | `hero-3d`, `about-avatar`, one at a time | the rest                                                          |
+| `chromium-no-webgl`       | `hero-3d-no-webgl` only                  | the rest                                                          |
+| `firefox`, `webkit`       | non-WebGL specs                          | WebGL spec files, `@webgl`                                        |
+| `iphone-13`, `pixel-7`    | non-WebGL specs                          | WebGL spec files, `@webgl`, `@desktop`                            |
+| `chromium-reduced-motion` | non-WebGL specs                          | WebGL spec files, `@webgl`, `@motion`                             |
 
 WebGL spec files are `hero-3d`, `hero-3d-visual`, `about-avatar` and
-`about-avatar-visual`.
+`about-avatar-visual`. The CI job `e2e (chromium)` runs both `chromium` and
+`chromium-webgl`: parallel SwiftShader renders starve the runner's CPU and
+the avatar's PerformanceMonitor drops it to the static image mid-intro. The
+`*-visual` specs only run locally (darwin-only snapshot baselines).
 
 Lazy-chunk budgets are enforced by e2e: 3D chunk ≤ 250 KB gzip, About chunk
 ≤ 26 KB, motion chunk ≤ 70 KB. `check:bundles` enforces initial JS ≤ 150 KB.

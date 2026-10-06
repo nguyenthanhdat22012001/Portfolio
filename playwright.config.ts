@@ -6,8 +6,11 @@ const WEBGL_SPECS =
   /\/(hero-3d|hero-3d-visual|about-avatar|about-avatar-visual)\.spec\.ts$/;
 const NO_WEBGL_SPEC = /hero-3d-no-webgl\.spec\.ts$/;
 const NOT_WEBGL = [WEBGL_SPECS, NO_WEBGL_SPEC];
+// Run one at a time (chromium-webgl): parallel SwiftShader renders starve the
+// CPU, the avatar's PerformanceMonitor drops to Low and it falls back mid-intro.
+const SERIAL_WEBGL_SPECS = /\/(hero-3d|about-avatar)\.spec\.ts$/;
 // Snapshot baselines are platform-specific (darwin only), so CI skips them.
-const LOCAL_ONLY_SPECS = /\/hero-3d-visual\.spec\.ts$/;
+const LOCAL_ONLY_SPECS = /\/(hero-3d|about-avatar)-visual\.spec\.ts$/;
 
 // Optional: run against a deployment (e.g. a Vercel preview) instead of a
 // local build. The bypass header goes with every request, third-party
@@ -54,9 +57,17 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: process.env.CI
-        ? [NO_WEBGL_SPEC, LOCAL_ONLY_SPECS]
-        : NO_WEBGL_SPEC,
+      testIgnore: [
+        NO_WEBGL_SPEC,
+        SERIAL_WEBGL_SPECS,
+        ...(process.env.CI ? [LOCAL_ONLY_SPECS] : [])
+      ],
+      use: { ...devices["Desktop Chrome"], ...swiftshader }
+    },
+    {
+      name: "chromium-webgl",
+      testMatch: SERIAL_WEBGL_SPECS,
+      workers: 1,
       use: { ...devices["Desktop Chrome"], ...swiftshader }
     },
     {

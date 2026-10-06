@@ -220,9 +220,10 @@ Playwright projects (`playwright.config.ts`):
 | `chromium-reduced-motion` | non-WebGL specs                          | WebGL spec files, `@webgl`, `@motion`                             |
 
 WebGL spec files are `hero-3d`, `hero-3d-visual`, `about-avatar` and
-`about-avatar-visual`. The CI job `e2e (chromium)` runs both `chromium` and
-`chromium-webgl`: parallel SwiftShader renders starve the runner's CPU and
-the avatar's PerformanceMonitor drops it to the static image mid-intro. The
+`about-avatar-visual`. The CI job `e2e (chromium)` runs `chromium`, then
+`chromium-webgl` alone in a second step: SwiftShader sharing the runner's CPU
+(with other WebGL specs or any other tests) lets the avatar's
+PerformanceMonitor drop it to the static image mid-intro. The
 `*-visual` specs only run locally (darwin-only snapshot baselines).
 
 Lazy-chunk budgets are enforced by e2e: 3D chunk ≤ 250 KB gzip, About chunk

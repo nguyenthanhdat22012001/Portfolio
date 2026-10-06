@@ -49,6 +49,20 @@ describe("umamiLoaderScript", () => {
     expect(umamiScripts()).toHaveLength(1);
   });
 
+  // Headless Chromium's emulated-viewport resize dispatches a trusted
+  // pointermove at the default cursor position (0,0) while the page loads.
+  it("ignores a pointermove at the viewport origin, then loads on a real one", () => {
+    new Function(umamiLoaderScript(config))();
+    window.dispatchEvent(
+      new MouseEvent("pointermove", { clientX: 0, clientY: 0 })
+    );
+    expect(umamiScripts()).toHaveLength(0);
+    window.dispatchEvent(
+      new MouseEvent("pointermove", { clientX: 50, clientY: 60 })
+    );
+    expect(umamiScripts()).toHaveLength(1);
+  });
+
   it("flushes the queued clicks on load and empties the queue", () => {
     new Function(umamiLoaderScript(config))();
     window.dispatchEvent(new Event("pointermove"));

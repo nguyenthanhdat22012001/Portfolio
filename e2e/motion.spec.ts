@@ -399,6 +399,8 @@ test.describe("layout stability", () => {
   test("round trips to a case study don't leak ScrollTrigger triggers", async ({
     page
   }) => {
+    // 11 navigations: ~25 s on WebKit locally, over the 30 s default on CI.
+    test.setTimeout(120_000);
     await page.goto("/en");
     await loadMotion(page);
 

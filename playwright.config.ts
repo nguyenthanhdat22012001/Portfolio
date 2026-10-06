@@ -6,6 +6,8 @@ const WEBGL_SPECS =
   /\/(hero-3d|hero-3d-visual|about-avatar|about-avatar-visual)\.spec\.ts$/;
 const NO_WEBGL_SPEC = /hero-3d-no-webgl\.spec\.ts$/;
 const NOT_WEBGL = [WEBGL_SPECS, NO_WEBGL_SPEC];
+// Snapshot baselines are platform-specific (darwin only), so CI skips them.
+const LOCAL_ONLY_SPECS = /\/hero-3d-visual\.spec\.ts$/;
 
 // Optional: run against a deployment (e.g. a Vercel preview) instead of a
 // local build. The bypass header goes with every request, third-party
@@ -52,7 +54,9 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: NO_WEBGL_SPEC,
+      testIgnore: process.env.CI
+        ? [NO_WEBGL_SPEC, LOCAL_ONLY_SPECS]
+        : NO_WEBGL_SPEC,
       use: { ...devices["Desktop Chrome"], ...swiftshader }
     },
     {

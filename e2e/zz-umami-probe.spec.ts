@@ -7,13 +7,13 @@ import { test } from "@playwright/test";
 const SRC = "https://cloud.umami.is/script.js";
 
 test("UMAMI-PROBE: events before the first input", async ({
-  page
+  context
 }, testInfo) => {
-  test.setTimeout(120_000);
-  await page.route(SRC, (route) =>
+  test.setTimeout(240_000);
+  await context.route(SRC, (route) =>
     route.fulfill({ contentType: "application/javascript", body: "" })
   );
-  await page.addInitScript(() => {
+  await context.addInitScript(() => {
     const log: string[] = [];
     (window as unknown as { __probe: string[] }).__probe = log;
     const t0 = performance.now();
@@ -42,8 +42,12 @@ test("UMAMI-PROBE: events before the first input", async ({
           const stack = event.isTrusted
             ? ""
             : ` stack=${(new Error().stack ?? "").split("\n").slice(2, 6).join(" | ")}`;
+          const pointer =
+            event instanceof PointerEvent
+              ? ` pointerType=${event.pointerType} client=${event.clientX},${event.clientY} movement=${event.movementX},${event.movementY} buttons=${event.buttons} el=${(event.target as Element)?.className?.toString().slice(0, 60) ?? ""}`
+              : "";
           log.push(
-            `${type} target=${target} trusted=${event.isTrusted} ${stamp()}${stack}`
+            `${type} target=${target} trusted=${event.isTrusted}${pointer} ${stamp()}${stack}`
           );
         },
         { capture: true, passive: true }
@@ -65,8 +69,10 @@ test("UMAMI-PROBE: events before the first input", async ({
 
   const lines: string[] = [];
   let early = 0;
-  const runs = 10;
+  const runs = 30;
   for (let run = 0; run < runs; run += 1) {
+    // A fresh page each run: on CI it only happened on a page's first load.
+    const page = await context.newPage();
     await page.goto("/en");
     await page.waitForLoadState("networkidle");
     const log = await page.evaluate(
@@ -74,6 +80,7 @@ test("UMAMI-PROBE: events before the first input", async ({
     );
     const injected = log.some((line) => line.startsWith("UMAMI SCRIPT"));
     if (injected) early += 1;
+    await page.close();
     lines.push(`run ${run} injected=${injected}`, ...log.map((l) => `  ${l}`));
   }
 

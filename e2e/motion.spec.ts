@@ -183,6 +183,13 @@ test.describe(
       await loadMotion(page);
 
       await page.mouse.wheel(0, 1200);
+      // Click mid-tail, but only once the page has left the top: Next skips
+      // its scroll reset when the new page's top is already in the viewport,
+      // so a click before Lenis has moved (WebKit: ~70 px) lands at that
+      // offset by design and tests nothing.
+      await expect
+        .poll(() => page.evaluate(() => window.scrollY), { intervals: [16] })
+        .toBeGreaterThan(400);
       // dispatchEvent skips Playwright's actionability wait (which scrolls the
       // target into view and waits for its position to stop moving) — that
       // wait happens to outlast Lenis's momentum tail, which would hide the
@@ -432,16 +439,17 @@ test.describe("layout stability", () => {
         .toBe(true);
     };
 
-    // The first return is the baseline: Swift is on screen on /en#work, so
-    // its isAtOrAboveViewport guard skips it and the count is lower than on
-    // the initial load. Every later trip must stay at or below it.
-    await roundTrip();
+    // Fresh-load count is the ceiling (as in hero-3d.spec.ts): a return's
+    // rescan skips content already on screen (isAtOrAboveViewport), and how
+    // much that is depends on whether the #work hash scroll has landed, so a
+    // return reads 1, 16 or 24. A leak would add a whole set per trip and blow
+    // through the ceiling within a few trips.
     await expect.poll(triggerCount).toBeGreaterThan(0);
-    const baseline = await triggerCount();
+    const ceiling = await triggerCount();
 
-    for (let trip = 0; trip < 10; trip += 1) {
+    for (let trip = 0; trip < 11; trip += 1) {
       await roundTrip();
-      await expect.poll(triggerCount).toBeLessThanOrEqual(baseline);
+      await expect.poll(triggerCount).toBeLessThanOrEqual(ceiling);
     }
   });
 });
